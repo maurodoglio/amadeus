@@ -379,15 +379,19 @@ export class Level2Scene extends Phaser.Scene {
     instrument.destroy();
     player.collectInstrument('flute');
 
-    this.cameras.main.fade(500, 255, 255, 255, false, (cam, progress) => {
+    // Mark level as completed
+    const completedLevels = this.registry.get('completedLevels') || [];
+    if (!completedLevels.includes(2)) {
+      completedLevels.push(2);
+      this.registry.set('completedLevels', completedLevels);
+    }
+
+    // Transition to world map
+    this.cameras.main.fade(1000, 0, 0, 0, false, (cam, progress) => {
       if (progress === 1) {
         this.registry.set('currentLevel', 3);
-        this.scene.stop();
-        this.scene.start('TransitionScene', {
-          nextScene: 'CutsceneScene',
-          levelName: 'The Royal Palace',
-          sceneData: { cutscene: 'afterLevel2', nextScene: 'Level3Scene' }
-        });
+        this.scene.stop('UIScene');
+        this.scene.start('MapScene', { completedLevel: 2 });
       }
     });
   }

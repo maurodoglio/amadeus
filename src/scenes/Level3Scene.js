@@ -496,7 +496,14 @@ export class Level3Scene extends Phaser.Scene {
     instrument.destroy();
     player.collectInstrument('piano');
 
-    this.cameras.main.fade(500, 255, 255, 255, false, (cam, progress) => {
+    // Mark level as completed
+    const completedLevels = this.registry.get('completedLevels') || [];
+    if (!completedLevels.includes(3)) {
+      completedLevels.push(3);
+      this.registry.set('completedLevels', completedLevels);
+    }
+
+    this.cameras.main.fade(1500, 0, 0, 0, false, (cam, progress) => {
       if (progress === 1) {
         this.scene.stop('UIScene');
         this.scene.stop();

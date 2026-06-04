@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT, PLAYER } from './config/constants.js';
 import { BootScene } from './scenes/BootScene.js';
 import { MenuScene } from './scenes/MenuScene.js';
+import { MapScene } from './scenes/MapScene.js';
 import { CutsceneScene } from './scenes/CutsceneScene.js';
 import { TransitionScene } from './scenes/TransitionScene.js';
 import { Level1Scene } from './scenes/Level1Scene.js';
@@ -32,7 +33,7 @@ const config = {
       debug: false
     }
   },
-  scene: [BootScene, MenuScene, CutsceneScene, TransitionScene, Level1Scene, Level2Scene, Level3Scene, ConcertScene, UIScene, TouchControls, PauseScene]
+  scene: [BootScene, MenuScene, MapScene, CutsceneScene, TransitionScene, Level1Scene, Level2Scene, Level3Scene, ConcertScene, UIScene, TouchControls, PauseScene]
 };
 
 const game = new Phaser.Game(config);

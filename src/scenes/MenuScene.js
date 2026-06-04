@@ -103,9 +103,11 @@ export class MenuScene extends Phaser.Scene {
     this.registry.set('instruments', []);
     this.registry.set('currentLevel', 1);
     this.registry.set('coopMode', coopMode);
+    if (!this.registry.get('completedLevels')) {
+      this.registry.set('completedLevels', []);
+    }
 
-    this.scene.start('CutsceneScene', { cutscene: 'intro', nextScene: 'Level1Scene' });
-    this.scene.launch('UIScene');
+    this.scene.start('MapScene', { completedLevel: 0 });
     this.scene.launch('TouchControls');
   }
 }
