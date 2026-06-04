@@ -7,20 +7,20 @@ const CUTSCENE_DATA = {
     dialogues: [
       {
         portrait: 'mozart',
-        name: 'Young Mozart',
-        text: 'The streets of Vienna are calling me... I must follow my dream of becoming the greatest musician!',
+        name: 'Leopold Mozart',
+        text: 'My dear Wolfgang... you are only six years old, yet you play with the mastery of a seasoned musician. The world must hear you!',
         side: 'left'
       },
       {
         portrait: 'mozart',
         name: 'Young Mozart',
-        text: 'Father says I have a gift, but gifts mean nothing without the courage to use them.',
+        text: 'But Father, I want to compose! I hear melodies everywhere — in the birdsong, in the church bells of Salzburg...',
         side: 'left'
       },
       {
         portrait: null,
         name: 'Narrator',
-        text: 'And so, young Wolfgang Amadeus Mozart set out from home, his heart full of melodies yet unwritten...',
+        text: 'Salzburg, 1762. Leopold Mozart has discovered his son\'s extraordinary gift. Soon, all of Europe would know the name Mozart.',
         side: 'center'
       }
     ]
@@ -30,26 +30,20 @@ const CUTSCENE_DATA = {
     dialogues: [
       {
         portrait: 'mozart',
-        name: 'Mozart',
-        text: 'What a journey through Vienna! But I sense something magical ahead...',
+        name: 'Leopold Mozart',
+        text: 'Pack your things, Wolfgang! We depart for Munich at dawn. The Elector wishes to hear you play.',
         side: 'left'
       },
       {
-        portrait: null,
-        name: 'Mysterious Voice',
-        text: 'Deep in the Enchanted Forest lies a flute of extraordinary power... the Magic Flute!',
-        side: 'right'
-      },
-      {
         portrait: 'mozart',
-        name: 'Mozart',
-        text: 'A Magic Flute? Could it be real? I must find it!',
+        name: 'Young Mozart',
+        text: 'Munich, Paris, London — the whole world awaits! I shall dazzle every court in Europe!',
         side: 'left'
       },
       {
         portrait: null,
         name: 'Narrator',
-        text: 'Rumors of the legendary Magic Flute drew Mozart deeper into the enchanted woods...',
+        text: 'The Mozart family embarked on a grand tour of European courts. Young Wolfgang performed before kings and queens, astonishing all who heard him.',
         side: 'center'
       }
     ]
@@ -60,26 +54,142 @@ const CUTSCENE_DATA = {
       {
         portrait: 'mozart',
         name: 'Mozart',
-        text: 'The forest was perilous, but I found the Magic Flute! Its melody is unlike anything I\'ve heard.',
+        text: 'Three years touring Europe, and now we return to Salzburg. But I have outgrown this small city...',
         side: 'left'
       },
       {
         portrait: null,
-        name: 'Royal Messenger',
-        text: 'A letter for you, Herr Mozart! An invitation to perform at the Royal Palace!',
+        name: 'Archbishop Colloredo',
+        text: 'You serve ME, Mozart. You are nothing more than a servant in my household. Remember your place!',
         side: 'right'
       },
       {
         portrait: 'mozart',
         name: 'Mozart',
-        text: 'The Royal Palace! This is my chance to prove myself to the world!',
+        text: 'A servant?! My music belongs to the world, not to one man\'s vanity!',
         side: 'left'
       },
       {
         portrait: null,
         name: 'Narrator',
-        text: 'But unknown to Mozart, the invitation was forged by the Discordant Maestro — a trap awaits at the palace...',
+        text: 'Tensions with Archbishop Colloredo grew unbearable. Mozart chafed under the restrictions of court service, dreaming of freedom.',
         side: 'center'
+      }
+    ]
+  },
+  afterLevel3: {
+    background: '#1a1a2e',
+    dialogues: [
+      {
+        portrait: 'mozart',
+        name: 'Mozart',
+        text: 'I have broken free at last! Vienna — the city of music — shall be my home. Here I shall compose operas that shake the heavens!',
+        side: 'left'
+      },
+      {
+        portrait: null,
+        name: 'Narrator',
+        text: '1781. Mozart resigned from the Archbishop\'s service and moved to Vienna as a freelance musician — a bold and dangerous choice.',
+        side: 'center'
+      },
+      {
+        portrait: 'mozart',
+        name: 'Mozart',
+        text: 'The Marriage of Figaro, Don Giovanni... I shall write music that speaks truth to power!',
+        side: 'left'
+      }
+    ]
+  },
+  afterLevel4: {
+    background: '#2e2e1a',
+    dialogues: [
+      {
+        portrait: 'mozart',
+        name: 'Mozart',
+        text: 'The audiences grow thin... my debts mount. Vienna is fickle — they loved me yesterday, and forget me today.',
+        side: 'left'
+      },
+      {
+        portrait: null,
+        name: 'Constanze Mozart',
+        text: 'Wolfgang, we cannot pay the rent this month. You must write to our friends for loans...',
+        side: 'right'
+      },
+      {
+        portrait: 'mozart',
+        name: 'Mozart',
+        text: 'I will not be defeated! My music burns brighter than ever. The world will remember me!',
+        side: 'left'
+      },
+      {
+        portrait: null,
+        name: 'Narrator',
+        text: 'Despite composing masterpiece after masterpiece, Mozart struggled with mounting debts and fading public interest in Vienna.',
+        side: 'center'
+      }
+    ]
+  },
+  afterLevel5: {
+    background: '#1a1a1a',
+    dialogues: [
+      {
+        portrait: null,
+        name: 'Grey Messenger',
+        text: 'Herr Mozart... I come on behalf of an anonymous patron. He wishes to commission a Requiem Mass. The fee is generous.',
+        side: 'right'
+      },
+      {
+        portrait: 'mozart',
+        name: 'Mozart',
+        text: 'A Requiem? Who sends you? Tell me the name of your master!',
+        side: 'left'
+      },
+      {
+        portrait: null,
+        name: 'Grey Messenger',
+        text: 'That I cannot say. Do you accept the commission?',
+        side: 'right'
+      },
+      {
+        portrait: 'mozart',
+        name: 'Mozart',
+        text: 'I feel as though... I am writing this Requiem for myself.',
+        side: 'left'
+      },
+      {
+        portrait: null,
+        name: 'Narrator',
+        text: '1791. A mysterious grey messenger commissioned a Requiem Mass. Mozart, already ill, became consumed by the work — convinced it was a premonition of his own death.',
+        side: 'center'
+      }
+    ]
+  },
+  afterLevel6: {
+    background: '#0a0a1e',
+    dialogues: [
+      {
+        portrait: 'mozart',
+        name: 'Mozart',
+        text: 'The Requiem... I must finish it. Süssmayr, come — let me show you how the final movements should sound...',
+        side: 'left'
+      },
+      {
+        portrait: null,
+        name: 'Narrator',
+        text: 'On December 5th, 1791, Mozart passed away at the age of 35. His Requiem remained unfinished — completed later by his student.',
+        side: 'center'
+      },
+      {
+        portrait: null,
+        name: 'Narrator',
+        text: 'Yet his music transcended death itself. Over 600 compositions — symphonies, operas, concertos — each one a miracle of human creativity.',
+        side: 'center'
+      },
+      {
+        portrait: 'mozart',
+        name: 'Mozart',
+        text: 'Neither a lofty degree of intelligence, nor imagination, nor both together go to the making of genius. Love, love, love — that is the soul of genius.',
+        side: 'left'
       }
     ]
   }

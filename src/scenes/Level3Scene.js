@@ -44,12 +44,17 @@ export class Level3Scene extends Phaser.Scene {
       .setOrigin(0, 0).setScrollFactor(0).setDepth(-8);
 
     // Level title
-    const title = this.add.text(GAME_WIDTH / 2, 60, 'The Royal Palace', {
+    const title = this.add.text(GAME_WIDTH / 2, 50, "Archbishop's Palace", {
       font: '24px monospace',
       fill: '#FFD700',
       stroke: '#000000',
       strokeThickness: 3
     }).setOrigin(0.5).setScrollFactor(0);
+
+    this.add.text(GAME_WIDTH / 2, 78, '1772', {
+      font: '14px monospace',
+      fill: '#c8a96e'
+    }).setOrigin(0.5).setScrollFactor(0).setAlpha(0.8);
 
     this.tweens.add({
       targets: title,

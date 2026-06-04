@@ -3,13 +3,13 @@ import { GAME_WIDTH, GAME_HEIGHT } from '../config/constants.js';
 import { getAchievementManager } from '../utils/AchievementManager.js';
 
 const LEVEL_DATA = [
-  { id: 1, name: 'Vienna Streets', scene: 'Level1Scene', instrument: 'violin', x: 80, y: 380, cutscene: 'intro' },
-  { id: 2, name: 'Enchanted Forest', scene: 'Level2Scene', instrument: 'flute', x: 200, y: 300, cutscene: 'afterLevel1' },
-  { id: 3, name: 'Royal Palace', scene: 'Level3Scene', instrument: 'piano', x: 340, y: 240, cutscene: 'afterLevel2' },
-  { id: 4, name: 'The Opera House', scene: 'Level4Scene', instrument: 'harpsichord', x: 470, y: 320, cutscene: 'afterLevel3' },
-  { id: 5, name: 'Storm Symphony', scene: 'Level5Scene', instrument: 'trumpet', x: 580, y: 200, cutscene: 'afterLevel4' },
-  { id: 6, name: 'Crystal Caverns', scene: 'Level6Scene', instrument: 'drums', x: 680, y: 300, cutscene: 'afterLevel5' },
-  { id: 7, name: 'Celestial Stage', scene: 'Level7Scene', instrument: 'harp', x: 750, y: 160, cutscene: 'afterLevel6' }
+  { id: 1, name: 'Salzburg Beginnings', year: '1762', scene: 'Level1Scene', instrument: 'violin', x: 80, y: 380, cutscene: 'intro' },
+  { id: 2, name: 'The Grand Tour', year: '1763-1766', scene: 'Level2Scene', instrument: 'flute', x: 200, y: 300, cutscene: 'afterLevel1' },
+  { id: 3, name: "Archbishop's Palace", year: '1772', scene: 'Level3Scene', instrument: 'piano', x: 340, y: 240, cutscene: 'afterLevel2' },
+  { id: 4, name: 'Vienna Opera', year: '1781', scene: 'Level4Scene', instrument: 'harpsichord', x: 470, y: 320, cutscene: 'afterLevel3' },
+  { id: 5, name: 'Storm & Struggle', year: '1786', scene: 'Level5Scene', instrument: 'trumpet', x: 580, y: 200, cutscene: 'afterLevel4' },
+  { id: 6, name: 'The Requiem Mystery', year: '1791', scene: 'Level6Scene', instrument: 'drums', x: 680, y: 300, cutscene: 'afterLevel5' },
+  { id: 7, name: 'Eternal Legacy', year: '1791', scene: 'Level7Scene', instrument: 'harp', x: 750, y: 160, cutscene: 'afterLevel6' }
 ];
 
 export class MapScene extends Phaser.Scene {
@@ -39,15 +39,14 @@ export class MapScene extends Phaser.Scene {
   }
 
   createBackground() {
-    // Rolling hills background
     const graphics = this.add.graphics();
 
     // Sky gradient
     graphics.fillGradientStyle(0x2c3e50, 0x2c3e50, 0x1a2a1a, 0x1a2a1a);
     graphics.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
 
-    // Hills in background
-    graphics.fillStyle(0x1e3a1e, 1);
+    // Stylized map of Europe outline (subtle landmass)
+    graphics.fillStyle(0x1e3a1e, 0.4);
     graphics.beginPath();
     graphics.moveTo(0, GAME_HEIGHT);
     for (let x = 0; x <= GAME_WIDTH; x += 20) {
@@ -58,8 +57,8 @@ export class MapScene extends Phaser.Scene {
     graphics.closePath();
     graphics.fillPath();
 
-    // Distant hills
-    graphics.fillStyle(0x162e16, 1);
+    // Distant terrain
+    graphics.fillStyle(0x162e16, 0.4);
     graphics.beginPath();
     graphics.moveTo(0, GAME_HEIGHT);
     for (let x = 0; x <= GAME_WIDTH; x += 20) {
@@ -69,6 +68,24 @@ export class MapScene extends Phaser.Scene {
     graphics.lineTo(GAME_WIDTH, GAME_HEIGHT);
     graphics.closePath();
     graphics.fillPath();
+
+    // City labels along the journey path
+    const cities = [
+      { name: 'Salzburg', x: 80, y: 410 },
+      { name: 'Munich', x: 150, y: 330 },
+      { name: 'Paris', x: 250, y: 330 },
+      { name: 'London', x: 300, y: 265 },
+      { name: 'Vienna', x: 470, y: 350 },
+      { name: 'Prague', x: 580, y: 230 },
+      { name: 'Vienna', x: 720, y: 330 }
+    ];
+
+    cities.forEach(city => {
+      this.add.text(city.x, city.y, city.name, {
+        font: '9px monospace',
+        fill: '#5a7a5a'
+      }).setOrigin(0.5).setAlpha(0.6);
+    });
 
     // Decorative stars
     for (let i = 0; i < 30; i++) {
@@ -154,10 +171,19 @@ export class MapScene extends Phaser.Scene {
 
       // Level name
       const nameText = this.add.text(0, -45, level.name, {
-        font: '12px monospace',
+        font: '11px monospace',
         fill: isUnlocked ? '#FFFFFF' : '#666666'
       }).setOrigin(0.5);
       container.add(nameText);
+
+      // Year subtitle
+      if (level.year) {
+        const yearText = this.add.text(0, -33, level.year, {
+          font: '9px monospace',
+          fill: isUnlocked ? '#c8a96e' : '#555555'
+        }).setOrigin(0.5);
+        container.add(yearText);
+      }
 
       // Make clickable if unlocked
       if (isUnlocked) {
