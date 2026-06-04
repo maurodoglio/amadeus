@@ -2,9 +2,9 @@ import Phaser from 'phaser';
 import { PLAYER } from '../config/constants.js';
 import { ParticleManager } from '../utils/ParticleManager.js';
 
-export class Mozart extends Phaser.Physics.Arcade.Sprite {
+export class Nannerl extends Phaser.Physics.Arcade.Sprite {
   constructor(scene, x, y) {
-    super(scene, x, y, 'mozart');
+    super(scene, x, y, 'nannerl');
     scene.add.existing(this);
     scene.physics.add.existing(this);
 
@@ -22,43 +22,37 @@ export class Mozart extends Phaser.Physics.Arcade.Sprite {
 
     // Animations
     scene.anims.create({
-      key: 'mozart_idle',
-      frames: [{ key: 'mozart', frame: 0 }],
+      key: 'nannerl_idle',
+      frames: [{ key: 'nannerl', frame: 0 }],
       frameRate: 1
     });
 
     scene.anims.create({
-      key: 'mozart_walk',
-      frames: scene.anims.generateFrameNumbers('mozart', { start: 0, end: 2 }),
+      key: 'nannerl_walk',
+      frames: scene.anims.generateFrameNumbers('nannerl', { start: 0, end: 2 }),
       frameRate: 8,
       repeat: -1
     });
 
     scene.anims.create({
-      key: 'mozart_jump',
-      frames: [{ key: 'mozart', frame: 3 }],
+      key: 'nannerl_jump',
+      frames: [{ key: 'nannerl', frame: 3 }],
       frameRate: 1
     });
 
-    this.play('mozart_idle');
+    this.play('nannerl_idle');
 
-    // Input
-    this.cursors = scene.input.keyboard.createCursorKeys();
-    this.spaceKey = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
-
-    // Reference to touch controls scene (if running)
-    this.touchControls = null;
+    // Player 2 uses WASD + E to jump
+    this.keyW = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
+    this.keyA = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
+    this.keyS = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
+    this.keyD = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
+    this.keyE = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
   }
 
   update() {
     if (this.isDead) return;
 
-    // Lazily acquire touch controls reference
-    if (!this.touchControls) {
-      this.touchControls = this.scene.scene.get('TouchControls');
-    }
-
-    const touch = this.touchControls || {};
     const onGround = this.body.blocked.down || this.body.touching.down;
 
     // Emit dust on landing
@@ -67,24 +61,24 @@ export class Mozart extends Phaser.Physics.Arcade.Sprite {
     }
     this.wasInAir = !onGround;
 
-    // Horizontal movement (keyboard OR touch)
-    if (this.cursors.left.isDown || touch.isLeft) {
+    // Horizontal movement (A/D)
+    if (this.keyA.isDown) {
       this.setVelocityX(-PLAYER.SPEED);
       this.setFlipX(true);
-      if (onGround) this.play('mozart_walk', true);
-    } else if (this.cursors.right.isDown || touch.isRight) {
+      if (onGround) this.play('nannerl_walk', true);
+    } else if (this.keyD.isDown) {
       this.setVelocityX(PLAYER.SPEED);
       this.setFlipX(false);
-      if (onGround) this.play('mozart_walk', true);
+      if (onGround) this.play('nannerl_walk', true);
     } else {
       this.setVelocityX(0);
-      if (onGround) this.play('mozart_idle', true);
+      if (onGround) this.play('nannerl_idle', true);
     }
 
-    // Jumping (keyboard OR touch)
-    if ((this.cursors.up.isDown || this.spaceKey.isDown || touch.isJump) && onGround) {
+    // Jumping (W or E)
+    if ((this.keyW.isDown || this.keyE.isDown) && onGround) {
       this.setVelocityY(PLAYER.JUMP_VELOCITY);
-      this.play('mozart_jump', true);
+      this.play('nannerl_jump', true);
       if (this.scene.sound.get('sfx_jump')) {
         this.scene.sound.play('sfx_jump', { volume: 0.3 });
       }
@@ -92,7 +86,7 @@ export class Mozart extends Phaser.Physics.Arcade.Sprite {
 
     // In-air animation
     if (!onGround) {
-      this.play('mozart_jump', true);
+      this.play('nannerl_jump', true);
     }
   }
 
@@ -136,7 +130,7 @@ export class Mozart extends Phaser.Physics.Arcade.Sprite {
       this.scene.sound.play('sfx_death', { volume: 0.3 });
     }
 
-    // In co-op, only game over if both players are dead or lives are 0
+    // In co-op, only game over if both players are dead
     const coopMode = this.scene.registry.get('coopMode');
     if (!coopMode) {
       this.scene.time.delayedCall(1500, () => {

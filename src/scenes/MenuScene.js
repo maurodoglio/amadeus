@@ -26,41 +26,83 @@ export class MenuScene extends Phaser.Scene {
 
     // Mozart sprite
     if (this.textures.exists('mozart')) {
-      this.add.image(GAME_WIDTH / 2, 280, 'mozart').setScale(3);
+      this.add.image(GAME_WIDTH / 2 - 30, 280, 'mozart').setScale(3);
     }
 
-    // Instructions
-    this.add.text(GAME_WIDTH / 2, 380, 'Press SPACE, ENTER, or Tap to start', {
-      font: '18px monospace',
+    // Nannerl sprite
+    if (this.textures.exists('nannerl')) {
+      this.add.image(GAME_WIDTH / 2 + 30, 280, 'nannerl').setScale(3);
+    }
+
+    // Menu options
+    this.selectedOption = 0;
+    this.menuOptions = [];
+
+    const option1P = this.add.text(GAME_WIDTH / 2, 370, '1 Player', {
+      font: '20px monospace',
       fill: '#87CEEB'
     }).setOrigin(0.5);
+    this.menuOptions.push(option1P);
 
-    this.add.text(GAME_WIDTH / 2, 420, 'Arrow Keys / Touch D-pad to move | SPACE / Button to jump', {
-      font: '12px monospace',
+    const option2P = this.add.text(GAME_WIDTH / 2, 400, '2 Players', {
+      font: '20px monospace',
+      fill: '#87CEEB'
+    }).setOrigin(0.5);
+    this.menuOptions.push(option2P);
+
+    // Selection indicator
+    this.selector = this.add.text(GAME_WIDTH / 2 - 80, 370, '▶', {
+      font: '20px monospace',
+      fill: '#FFD700'
+    }).setOrigin(0.5);
+
+    // Controls help
+    this.add.text(GAME_WIDTH / 2, 440, 'Arrow Keys / ENTER to select | Touch D-pad to move', {
+      font: '14px monospace',
       fill: '#808080'
     }).setOrigin(0.5);
 
-    // Blinking effect on "Press to start"
+    this.add.text(GAME_WIDTH / 2, 460, 'P1: Arrows + SPACE | P2: WASD + E', {
+      font: '12px monospace',
+      fill: '#606060'
+    }).setOrigin(0.5);
+
+    // Blinking effect on selector
     this.tweens.add({
-      targets: this.children.list[3],
+      targets: this.selector,
       alpha: 0.3,
-      duration: 800,
+      duration: 600,
       yoyo: true,
       repeat: -1
     });
 
     // Input
-    this.input.keyboard.once('keydown-SPACE', () => this.startGame());
-    this.input.keyboard.once('keydown-ENTER', () => this.startGame());
-    this.input.once('pointerdown', () => this.startGame());
+    this.input.keyboard.on('keydown-UP', () => this.changeSelection(-1));
+    this.input.keyboard.on('keydown-DOWN', () => this.changeSelection(1));
+    this.input.keyboard.on('keydown-W', () => this.changeSelection(-1));
+    this.input.keyboard.on('keydown-S', () => this.changeSelection(1));
+    this.input.keyboard.on('keydown-SPACE', () => this.confirmSelection());
+    this.input.keyboard.on('keydown-ENTER', () => this.confirmSelection());
+    this.input.once('pointerdown', () => this.confirmSelection());
   }
 
-  startGame() {
+  changeSelection(dir) {
+    this.selectedOption = (this.selectedOption + dir + this.menuOptions.length) % this.menuOptions.length;
+    this.selector.setY(this.menuOptions[this.selectedOption].y);
+  }
+
+  confirmSelection() {
+    const coopMode = this.selectedOption === 1;
+    this.startGame(coopMode);
+  }
+
+  startGame(coopMode) {
     // Reset game state
-    this.registry.set('lives', 3);
+    this.registry.set('lives', coopMode ? 5 : 3);
     this.registry.set('score', 0);
     this.registry.set('instruments', []);
     this.registry.set('currentLevel', 1);
+    this.registry.set('coopMode', coopMode);
 
     this.scene.start('CutsceneScene', { cutscene: 'intro', nextScene: 'Level1Scene' });
     this.scene.launch('UIScene');

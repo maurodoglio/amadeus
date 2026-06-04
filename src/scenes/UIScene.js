@@ -31,6 +31,15 @@ export class UIScene extends Phaser.Scene {
       fill: '#F5DEB3'
     }).setOrigin(1, 0);
 
+    // Co-op indicator
+    const coopMode = this.registry.get('coopMode');
+    if (coopMode) {
+      this.add.text(16, GAME_HEIGHT - 24, 'P1: Arrows+SPACE  P2: WASD+E', {
+        font: '10px monospace',
+        fill: '#808080'
+      });
+    }
+
     // Listen for registry changes
     this.registry.events.on('changedata-lives', this.updateLives, this);
     this.registry.events.on('changedata-score', this.updateScore, this);
@@ -46,7 +55,8 @@ export class UIScene extends Phaser.Scene {
   updateLives(_, value) {
     let hearts = '';
     for (let i = 0; i < value; i++) hearts += '♥ ';
-    this.livesText.setText(hearts);
+    const coopMode = this.registry.get('coopMode');
+    this.livesText.setText(coopMode ? `Lives: ${hearts}` : hearts);
   }
 
   updateScore(_, value) {
