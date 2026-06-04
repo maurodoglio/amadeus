@@ -20,6 +20,7 @@ export class PixelArtGenerator {
     this.generateCheckpointAndUI();
     this.generateBackgrounds();
     this.generateParticles();
+    this.generateNoteProjectiles();
     this.generateParallaxLayers();
     this.generateRhythmSprites();
   }
@@ -1312,6 +1313,37 @@ export class PixelArtGenerator {
     ctx.fill();
 
     this.scene.textures.addCanvas(key, canvas);
+  }
+
+  generateNoteProjectiles() {
+    // Note projectile sprite - a glowing musical note symbol
+    const canvas = document.createElement('canvas');
+    canvas.width = 16;
+    canvas.height = 16;
+    const ctx = canvas.getContext('2d');
+
+    // Glow background
+    const gradient = ctx.createRadialGradient(8, 8, 0, 8, 8, 8);
+    gradient.addColorStop(0, 'rgba(255,255,255,0.8)');
+    gradient.addColorStop(0.5, 'rgba(255,255,255,0.3)');
+    gradient.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, 16, 16);
+
+    // Note head (filled ellipse)
+    ctx.fillStyle = '#FFFFFF';
+    ctx.beginPath();
+    ctx.ellipse(7, 11, 3.5, 2.5, -0.3, 0, Math.PI * 2);
+    ctx.fill();
+    // Stem
+    ctx.fillRect(10, 3, 1.5, 8);
+    // Flag
+    ctx.beginPath();
+    ctx.moveTo(11.5, 3);
+    ctx.quadraticCurveTo(15, 5, 11.5, 7);
+    ctx.fill();
+
+    this.scene.textures.addCanvas('noteProjectile', canvas);
   }
 
   generateParallaxLayers() {

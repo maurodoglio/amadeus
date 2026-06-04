@@ -253,6 +253,11 @@ export class Level1Scene extends Phaser.Scene {
     this.physics.add.overlap(this.mozart, this.instrument, this.collectInstrument, null, this);
     this.physics.add.overlap(this.mozart, this.sheetMusicPages, this.collectSheetMusic, null, this);
 
+    // Set up musical combat projectile collisions
+    if (this.mozart.combat) {
+      this.mozart.combat.setupCollision(this.enemies);
+    }
+
     if (this.coopMode && this.nannerl) {
       this.physics.add.collider(this.nannerl, this.platforms);
       this.physics.add.overlap(this.nannerl, this.enemies, this.hitEnemy, null, this);
@@ -362,7 +367,7 @@ export class Level1Scene extends Phaser.Scene {
       return;
     }
 
-    if (this.mozart && !this.mozart.isDead) this.mozart.update();
+    if (this.mozart && !this.mozart.isDead) this.mozart.update(time);
     if (this.nannerl && !this.nannerl.isDead) this.nannerl.update();
 
     this.singers.forEach(s => s.update());
@@ -528,6 +533,11 @@ export class Level1Scene extends Phaser.Scene {
     this.registry.set('score', score);
     this.registry.set('comboMultiplier', this.combo.getMultiplier());
     this.registry.set('comboCount', this.combo.getComboCount());
+
+    // Refill energy on collectible pickup
+    if (player.combat) {
+      player.combat.addEnergy(10);
+    }
 
     // Achievement tracking - combo
     const achievements = getAchievementManager();

@@ -269,6 +269,11 @@ export class Level2Scene extends Phaser.Scene {
     this.physics.add.overlap(this.mozart, this.instrument, this.collectInstrument, null, this);
     this.physics.add.overlap(this.mozart, this.sheetMusicPages, this.collectSheetMusic, null, this);
 
+    // Set up musical combat projectile collisions
+    if (this.mozart.combat) {
+      this.mozart.combat.setupCollision(this.enemies);
+    }
+
     if (this.coopMode && this.nannerl) {
       this.physics.add.collider(this.nannerl, this.platforms);
       this.physics.add.collider(this.nannerl, this.movingPlatforms);
@@ -354,7 +359,7 @@ export class Level2Scene extends Phaser.Scene {
   }
 
   update(time, delta) {
-    if (this.mozart && !this.mozart.isDead) this.mozart.update();
+    if (this.mozart && !this.mozart.isDead) this.mozart.update(time);
     if (this.nannerl && !this.nannerl.isDead) this.nannerl.update();
 
     this.enemyList.forEach(e => {
@@ -490,6 +495,11 @@ export class Level2Scene extends Phaser.Scene {
   collectNote(player, note) {
     this.particles.emitNoteCollect(note.x, note.y);
     note.destroy();
+
+    // Refill energy on collectible pickup
+    if (player.combat) {
+      player.combat.addEnergy(10);
+    }
 
     const multiplier = this.combo.registerAction();
     const points = 50 * multiplier;
