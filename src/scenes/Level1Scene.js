@@ -12,6 +12,7 @@ import { NPC } from '../sprites/NPC.js';
 import { DialogueBox } from '../ui/DialogueBox.js';
 import { NPC_DIALOGUES } from '../config/npcDialogues.js';
 import { AdaptiveMusicManager } from '../utils/AdaptiveMusicManager.js';
+import { setupBoss, updateBossAI, getBossTarget } from '../utils/BossFight.js';
 
 export class Level1Scene extends Phaser.Scene {
   constructor() {
@@ -175,24 +176,26 @@ export class Level1Scene extends Phaser.Scene {
       });
     });
 
-    // Instrument reward at end
+    // Instrument reward at end (hidden until boss defeated)
     this.instrument = this.physics.add.sprite(2200, GAME_HEIGHT - 100, 'violin');
     this.instrument.body.setAllowGravity(false);
     this.instrument.setDisplaySize(32, 48);
+    this.instrument.setVisible(false);
+    this.instrument.body.enable = false;
 
-    // Glow effect on instrument
-    this.tweens.add({
-      targets: this.instrument,
-      scaleX: 1.2,
-      scaleY: 1.2,
-      duration: 800,
-      yoyo: true,
-      repeat: -1,
-      ease: 'Sine.easeInOut'
+    // Boss: The Off-Key Conductor
+    setupBoss(this, {
+      x: 2100,
+      y: GAME_HEIGHT - 120,
+      texture: 'bossOffKeyConductor',
+      name: 'The Off-Key Conductor',
+      health: 3,
+      speed: 90,
+      jumpForce: -320,
+      attackInterval: 2800,
+      activateX: 1800
     });
-
-    // Sparkle particles around instrument
-    this.instrumentSparkle = this.particles.emitSparkle(2200, GAME_HEIGHT - 100);
+    this.bossProjectiles = this.physics.add.group();
 
     // Sheet music pages (hidden secrets in hard-to-reach spots)
     this.sheetMusicPages = this.physics.add.group();
@@ -370,6 +373,48 @@ export class Level1Scene extends Phaser.Scene {
     }
     // Update adaptive music system
     if (this.adaptiveMusic) this.adaptiveMusic.update(this);
+    // Boss AI: Off-Key Conductor fires note projectiles
+    updateBossAI(this, time, (scene, t) => {
+      const boss = scene.boss;
+      const target = getBossTarget(scene);
+      const speedMult = boss.phase === 3 ? 1.5 : boss.phase === 2 ? 1.25 : 1;
+
+      if (target.x > boss.x + 30) {
+        boss.setVelocityX(boss.speed * speedMult);
+        boss.setFlipX(false);
+      } else if (target.x < boss.x - 30) {
+        boss.setVelocityX(-boss.speed * speedMult);
+        boss.setFlipX(true);
+      } else {
+        boss.setVelocityX(0);
+      }
+
+      // Fire note projectiles with increasing frequency per phase
+      const interval = boss.attackInterval / boss.phase;
+      if (t > boss.attackTimer) {
+        boss.attackTimer = t + interval;
+        const proj = scene.bossProjectiles.create(boss.x, boss.y - 10, 'bossProjectile');
+        proj.body.setAllowGravity(false);
+        const angle = Phaser.Math.Angle.Between(boss.x, boss.y, target.x, target.y);
+        const speed = 180 + boss.phase * 40;
+        proj.setVelocity(Math.cos(angle) * speed, Math.sin(angle) * speed);
+        scene.time.delayedCall(3000, () => { if (proj.active) proj.destroy(); });
+      }
+    });
+
+    // Projectile collision with players
+    if (this.bossProjectiles) {
+      this.physics.add.overlap(this.mozart, this.bossProjectiles, (player, proj) => {
+        proj.destroy();
+        player.hit();
+      });
+      if (this.nannerl) {
+        this.physics.add.overlap(this.nannerl, this.bossProjectiles, (player, proj) => {
+          proj.destroy();
+          player.hit();
+        });
+      }
+    }
 
     // Camera follows midpoint in co-op
     if (this.coopMode && this.cameraTarget) {

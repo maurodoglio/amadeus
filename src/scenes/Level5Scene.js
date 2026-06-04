@@ -4,6 +4,8 @@ import { Mozart } from '../sprites/Mozart.js';
 import { DrumTroll } from '../sprites/enemies/DrumTroll.js';
 import { DissonantNote } from '../sprites/enemies/DissonantNote.js';
 import { AdaptiveMusicManager } from '../utils/AdaptiveMusicManager.js';
+import { ParticleManager } from '../utils/ParticleManager.js';
+import { setupBoss, updateBossAI, getBossTarget } from '../utils/BossFight.js';
 
 export class Level5Scene extends Phaser.Scene {
   constructor() {
@@ -11,6 +13,7 @@ export class Level5Scene extends Phaser.Scene {
   }
 
   create() {
+    this.particles = new ParticleManager(this);
     this.windTimer = 0;
     this.windDirection = 1;
     this.windStrength = 0;
@@ -125,18 +128,26 @@ export class Level5Scene extends Phaser.Scene {
       });
     });
 
-    // Instrument at end
+    // Instrument at end (hidden until boss defeated)
     this.instrument = this.physics.add.sprite(2550, GAME_HEIGHT - 100, 'trumpet');
     this.instrument.body.setAllowGravity(false);
     this.instrument.setDisplaySize(40, 24);
-    this.tweens.add({
-      targets: this.instrument,
-      scaleX: 1.2,
-      scaleY: 1.2,
-      duration: 800,
-      yoyo: true,
-      repeat: -1
+    this.instrument.setVisible(false);
+    this.instrument.body.enable = false;
+
+    // Boss: The Storm Trumpeter
+    setupBoss(this, {
+      x: 2450,
+      y: GAME_HEIGHT - 120,
+      texture: 'bossStormTrumpeter',
+      name: 'The Storm Trumpeter',
+      health: 3,
+      speed: 110,
+      jumpForce: -360,
+      attackInterval: 2400,
+      activateX: 2100
     });
+    this.bossProjectiles = this.physics.add.group();
 
     // Wind indicator UI
     this.windArrow = this.add.text(GAME_WIDTH / 2, 30, '→ Wind →', {
@@ -183,6 +194,46 @@ export class Level5Scene extends Phaser.Scene {
 
     // Update adaptive music system
     if (this.adaptiveMusic) this.adaptiveMusic.update(this);
+    // Boss AI: Storm Trumpeter - wind blasts push player
+    updateBossAI(this, time, (scene, t) => {
+      const boss = scene.boss;
+      const target = getBossTarget(scene);
+      const speedMult = boss.phase === 3 ? 1.5 : boss.phase === 2 ? 1.3 : 1;
+
+      if (target.x > boss.x + 40) {
+        boss.setVelocityX(boss.speed * speedMult);
+        boss.setFlipX(false);
+      } else if (target.x < boss.x - 40) {
+        boss.setVelocityX(-boss.speed * speedMult);
+        boss.setFlipX(true);
+      } else {
+        boss.setVelocityX(0);
+      }
+
+      // Wind blast attack: fires fast horizontal projectiles
+      const interval = boss.attackInterval / boss.phase;
+      if (t > boss.attackTimer && (boss.body.blocked.down || boss.body.touching.down)) {
+        boss.attackTimer = t + interval;
+        const direction = target.x > boss.x ? 1 : -1;
+        for (let i = 0; i < boss.phase; i++) {
+          scene.time.delayedCall(i * 200, () => {
+            if (!boss.active) return;
+            const proj = scene.bossProjectiles.create(boss.x + direction * 20, boss.y - 10 - i * 15, 'bossProjectile');
+            proj.body.setAllowGravity(false);
+            proj.setVelocity(direction * 280, 0);
+            scene.time.delayedCall(2500, () => { if (proj.active) proj.destroy(); });
+          });
+        }
+      }
+    });
+
+    // Projectile collision
+    if (this.bossProjectiles) {
+      this.physics.add.overlap(this.mozart, this.bossProjectiles, (player, proj) => {
+        proj.destroy();
+        player.hit();
+      });
+    }
 
     // Wind gust mechanic: changes direction every 3 seconds with varying strength
     this.windTimer += delta;

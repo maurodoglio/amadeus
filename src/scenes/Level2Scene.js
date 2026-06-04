@@ -10,6 +10,7 @@ import { setupPause } from '../utils/PauseHelper.js';
 import { ComboSystem } from '../utils/ComboSystem.js';
 import { ScoreManager } from '../utils/ScoreManager.js';
 import { AdaptiveMusicManager } from '../utils/AdaptiveMusicManager.js';
+import { setupBoss, updateBossAI, getBossTarget } from '../utils/BossFight.js';
 
 export class Level2Scene extends Phaser.Scene {
   constructor() {
@@ -192,21 +193,25 @@ export class Level2Scene extends Phaser.Scene {
       });
     });
 
-    // Instrument at end
+    // Instrument at end (hidden until boss defeated)
     this.instrument = this.physics.add.sprite(2450, GAME_HEIGHT - 100, 'flute');
     this.instrument.body.setAllowGravity(false);
     this.instrument.setDisplaySize(48, 16);
-    this.tweens.add({
-      targets: this.instrument,
-      scaleX: 1.2,
-      scaleY: 1.2,
-      duration: 800,
-      yoyo: true,
-      repeat: -1
-    });
+    this.instrument.setVisible(false);
+    this.instrument.body.enable = false;
 
-    // Sparkle particles around instrument
-    this.instrumentSparkle = this.particles.emitSparkle(2450, GAME_HEIGHT - 100);
+    // Boss: The Forest Drummer
+    setupBoss(this, {
+      x: 2350,
+      y: GAME_HEIGHT - 120,
+      texture: 'bossForestDrummer',
+      name: 'The Forest Drummer',
+      health: 3,
+      speed: 80,
+      jumpForce: -400,
+      attackInterval: 3000,
+      activateX: 2000
+    });
 
     // Sheet music pages (hidden secrets in hard-to-reach spots)
     this.sheetMusicPages = this.physics.add.group();
@@ -353,6 +358,36 @@ export class Level2Scene extends Phaser.Scene {
 
     // Update adaptive music system
     if (this.adaptiveMusic) this.adaptiveMusic.update(this);
+    // Boss AI: Forest Drummer - ground pound shockwave attack
+    updateBossAI(this, time, (scene, t) => {
+      const boss = scene.boss;
+      const target = getBossTarget(scene);
+      const speedMult = boss.phase === 3 ? 1.4 : boss.phase === 2 ? 1.2 : 1;
+
+      if (target.x > boss.x + 40) {
+        boss.setVelocityX(boss.speed * speedMult);
+        boss.setFlipX(false);
+      } else if (target.x < boss.x - 40) {
+        boss.setVelocityX(-boss.speed * speedMult);
+        boss.setFlipX(true);
+      } else {
+        boss.setVelocityX(0);
+      }
+
+      // Ground pound: jump high then slam down with screen shake
+      const interval = boss.attackInterval / boss.phase;
+      if (t > boss.attackTimer && (boss.body.blocked.down || boss.body.touching.down)) {
+        boss.setVelocityY(boss.jumpForce * (1 + boss.phase * 0.1));
+        boss.attackTimer = t + interval;
+        // Shake on landing (delayed)
+        scene.time.delayedCall(600, () => {
+          if (boss.active) {
+            scene.particles.screenShake(0.01, 200);
+            scene.particles.emitStomp(boss.x, boss.y + 20);
+          }
+        });
+      }
+    });
 
     // Camera follows midpoint in co-op
     if (this.coopMode && this.cameraTarget) {

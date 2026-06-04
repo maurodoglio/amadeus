@@ -14,6 +14,7 @@ export class PixelArtGenerator {
     this.generateNannerl();
     this.generateEnemies();
     this.generateNPCs();
+    this.generateBosses();
     this.generateTiles();
     this.generateItems();
     this.generateCheckpointAndUI();
@@ -515,6 +516,219 @@ export class PixelArtGenerator {
       [_,_,_,B,B,B,_,_,B,B,B,B,_,_,_,_],
     ];
     this.createTexture('npc_beethoven', beethoven);
+  }
+
+  generateBosses() {
+    const _ = null;
+
+    // Boss 1: Off-Key Conductor (20x24) - Level 1 Vienna Streets
+    const W = '#F5F5DC'; // white wig
+    const B = '#1a1a1a'; // black
+    const S = '#FFE4B5'; // skin
+    const C = '#800020'; // burgundy coat
+    const G = '#FFD700'; // gold baton
+
+    const conductor = [
+      [_,_,_,_,_,_,_,G,G,G,G,G,G,G,_,_,_,_,_,_],
+      [_,_,_,_,_,_,W,W,W,W,W,W,W,W,_,_,_,_,_,_],
+      [_,_,_,_,_,W,W,W,W,W,W,W,W,W,W,_,_,_,_,_],
+      [_,_,_,_,W,W,W,W,W,W,W,W,W,W,W,W,_,_,_,_],
+      [_,_,_,_,W,W,W,W,W,W,W,W,W,W,W,W,_,_,_,_],
+      [_,_,_,_,S,S,S,S,S,S,S,S,S,S,S,S,_,_,_,_],
+      [_,_,_,_,S,B,B,S,S,S,S,B,B,S,S,S,_,_,_,_],
+      [_,_,_,_,S,S,S,S,S,S,S,S,S,S,S,S,_,_,_,_],
+      [_,_,_,_,S,S,S,S,B,B,S,S,S,S,S,S,_,_,_,_],
+      [_,_,_,_,_,S,S,S,S,S,S,S,S,S,_,_,_,_,_,_],
+      [_,_,_,C,C,C,C,C,C,C,C,C,C,C,C,C,_,_,_,_],
+      [_,_,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,_,_,_],
+      [_,_,C,C,C,G,G,C,C,C,C,G,G,C,C,C,C,_,_,_],
+      [_,S,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,S,_,_],
+      [_,S,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,S,_,_],
+      [_,_,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,_,_,_],
+      [_,_,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,_,_,_],
+      [_,_,_,C,C,C,C,C,C,C,C,C,C,C,C,_,_,_,_,_],
+      [_,_,_,C,C,C,C,C,C,C,C,C,C,C,C,_,_,_,_,_],
+      [_,_,_,_,C,C,C,C,C,C,C,C,C,C,_,_,_,_,_,_],
+      [_,_,_,_,B,B,B,B,_,_,B,B,B,B,_,_,_,_,_,_],
+      [_,_,_,_,B,B,B,B,_,_,B,B,B,B,_,_,_,_,_,_],
+      [_,_,_,B,B,B,B,_,_,_,_,B,B,B,B,_,_,_,_,_],
+      [_,_,_,B,B,B,B,_,_,_,_,B,B,B,B,_,_,_,_,_],
+    ];
+    this.createTexture('bossOffKeyConductor', conductor);
+
+    // Boss 2: Forest Drummer (20x22) - Level 2 Enchanted Forest
+    const T = '#2E8B57'; // forest green
+    const D = '#8B4513'; // drum brown
+    const M = '#90EE90'; // light green moss
+    const E = '#FF4500'; // angry eyes
+
+    const forestDrummer = [
+      [_,_,_,_,_,_,M,M,M,M,M,M,M,M,_,_,_,_,_,_],
+      [_,_,_,_,_,M,M,T,T,T,T,T,T,M,M,_,_,_,_,_],
+      [_,_,_,_,T,T,T,T,T,T,T,T,T,T,T,T,_,_,_,_],
+      [_,_,_,_,T,T,T,T,T,T,T,T,T,T,T,T,_,_,_,_],
+      [_,_,_,_,T,E,E,T,T,T,T,E,E,T,T,T,_,_,_,_],
+      [_,_,_,_,T,T,T,T,T,T,T,T,T,T,T,T,_,_,_,_],
+      [_,_,_,_,T,T,T,B,B,B,B,T,T,T,T,T,_,_,_,_],
+      [_,_,_,_,_,T,T,T,T,T,T,T,T,T,_,_,_,_,_,_],
+      [_,_,_,T,T,T,T,T,T,T,T,T,T,T,T,T,_,_,_,_],
+      [_,_,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,_,_,_],
+      [_,T,T,T,T,D,D,D,D,D,D,D,D,T,T,T,T,T,_,_],
+      [_,T,T,T,T,D,D,D,D,D,D,D,D,T,T,T,T,T,_,_],
+      [_,T,T,T,T,D,D,D,D,D,D,D,D,T,T,T,T,T,_,_],
+      [_,T,T,T,T,D,D,D,D,D,D,D,D,T,T,T,T,T,_,_],
+      [_,_,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,_,_,_],
+      [_,_,_,T,T,T,T,T,T,T,T,T,T,T,T,_,_,_,_,_],
+      [_,_,_,T,T,T,T,T,T,T,T,T,T,T,T,_,_,_,_,_],
+      [_,_,_,_,T,T,T,T,T,T,T,T,T,T,_,_,_,_,_,_],
+      [_,_,_,_,T,T,T,_,_,_,T,T,T,_,_,_,_,_,_,_],
+      [_,_,_,_,T,T,T,_,_,_,T,T,T,_,_,_,_,_,_,_],
+      [_,_,_,T,T,T,T,_,_,_,T,T,T,T,_,_,_,_,_,_],
+      [_,_,_,T,T,T,T,_,_,_,T,T,T,T,_,_,_,_,_,_],
+    ];
+    this.createTexture('bossForestDrummer', forestDrummer);
+
+    // Boss 4: Phantom Singer (18x24) - Level 4 Opera House
+    const P = '#4B0082'; // indigo phantom
+    const V = '#9400D3'; // violet glow
+    const F = '#FFFFFF'; // white mask
+
+    const phantomSinger = [
+      [_,_,_,_,_,_,V,V,V,V,V,V,_,_,_,_,_,_],
+      [_,_,_,_,_,V,V,V,V,V,V,V,V,_,_,_,_,_],
+      [_,_,_,_,V,V,V,V,V,V,V,V,V,V,_,_,_,_],
+      [_,_,_,_,F,F,F,F,F,F,F,F,F,F,_,_,_,_],
+      [_,_,_,_,F,B,F,F,F,F,F,B,F,F,_,_,_,_],
+      [_,_,_,_,F,F,F,F,F,F,F,F,F,F,_,_,_,_],
+      [_,_,_,_,F,F,F,B,B,B,B,F,F,F,_,_,_,_],
+      [_,_,_,_,_,F,F,F,F,F,F,F,F,_,_,_,_,_],
+      [_,_,_,P,P,P,P,P,P,P,P,P,P,P,P,_,_,_],
+      [_,_,P,P,P,P,P,P,P,P,P,P,P,P,P,P,_,_],
+      [_,_,P,P,P,P,P,P,P,P,P,P,P,P,P,P,_,_],
+      [_,V,P,P,P,P,P,P,P,P,P,P,P,P,P,P,V,_],
+      [_,V,P,P,P,P,P,P,P,P,P,P,P,P,P,P,V,_],
+      [_,_,P,P,P,P,P,P,P,P,P,P,P,P,P,P,_,_],
+      [_,_,P,P,P,P,P,P,P,P,P,P,P,P,P,P,_,_],
+      [_,_,_,P,P,P,P,P,P,P,P,P,P,P,_,_,_,_],
+      [_,_,_,P,P,P,P,P,P,P,P,P,P,P,_,_,_,_],
+      [_,_,_,_,P,P,P,P,P,P,P,P,P,_,_,_,_,_],
+      [_,_,_,_,P,P,P,P,P,P,P,P,P,_,_,_,_,_],
+      [_,_,_,_,_,P,P,P,P,P,P,P,_,_,_,_,_,_],
+      [_,_,_,_,_,V,V,V,V,V,V,V,_,_,_,_,_,_],
+      [_,_,_,_,V,V,V,V,V,V,V,V,V,_,_,_,_,_],
+      [_,_,_,V,V,V,V,_,_,V,V,V,V,V,_,_,_,_],
+      [_,_,_,V,V,V,_,_,_,_,V,V,V,_,_,_,_,_],
+    ];
+    this.createTexture('bossPhantomSinger', phantomSinger);
+
+    // Boss 5: Storm Trumpeter (18x22) - Level 5 Mountain Pass
+    const A = '#4682B4'; // steel blue armor
+    const Y = '#FFD700'; // gold trumpet
+    const L = '#87CEEB'; // lightning blue
+
+    const stormTrumpeter = [
+      [_,_,_,_,_,_,_,L,L,L,L,_,_,_,_,_,_,_],
+      [_,_,_,_,_,_,L,A,A,A,A,L,_,_,_,_,_,_],
+      [_,_,_,_,_,A,A,A,A,A,A,A,A,_,_,_,_,_],
+      [_,_,_,_,_,A,A,A,A,A,A,A,A,_,_,_,_,_],
+      [_,_,_,_,_,A,L,A,A,A,L,A,A,_,_,_,_,_],
+      [_,_,_,_,_,A,A,A,A,A,A,A,A,_,_,_,_,_],
+      [_,_,_,_,_,A,A,A,B,A,A,A,A,_,_,_,_,_],
+      [_,_,_,_,_,_,A,A,A,A,A,A,_,_,_,_,_,_],
+      [_,_,_,_,A,A,A,A,A,A,A,A,A,A,_,_,_,_],
+      [_,_,_,A,A,A,A,A,A,A,A,A,A,A,A,_,_,_],
+      [_,_,Y,Y,Y,Y,Y,A,A,A,A,A,A,A,A,A,_,_],
+      [_,_,_,_,_,_,Y,A,A,A,A,A,A,A,A,_,_,_],
+      [_,_,_,_,A,A,A,A,A,A,A,A,A,A,A,_,_,_],
+      [_,_,_,_,A,A,A,A,A,A,A,A,A,A,_,_,_,_],
+      [_,_,_,_,A,A,A,A,A,A,A,A,A,A,_,_,_,_],
+      [_,_,_,_,_,A,A,A,A,A,A,A,A,_,_,_,_,_],
+      [_,_,_,_,_,A,A,A,A,A,A,A,A,_,_,_,_,_],
+      [_,_,_,_,_,_,A,A,A,A,A,A,_,_,_,_,_,_],
+      [_,_,_,_,_,_,A,A,_,A,A,_,_,_,_,_,_,_],
+      [_,_,_,_,_,_,A,A,_,A,A,_,_,_,_,_,_,_],
+      [_,_,_,_,_,A,A,A,_,A,A,A,_,_,_,_,_,_],
+      [_,_,_,_,_,A,A,A,_,A,A,A,_,_,_,_,_,_],
+    ];
+    this.createTexture('bossStormTrumpeter', stormTrumpeter);
+
+    // Boss 6: Crystal Drummer (20x22) - Level 6 Underground Caves
+    const Q = '#7B68EE'; // crystal purple
+    const R = '#E0E0E0'; // crystal white
+    const X = '#00CED1'; // cyan glow
+
+    const crystalDrummer = [
+      [_,_,_,_,_,_,R,R,R,R,R,R,R,R,_,_,_,_,_,_],
+      [_,_,_,_,_,R,Q,Q,Q,Q,Q,Q,Q,Q,R,_,_,_,_,_],
+      [_,_,_,_,R,Q,Q,Q,Q,Q,Q,Q,Q,Q,Q,R,_,_,_,_],
+      [_,_,_,_,Q,Q,Q,Q,Q,Q,Q,Q,Q,Q,Q,Q,_,_,_,_],
+      [_,_,_,_,Q,X,X,Q,Q,Q,Q,X,X,Q,Q,Q,_,_,_,_],
+      [_,_,_,_,Q,Q,Q,Q,Q,Q,Q,Q,Q,Q,Q,Q,_,_,_,_],
+      [_,_,_,_,Q,Q,Q,Q,B,B,Q,Q,Q,Q,Q,Q,_,_,_,_],
+      [_,_,_,_,_,Q,Q,Q,Q,Q,Q,Q,Q,Q,_,_,_,_,_,_],
+      [_,_,_,Q,Q,Q,Q,Q,Q,Q,Q,Q,Q,Q,Q,Q,_,_,_,_],
+      [_,_,Q,Q,Q,Q,Q,Q,Q,Q,Q,Q,Q,Q,Q,Q,Q,_,_,_],
+      [_,X,Q,Q,Q,R,R,R,R,R,R,R,R,Q,Q,Q,Q,X,_,_],
+      [_,X,Q,Q,Q,R,R,R,R,R,R,R,R,Q,Q,Q,Q,X,_,_],
+      [_,X,Q,Q,Q,R,R,R,R,R,R,R,R,Q,Q,Q,Q,X,_,_],
+      [_,_,Q,Q,Q,R,R,R,R,R,R,R,R,Q,Q,Q,Q,_,_,_],
+      [_,_,_,Q,Q,Q,Q,Q,Q,Q,Q,Q,Q,Q,Q,_,_,_,_,_],
+      [_,_,_,Q,Q,Q,Q,Q,Q,Q,Q,Q,Q,Q,Q,_,_,_,_,_],
+      [_,_,_,_,Q,Q,Q,Q,Q,Q,Q,Q,Q,Q,_,_,_,_,_,_],
+      [_,_,_,_,Q,Q,Q,Q,Q,Q,Q,Q,Q,Q,_,_,_,_,_,_],
+      [_,_,_,_,_,Q,Q,Q,_,Q,Q,Q,_,_,_,_,_,_,_,_],
+      [_,_,_,_,_,Q,Q,Q,_,Q,Q,Q,_,_,_,_,_,_,_,_],
+      [_,_,_,_,R,Q,Q,Q,_,Q,Q,Q,R,_,_,_,_,_,_,_],
+      [_,_,_,_,R,R,R,_,_,_,R,R,R,_,_,_,_,_,_,_],
+    ];
+    this.createTexture('bossCrystalDrummer', crystalDrummer);
+
+    // Boss 7: Sky Harpist (18x24) - Level 7 Sky Cathedral
+    const H2 = '#F0E68C'; // harp gold
+    const K = '#FFFFFF'; // white wings
+    const I = '#ADD8E6'; // light blue robe
+
+    const skyHarpist = [
+      [_,_,_,_,_,_,_,K,K,K,K,_,_,_,_,_,_,_],
+      [_,_,_,_,_,_,K,K,K,K,K,K,_,_,_,_,_,_],
+      [_,_,_,_,_,K,K,K,K,K,K,K,K,_,_,_,_,_],
+      [_,_,_,_,_,S,S,S,S,S,S,S,S,_,_,_,_,_],
+      [_,_,_,_,_,S,B,S,S,S,B,S,S,_,_,_,_,_],
+      [_,_,_,_,_,S,S,S,S,S,S,S,S,_,_,_,_,_],
+      [_,_,_,_,_,S,S,S,B,S,S,S,S,_,_,_,_,_],
+      [_,_,_,_,_,_,S,S,S,S,S,_,_,_,_,_,_,_],
+      [_,K,K,_,I,I,I,I,I,I,I,I,I,_,K,K,_,_],
+      [K,K,K,_,I,I,I,I,I,I,I,I,I,_,K,K,K,_],
+      [K,K,K,_,I,I,I,I,I,I,I,I,I,_,K,K,K,_],
+      [K,K,_,S,I,I,I,I,I,I,I,I,I,S,_,K,K,_],
+      [_,K,_,S,I,I,I,I,I,I,I,I,I,S,_,K,_,_],
+      [_,_,_,_,I,I,H2,H2,H2,H2,I,I,_,_,_,_,_,_],
+      [_,_,_,_,I,I,H2,H2,H2,H2,I,I,_,_,_,_,_,_],
+      [_,_,_,_,I,I,H2,H2,H2,H2,I,I,_,_,_,_,_,_],
+      [_,_,_,_,I,I,I,I,I,I,I,I,I,_,_,_,_,_,_,_],
+      [_,_,_,_,_,I,I,I,I,I,I,I,_,_,_,_,_,_,_,_],
+      [_,_,_,_,_,I,I,I,I,I,I,I,_,_,_,_,_,_,_,_],
+      [_,_,_,_,_,_,I,I,I,I,I,_,_,_,_,_,_,_,_,_],
+      [_,_,_,_,_,_,I,I,_,I,I,_,_,_,_,_,_,_,_,_],
+      [_,_,_,_,_,_,I,I,_,I,I,_,_,_,_,_,_,_,_,_],
+      [_,_,_,_,_,K,K,K,_,K,K,K,_,_,_,_,_,_,_,_],
+      [_,_,_,_,_,K,K,_,_,_,K,K,_,_,_,_,_,_,_,_],
+    ];
+    this.createTexture('bossSkyHarpist', skyHarpist);
+
+    // Boss projectile texture (8x8 note)
+    const N = '#FF4500';
+    const bossProjectile = [
+      [_,_,_,N,N,_,_,_],
+      [_,_,N,N,N,N,_,_],
+      [_,N,N,N,N,N,N,_],
+      [_,N,N,N,N,N,N,_],
+      [_,N,N,N,N,N,N,_],
+      [_,_,N,N,N,N,_,_],
+      [_,_,_,N,N,_,_,_],
+      [_,_,_,_,_,_,_,_],
+    ];
+    this.createTexture('bossProjectile', bossProjectile);
   }
 
   generateTiles() {
