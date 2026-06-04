@@ -24,6 +24,7 @@ export class AudioGenerator {
     this.generatePalaceMusic();
     this.generateBossMusic();
     this.generateConcertMusic();
+    this.generateRhythmMusic();
   }
 
   createBuffer(duration, generator) {
@@ -436,5 +437,58 @@ export class AudioGenerator {
       }
     });
     this.addSoundToScene('music_concert', buffer);
+  }
+
+  generateRhythmMusic() {
+    // Upbeat rhythmic backing track for the rhythm mini-game
+    const buffer = this.createBuffer(12.0, (data, sampleRate, length) => {
+      const bpm = 130;
+      const beatDur = 60 / bpm;
+
+      // Catchy rhythm pattern in C major with strong beat
+      const melody = [
+        523, 587, 659, 784, 659, 587, 523, 494,  // C5 D5 E5 G5 E5 D5 C5 B4
+        440, 494, 523, 587, 659, 587, 523, 494,  // A4 B4 C5 D5 E5 D5 C5 B4
+        392, 440, 494, 523, 587, 523, 494, 440,  // G4 A4 B4 C5 D5 C5 B4 A4
+        523, 659, 784, 880, 784, 659, 523, 587,  // C5 E5 G5 A5 G5 E5 C5 D5
+      ];
+      const bass = [131, 165, 196, 220, 196, 165, 131, 165, 175, 220, 262, 175];
+
+      for (let i = 0; i < length; i++) {
+        const t = i / sampleRate;
+        const beatPos = t / beatDur;
+        const melodyIdx = Math.floor(beatPos * 2) % melody.length;
+        const bassIdx = Math.floor(beatPos) % bass.length;
+        const notePhase = (beatPos * 2) % 1;
+
+        // Melody: bright staccato
+        const mFreq = melody[melodyIdx];
+        const mEnv = notePhase < 0.02 ? notePhase / 0.02 :
+                     notePhase < 0.4 ? 1.0 : Math.max(0, 1 - (notePhase - 0.4) / 0.3);
+        const mWave = Math.sin(2 * Math.PI * mFreq * t) * 0.5 +
+                      Math.sin(4 * Math.PI * mFreq * t) * 0.3 +
+                      Math.sin(6 * Math.PI * mFreq * t) * 0.2;
+
+        // Bass: steady pulse
+        const bFreq = bass[bassIdx];
+        const bPhase = beatPos % 1;
+        const bEnv = bPhase < 0.02 ? bPhase / 0.02 : Math.max(0, 1 - bPhase / 0.5);
+        const bWave = Math.sin(2 * Math.PI * bFreq * t) * 0.7 +
+                      Math.sin(2 * Math.PI * bFreq * 2 * t) * 0.3;
+
+        // Percussion: kick on beat, hi-hat on off-beat
+        const percPhase = beatPos % 1;
+        const kickEnv = percPhase < 0.05 ? 1 - percPhase / 0.05 : 0;
+        const kickFreq = 80 - 50 * percPhase;
+        const kick = Math.sin(2 * Math.PI * kickFreq * t) * kickEnv;
+
+        const hihatPhase = (beatPos + 0.5) % 1;
+        const hihatEnv = hihatPhase < 0.03 ? 1 - hihatPhase / 0.03 : 0;
+        const hihat = (Math.random() * 2 - 1) * hihatEnv * 0.3;
+
+        data[i] = (mWave * mEnv * 0.1 + bWave * bEnv * 0.08 + kick * 0.07 + hihat * 0.04);
+      }
+    });
+    this.addSoundToScene('music_rhythm', buffer);
   }
 }

@@ -20,6 +20,7 @@ export class PixelArtGenerator {
     this.generateBackgrounds();
     this.generateParticles();
     this.generateParallaxLayers();
+    this.generateRhythmSprites();
   }
 
   createTexture(key, pixelData, scale = 2) {
@@ -1307,5 +1308,76 @@ export class PixelArtGenerator {
     ctx.arc(x + size * 0.8, y, size * 0.35, 0, Math.PI * 2);
     ctx.arc(x + size * 0.3, y + size * 0.1, size * 0.3, 0, Math.PI * 2);
     ctx.fill();
+  }
+
+  generateRhythmSprites() {
+    // Rhythm note (12x12 diamond/circle shape for scrolling notes)
+    const canvas = document.createElement('canvas');
+    canvas.width = 24;
+    canvas.height = 24;
+    const ctx = canvas.getContext('2d');
+
+    // Outer glow
+    ctx.fillStyle = 'rgba(255, 215, 0, 0.3)';
+    ctx.beginPath();
+    ctx.arc(12, 12, 11, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Main note body
+    ctx.fillStyle = '#FFD700';
+    ctx.beginPath();
+    ctx.arc(12, 12, 8, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Inner highlight
+    ctx.fillStyle = '#FFFFFF';
+    ctx.beginPath();
+    ctx.arc(10, 10, 3, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Music symbol inside
+    ctx.fillStyle = '#1a0a2e';
+    ctx.font = '12px serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('♪', 12, 13);
+
+    this.scene.textures.addCanvas('rhythmNote', canvas);
+
+    // Practice Stage object (32x48 - a small stage/podium with musical decoration)
+    const _ = null;
+    const W = '#8B4513'; // wood
+    const G = '#FFD700'; // gold
+    const P = '#4a1942'; // purple curtain
+    const D = '#2d1b4e'; // dark purple
+    const L = '#DEB887'; // light wood
+
+    const practiceStage = [
+      [_,_,_,_,_,P,P,P,P,P,P,P,P,P,P,P,P,P,P,P,P,P,P,P,P,P,P,_,_,_,_,_],
+      [_,_,_,_,P,P,P,P,P,P,P,P,P,P,P,P,P,P,P,P,P,P,P,P,P,P,P,P,_,_,_,_],
+      [_,_,_,P,P,P,P,P,P,P,P,P,P,P,P,P,P,P,P,P,P,P,P,P,P,P,P,P,P,_,_,_],
+      [_,_,_,P,P,D,D,P,P,P,P,P,G,G,G,G,G,G,G,G,P,P,P,P,P,D,D,P,P,_,_,_],
+      [_,_,_,P,P,D,D,P,P,P,P,G,G,G,G,G,G,G,G,G,G,P,P,P,P,D,D,P,P,_,_,_],
+      [_,_,_,P,P,D,D,P,P,P,P,G,_,_,_,G,G,_,_,_,G,P,P,P,P,D,D,P,P,_,_,_],
+      [_,_,_,P,P,D,D,P,P,P,P,G,_,_,_,G,G,_,_,_,G,P,P,P,P,D,D,P,P,_,_,_],
+      [_,_,_,P,P,D,D,P,P,P,P,G,G,G,G,G,G,G,G,G,G,P,P,P,P,D,D,P,P,_,_,_],
+      [_,_,_,P,P,D,D,P,P,P,P,P,G,G,G,G,G,G,G,G,P,P,P,P,P,D,D,P,P,_,_,_],
+      [_,_,_,P,P,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,P,P,_,_,_],
+      [_,_,_,P,P,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,P,P,_,_,_],
+      [_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_],
+      [_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_],
+      [_,_,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,_,_],
+      [_,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,_],
+      [W,W,W,L,L,W,W,W,L,L,W,W,W,L,L,W,W,L,L,W,W,W,L,L,W,W,W,L,L,W,W,W],
+      [W,W,W,L,L,W,W,W,L,L,W,W,W,L,L,W,W,L,L,W,W,W,L,L,W,W,W,L,L,W,W,W],
+      [W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W],
+      [G,G,G,G,G,G,G,G,G,G,G,G,G,G,G,G,G,G,G,G,G,G,G,G,G,G,G,G,G,G,G,G],
+      [W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W],
+      [W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W],
+      [W,W,L,L,W,W,W,W,L,L,W,W,W,W,L,L,W,W,W,W,L,L,W,W,W,W,L,L,W,W,W,W],
+      [W,W,L,L,W,W,W,W,L,L,W,W,W,W,L,L,W,W,W,W,L,L,W,W,W,W,L,L,W,W,W,W],
+      [W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W],
+    ];
+    this.createTexture('practiceStage', practiceStage, 2);
   }
 }
