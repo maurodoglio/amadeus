@@ -11,6 +11,7 @@ import { ScoreManager } from '../utils/ScoreManager.js';
 import { NPC } from '../sprites/NPC.js';
 import { DialogueBox } from '../ui/DialogueBox.js';
 import { NPC_DIALOGUES } from '../config/npcDialogues.js';
+import { AdaptiveMusicManager } from '../utils/AdaptiveMusicManager.js';
 
 export class Level1Scene extends Phaser.Scene {
   constructor() {
@@ -338,6 +339,9 @@ export class Level1Scene extends Phaser.Scene {
         this.applyRhythmPowerUp(powerUp);
       }
     });
+    // Background music - adaptive system
+    this.adaptiveMusic = new AdaptiveMusicManager(this);
+    this.adaptiveMusic.start('exploration');
   }
 
   update(time, delta) {
@@ -364,6 +368,8 @@ export class Level1Scene extends Phaser.Scene {
         this.haydn.interact(this.dialogueBox);
       }
     }
+    // Update adaptive music system
+    if (this.adaptiveMusic) this.adaptiveMusic.update(this);
 
     // Camera follows midpoint in co-op
     if (this.coopMode && this.cameraTarget) {
@@ -433,8 +439,22 @@ export class Level1Scene extends Phaser.Scene {
       if (this.sound.get('sfx_coin')) {
         this.sound.play('sfx_coin', { volume: 0.2 });
       }
+
+      // Victory fanfare on enemy defeat streak
+      if (this.adaptiveMusic && multiplier >= 2) {
+        this.adaptiveMusic.playVictoryFanfare();
+      }
     } else {
       player.hit();
+      // Damage stinger
+      if (this.adaptiveMusic) {
+        const lives = this.registry.get('lives') || 0;
+        if (lives <= 1) {
+          this.adaptiveMusic.playNearDeathStinger();
+        } else {
+          this.adaptiveMusic.playDamageStinger();
+        }
+      }
     }
   }
 
@@ -462,6 +482,9 @@ export class Level1Scene extends Phaser.Scene {
 
     // Stop background music
     this.sound.stopAll();
+    if (this.adaptiveMusic) {
+      this.adaptiveMusic.stop();
+    }
 
     // Calculate level score and time bonus
     const elapsedSeconds = Math.floor((this.time.now - this.levelStartTime) / 1000);

@@ -3,6 +3,7 @@ import { GAME_WIDTH, GAME_HEIGHT, TILE_SIZE } from '../config/constants.js';
 import { Mozart } from '../sprites/Mozart.js';
 import { DrumTroll } from '../sprites/enemies/DrumTroll.js';
 import { BrokenInstrument } from '../sprites/enemies/BrokenInstrument.js';
+import { AdaptiveMusicManager } from '../utils/AdaptiveMusicManager.js';
 
 export class Level6Scene extends Phaser.Scene {
   constructor() {
@@ -149,6 +150,10 @@ export class Level6Scene extends Phaser.Scene {
     this.cameras.main.startFollow(this.mozart, true, 0.1, 0.1);
     this.physics.world.setBounds(0, 0, GAME_WIDTH * 3.2, GAME_HEIGHT);
     this.mozart.setCollideWorldBounds(true);
+
+    // Adaptive music system
+    this.adaptiveMusic = new AdaptiveMusicManager(this);
+    this.adaptiveMusic.start('tension');
   }
 
   update(time, delta) {
@@ -156,6 +161,9 @@ export class Level6Scene extends Phaser.Scene {
     this.enemyList.forEach(e => {
       if (e.active) e.update(time, delta);
     });
+
+    // Update adaptive music system
+    if (this.adaptiveMusic) this.adaptiveMusic.update(this);
 
     // Draw darkness with circular cutout around player
     this.updateDarkness();
@@ -198,8 +206,12 @@ export class Level6Scene extends Phaser.Scene {
       const score = this.registry.get('score') + 100;
       this.registry.set('score', score);
       if (this.sound.get('sfx_coin')) this.sound.play('sfx_coin', { volume: 0.2 });
+
+      // Victory fanfare
+      if (this.adaptiveMusic) this.adaptiveMusic.playVictoryFanfare();
     } else {
       player.hit();
+      if (this.adaptiveMusic) this.adaptiveMusic.playDamageStinger();
     }
   }
 

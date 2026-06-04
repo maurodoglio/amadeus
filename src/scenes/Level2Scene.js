@@ -9,6 +9,7 @@ import { ParticleManager } from '../utils/ParticleManager.js';
 import { setupPause } from '../utils/PauseHelper.js';
 import { ComboSystem } from '../utils/ComboSystem.js';
 import { ScoreManager } from '../utils/ScoreManager.js';
+import { AdaptiveMusicManager } from '../utils/AdaptiveMusicManager.js';
 
 export class Level2Scene extends Phaser.Scene {
   constructor() {
@@ -337,6 +338,9 @@ export class Level2Scene extends Phaser.Scene {
         this.applyRhythmPowerUp(powerUp);
       }
     });
+    // Background music - adaptive system
+    this.adaptiveMusic = new AdaptiveMusicManager(this);
+    this.adaptiveMusic.start('exploration');
   }
 
   update(time, delta) {
@@ -346,6 +350,9 @@ export class Level2Scene extends Phaser.Scene {
     this.enemyList.forEach(e => {
       if (e.active) e.update(time, delta);
     });
+
+    // Update adaptive music system
+    if (this.adaptiveMusic) this.adaptiveMusic.update(this);
 
     // Camera follows midpoint in co-op
     if (this.coopMode && this.cameraTarget) {
@@ -410,8 +417,22 @@ export class Level2Scene extends Phaser.Scene {
       this.registry.set('comboCount', this.combo.getComboCount());
 
       if (this.sound.get('sfx_coin')) this.sound.play('sfx_coin', { volume: 0.2 });
+
+      // Victory fanfare on enemy defeat streak
+      if (this.adaptiveMusic && multiplier >= 2) {
+        this.adaptiveMusic.playVictoryFanfare();
+      }
     } else {
       player.hit();
+      // Damage stinger
+      if (this.adaptiveMusic) {
+        const lives = this.registry.get('lives') || 0;
+        if (lives <= 1) {
+          this.adaptiveMusic.playNearDeathStinger();
+        } else {
+          this.adaptiveMusic.playDamageStinger();
+        }
+      }
     }
   }
 
@@ -437,6 +458,9 @@ export class Level2Scene extends Phaser.Scene {
 
     // Stop background music
     this.sound.stopAll();
+    if (this.adaptiveMusic) {
+      this.adaptiveMusic.stop();
+    }
 
     const elapsedSeconds = Math.floor((this.time.now - this.levelStartTime) / 1000);
     const levelScore = this.registry.get('score') - this.levelStartScore;

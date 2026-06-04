@@ -3,6 +3,7 @@ import { GAME_WIDTH, GAME_HEIGHT, TILE_SIZE } from '../config/constants.js';
 import { Mozart } from '../sprites/Mozart.js';
 import { DrumTroll } from '../sprites/enemies/DrumTroll.js';
 import { DissonantNote } from '../sprites/enemies/DissonantNote.js';
+import { AdaptiveMusicManager } from '../utils/AdaptiveMusicManager.js';
 
 export class Level5Scene extends Phaser.Scene {
   constructor() {
@@ -168,6 +169,10 @@ export class Level5Scene extends Phaser.Scene {
     this.cameras.main.startFollow(this.mozart, true, 0.1, 0.1);
     this.physics.world.setBounds(0, 0, GAME_WIDTH * 3.3, GAME_HEIGHT);
     this.mozart.setCollideWorldBounds(true);
+
+    // Adaptive music system
+    this.adaptiveMusic = new AdaptiveMusicManager(this);
+    this.adaptiveMusic.start('exploration');
   }
 
   update(time, delta) {
@@ -175,6 +180,9 @@ export class Level5Scene extends Phaser.Scene {
     this.enemyList.forEach(e => {
       if (e.active) e.update(time, delta);
     });
+
+    // Update adaptive music system
+    if (this.adaptiveMusic) this.adaptiveMusic.update(this);
 
     // Wind gust mechanic: changes direction every 3 seconds with varying strength
     this.windTimer += delta;
@@ -223,8 +231,12 @@ export class Level5Scene extends Phaser.Scene {
       const score = this.registry.get('score') + 100;
       this.registry.set('score', score);
       if (this.sound.get('sfx_coin')) this.sound.play('sfx_coin', { volume: 0.2 });
+
+      // Victory fanfare
+      if (this.adaptiveMusic) this.adaptiveMusic.playVictoryFanfare();
     } else {
       player.hit();
+      if (this.adaptiveMusic) this.adaptiveMusic.playDamageStinger();
     }
   }
 
