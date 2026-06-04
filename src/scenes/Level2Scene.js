@@ -10,6 +10,7 @@ import { setupPause } from '../utils/PauseHelper.js';
 import { ComboSystem } from '../utils/ComboSystem.js';
 import { ScoreManager } from '../utils/ScoreManager.js';
 import { AdaptiveMusicManager } from '../utils/AdaptiveMusicManager.js';
+import { MozartSoundtracks } from '../utils/MozartSoundtracks.js';
 import { setupBoss, updateBossAI, getBossTarget } from '../utils/BossFight.js';
 import { getAchievementManager } from '../utils/AchievementManager.js';
 import { CompositionCollector } from '../mechanics/CompositionCollector.js';
@@ -368,6 +369,10 @@ export class Level2Scene extends Phaser.Scene {
         this.applyRhythmPowerUp(powerUp);
       }
     });
+    // Background music - Mozart's Magic Flute overture K.620
+    this.mozartSoundtrack = new MozartSoundtracks(this);
+    this.mozartSoundtrack.play('level2');
+
     // Background music - adaptive system
     this.adaptiveMusic = new AdaptiveMusicManager(this);
     this.adaptiveMusic.start('exploration');
@@ -383,6 +388,10 @@ export class Level2Scene extends Phaser.Scene {
 
     // Update adaptive music system
     if (this.adaptiveMusic) this.adaptiveMusic.update(this);
+    // Sync Mozart soundtrack boss mode with game state
+    if (this.mozartSoundtrack && this.bossActive && !this.mozartSoundtrack.isBossMode) {
+      this.mozartSoundtrack.setBossMode(true);
+    }
     // Boss AI: Forest Drummer - ground pound shockwave attack
     updateBossAI(this, time, (scene, t) => {
       const boss = scene.boss;
@@ -533,6 +542,9 @@ export class Level2Scene extends Phaser.Scene {
 
     // Stop background music
     this.sound.stopAll();
+    if (this.mozartSoundtrack) {
+      this.mozartSoundtrack.stop();
+    }
     if (this.adaptiveMusic) {
       this.adaptiveMusic.stop();
     }

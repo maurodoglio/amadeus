@@ -4,6 +4,7 @@ import { Mozart } from '../sprites/Mozart.js';
 import { DrumTroll } from '../sprites/enemies/DrumTroll.js';
 import { DissonantNote } from '../sprites/enemies/DissonantNote.js';
 import { AdaptiveMusicManager } from '../utils/AdaptiveMusicManager.js';
+import { MozartSoundtracks } from '../utils/MozartSoundtracks.js';
 import { ParticleManager } from '../utils/ParticleManager.js';
 import { setupBoss, updateBossAI, getBossTarget } from '../utils/BossFight.js';
 import { ComboSystem } from '../utils/ComboSystem.js';
@@ -209,6 +210,10 @@ export class Level5Scene extends Phaser.Scene {
     this.physics.world.setBounds(0, 0, GAME_WIDTH * 3.3, GAME_HEIGHT);
     this.mozart.setCollideWorldBounds(true);
 
+    // Mozart's Symphony No.40 K.550
+    this.mozartSoundtrack = new MozartSoundtracks(this);
+    this.mozartSoundtrack.play('level5');
+
     // Adaptive music system
     this.adaptiveMusic = new AdaptiveMusicManager(this);
     this.adaptiveMusic.start('exploration');
@@ -222,6 +227,10 @@ export class Level5Scene extends Phaser.Scene {
 
     // Update adaptive music system
     if (this.adaptiveMusic) this.adaptiveMusic.update(this);
+    // Sync Mozart soundtrack boss mode with game state
+    if (this.mozartSoundtrack && this.bossActive && !this.mozartSoundtrack.isBossMode) {
+      this.mozartSoundtrack.setBossMode(true);
+    }
     // Boss AI: Storm Trumpeter - wind blasts push player
     updateBossAI(this, time, (scene, t) => {
       const boss = scene.boss;

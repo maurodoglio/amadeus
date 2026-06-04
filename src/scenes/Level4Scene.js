@@ -7,6 +7,7 @@ import { NPC } from '../sprites/NPC.js';
 import { DialogueBox } from '../ui/DialogueBox.js';
 import { NPC_DIALOGUES } from '../config/npcDialogues.js';
 import { AdaptiveMusicManager } from '../utils/AdaptiveMusicManager.js';
+import { MozartSoundtracks } from '../utils/MozartSoundtracks.js';
 import { ParticleManager } from '../utils/ParticleManager.js';
 import { setupBoss, updateBossAI, getBossTarget } from '../utils/BossFight.js';
 import { ComboSystem } from '../utils/ComboSystem.js';
@@ -238,6 +239,10 @@ export class Level4Scene extends Phaser.Scene {
     // Dialogue system
     this.dialogueBox = new DialogueBox(this);
     this.interactKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
+    // Mozart's Marriage of Figaro overture K.492
+    this.mozartSoundtrack = new MozartSoundtracks(this);
+    this.mozartSoundtrack.play('level4');
+
     // Adaptive music system
     this.adaptiveMusic = new AdaptiveMusicManager(this);
     this.adaptiveMusic.start('exploration');
@@ -268,6 +273,10 @@ export class Level4Scene extends Phaser.Scene {
     }
     // Update adaptive music system
     if (this.adaptiveMusic) this.adaptiveMusic.update(this);
+    // Sync Mozart soundtrack boss mode with game state
+    if (this.mozartSoundtrack && this.bossActive && !this.mozartSoundtrack.isBossMode) {
+      this.mozartSoundtrack.setBossMode(true);
+    }
     // Boss AI: Phantom Singer - teleports and fires sonic waves
     updateBossAI(this, time, (scene, t) => {
       const boss = scene.boss;
