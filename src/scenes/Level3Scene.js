@@ -19,6 +19,7 @@ export class Level3Scene extends Phaser.Scene {
     this.bossDefeated = false;
     this.particles = new ParticleManager(this);
     this.coopMode = this.registry.get('coopMode') || false;
+    this.lastCheckpoint = null;
 
     // Parallax background layers
     this.bgFar = this.add.tileSprite(0, 0, GAME_WIDTH, GAME_HEIGHT, 'parallaxPalace_far')
@@ -218,6 +219,23 @@ export class Level3Scene extends Phaser.Scene {
       // Player bounce
       this.physics.add.collider(this.mozart, this.nannerl, this.playerBounce, null, this);
     }
+
+    // Checkpoint flags
+    this.checkpoints = this.physics.add.staticGroup();
+    const checkpointPositions = [
+      { x: 700, y: GAME_HEIGHT - 64 },
+      { x: 1400, y: GAME_HEIGHT - 64 },
+      { x: 2100, y: GAME_HEIGHT - 64 },
+    ];
+
+    checkpointPositions.forEach(pos => {
+      const flag = this.checkpoints.create(pos.x, pos.y, 'checkpointFlag')
+        .setDisplaySize(24, 40)
+        .refreshBody();
+      flag.activated = false;
+    });
+
+    this.physics.add.overlap(this.mozart, this.checkpoints, this.activateCheckpoint, null, this);
 
     // Camera
     this.cameras.main.setBounds(0, 0, GAME_WIDTH * 3.5, GAME_HEIGHT);
@@ -478,10 +496,15 @@ export class Level3Scene extends Phaser.Scene {
     instrument.destroy();
     player.collectInstrument('piano');
 
-    this.cameras.main.fade(1500, 0, 0, 0, false, (cam, progress) => {
+    this.cameras.main.fade(500, 255, 255, 255, false, (cam, progress) => {
       if (progress === 1) {
         this.scene.stop('UIScene');
-        this.scene.start('ConcertScene');
+        this.scene.stop();
+        this.scene.start('TransitionScene', {
+          nextScene: 'ConcertScene',
+          levelName: 'The Grand Concert',
+          sceneData: {}
+        });
       }
     });
   }
@@ -519,5 +542,18 @@ export class Level3Scene extends Phaser.Scene {
     }
 
     page.body.enable = false;
+  }
+
+  activateCheckpoint(player, flag) {
+    if (flag.activated) return;
+    flag.activated = true;
+    this.lastCheckpoint = { x: flag.x, y: flag.y };
+
+    flag.setTint(0xFFD700);
+    this.particles.emitSparkleCollect(flag.x, flag.y - 20);
+
+    if (this.sound.get('sfx_coin')) {
+      this.sound.play('sfx_coin', { volume: 0.2 });
+    }
   }
 }

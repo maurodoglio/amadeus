@@ -15,6 +15,7 @@ export class PixelArtGenerator {
     this.generateEnemies();
     this.generateTiles();
     this.generateItems();
+    this.generateCheckpointAndUI();
     this.generateBackgrounds();
     this.generateParticles();
     this.generateParallaxLayers();
@@ -614,6 +615,60 @@ export class PixelArtGenerator {
       [_,E,E,E,E,E,E,E,E,E,E,_],
     ];
     this.createTexture('sheetMusic', sheetMusic);
+  }
+
+  generateCheckpointAndUI() {
+    const _ = null;
+
+    // Checkpoint flag (12x20)
+    const P = '#8B4513'; // pole
+    const R = '#FF4444'; // flag red
+    const W = '#FFFFFF'; // flag white
+
+    const checkpointFlag = [
+      [_,_,P,_,_,_,_,_,_,_,_,_],
+      [_,_,P,R,R,R,R,R,R,_,_,_],
+      [_,_,P,R,W,W,R,R,R,_,_,_],
+      [_,_,P,R,W,W,R,R,R,_,_,_],
+      [_,_,P,R,R,R,R,R,R,_,_,_],
+      [_,_,P,R,R,R,R,R,_,_,_,_],
+      [_,_,P,R,R,R,R,_,_,_,_,_],
+      [_,_,P,_,_,_,_,_,_,_,_,_],
+      [_,_,P,_,_,_,_,_,_,_,_,_],
+      [_,_,P,_,_,_,_,_,_,_,_,_],
+      [_,_,P,_,_,_,_,_,_,_,_,_],
+      [_,_,P,_,_,_,_,_,_,_,_,_],
+      [_,_,P,_,_,_,_,_,_,_,_,_],
+      [_,_,P,_,_,_,_,_,_,_,_,_],
+      [_,_,P,_,_,_,_,_,_,_,_,_],
+      [_,_,P,_,_,_,_,_,_,_,_,_],
+      [_,_,P,_,_,_,_,_,_,_,_,_],
+      [_,_,P,_,_,_,_,_,_,_,_,_],
+      [_,P,P,P,_,_,_,_,_,_,_,_],
+      [_,P,P,P,_,_,_,_,_,_,_,_],
+    ];
+    this.createTexture('checkpointFlag', checkpointFlag);
+
+    // Mozart head icon for lives HUD (11x11)
+    const H = '#F5F5DC'; // wig
+    const S = '#FFDAB9'; // skin
+    const E = '#1a1a1a'; // eyes
+    const B = '#4169E1'; // coat collar
+
+    const mozartHead = [
+      [_,_,_,H,H,H,H,H,_,_,_],
+      [_,_,H,H,H,H,H,H,H,_,_],
+      [_,H,H,H,H,H,H,H,H,H,_],
+      [_,H,H,H,H,H,H,H,H,H,_],
+      [_,_,S,S,S,S,S,S,S,_,_],
+      [_,_,S,E,S,S,S,E,S,_,_],
+      [_,_,S,S,S,S,S,S,S,_,_],
+      [_,_,S,S,S,S,S,S,S,_,_],
+      [_,_,_,S,S,S,S,S,_,_,_],
+      [_,_,_,_,B,B,B,_,_,_,_],
+      [_,_,_,B,B,B,B,B,_,_,_],
+    ];
+    this.createTexture('mozartHead', mozartHead);
   }
 
   generateBackgrounds() {

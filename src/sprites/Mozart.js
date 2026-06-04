@@ -113,6 +113,25 @@ export class Mozart extends Phaser.Physics.Arcade.Sprite {
       this.scene.sound.play('sfx_hit', { volume: 0.3 });
     }
 
+    // If there's a checkpoint, respawn there
+    if (this.scene.lastCheckpoint) {
+      this.isDead = true;
+      this.setVelocity(0, -200);
+
+      this.scene.tweens.add({
+        targets: this,
+        angle: 360,
+        duration: 500,
+        ease: 'Quad.easeIn'
+      });
+
+      this.scene.time.delayedCall(600, () => {
+        const cp = this.scene.lastCheckpoint;
+        this.respawn(cp.x, cp.y - 40);
+      });
+      return;
+    }
+
     // Flicker effect
     this.scene.tweens.add({
       targets: this,
@@ -129,21 +148,77 @@ export class Mozart extends Phaser.Physics.Arcade.Sprite {
 
   die() {
     this.isDead = true;
-    this.setVelocity(0, -300);
-    this.body.setAllowGravity(true);
+    this.setVelocity(0, 0);
 
     if (this.scene.sound.get('sfx_death')) {
       this.scene.sound.play('sfx_death', { volume: 0.3 });
     }
 
+    // Brief slow-motion effect
+    this.scene.time.timeScale = 0.3;
+    this.scene.physics.world.timeScale = 3;
+
+    // Dramatic spin
+    this.scene.tweens.add({
+      targets: this,
+      angle: 720,
+      duration: 800,
+      ease: 'Quad.easeIn'
+    });
+
+    // After slow-mo, launch upward and fall off screen
+    this.scene.time.delayedCall(400, () => {
+      this.scene.time.timeScale = 1;
+      this.scene.physics.world.timeScale = 1;
+      this.setVelocity(0, -400);
+      this.body.setAllowGravity(true);
+    });
+
     // In co-op, only game over if both players are dead or lives are 0
     const coopMode = this.scene.registry.get('coopMode');
     if (!coopMode) {
-      this.scene.time.delayedCall(1500, () => {
+      this.scene.time.delayedCall(1800, () => {
         this.scene.scene.stop('UIScene');
         this.scene.scene.start('MenuScene');
       });
     }
+  }
+
+  /**
+   * Respawn at a given position with sparkle effect.
+   */
+  respawn(x, y) {
+    this.isDead = false;
+    this.isInvincible = true;
+    this.setPosition(x, y);
+    this.setVelocity(0, 0);
+    this.setAngle(0);
+    this.setAlpha(0);
+    this.body.setAllowGravity(true);
+
+    // Sparkle respawn effect
+    this.particles.emitRespawnSparkle(x, y);
+
+    // Fade in with brief invincibility
+    this.scene.tweens.add({
+      targets: this,
+      alpha: 1,
+      duration: 500,
+      onComplete: () => {
+        // Flicker to show invincibility ending
+        this.scene.tweens.add({
+          targets: this,
+          alpha: 0.3,
+          duration: 100,
+          yoyo: true,
+          repeat: 5,
+          onComplete: () => {
+            this.alpha = 1;
+            this.isInvincible = false;
+          }
+        });
+      }
+    });
   }
 
   collectInstrument(instrument) {
