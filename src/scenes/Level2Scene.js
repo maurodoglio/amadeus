@@ -243,7 +243,7 @@ export class Level2Scene extends Phaser.Scene {
     this.cameras.main.fade(1000, 0, 0, 0, false, (cam, progress) => {
       if (progress === 1) {
         this.registry.set('currentLevel', 3);
-        this.scene.start('Level3Scene');
+        this.scene.start('CutsceneScene', { cutscene: 'afterLevel2', nextScene: 'Level3Scene' });
       }
     });
   }
