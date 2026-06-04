@@ -9,7 +9,7 @@ import { NPC_DIALOGUES } from '../config/npcDialogues.js';
 import { AdaptiveMusicManager } from '../utils/AdaptiveMusicManager.js';
 import { MozartSoundtracks } from '../utils/MozartSoundtracks.js';
 import { ParticleManager } from '../utils/ParticleManager.js';
-import { setupBoss, updateBossAI, getBossTarget } from '../utils/BossFight.js';
+import { setupBoss, updateBossAI, getBossTarget, showBossDialogue } from '../utils/BossFight.js';
 import { ComboSystem } from '../utils/ComboSystem.js';
 import { getAchievementManager } from '../utils/AchievementManager.js';
 import { CompositionCollector } from '../mechanics/CompositionCollector.js';
@@ -177,17 +177,23 @@ export class Level4Scene extends Phaser.Scene {
     this.instrument.setVisible(false);
     this.instrument.body.enable = false;
 
-    // Boss: The Phantom Singer
+    // Boss: Antonio Salieri - Musical duel
     setupBoss(this, {
       x: 2250,
       y: GAME_HEIGHT - 120,
-      texture: 'bossPhantomSinger',
-      name: 'The Phantom Singer',
+      texture: 'bossSalieri',
+      name: 'Antonio Salieri',
       health: 3,
       speed: 120,
       jumpForce: -380,
       attackInterval: 2200,
-      activateX: 1900
+      activateX: 1900,
+      dialogue: [
+        '"Ah, the great Mozart... Let us see who truly commands music."',
+        '"My dark melodies shall overwhelm your bright compositions!"',
+        '"Only one of us can be the Emperor\'s Kapellmeister!"'
+      ],
+      victoryQuote: '"Salieri admitted that Mozart\'s music was sublime."\n— Historical accounts'
     });
     this.bossProjectiles = this.physics.add.group();
 
@@ -283,6 +289,7 @@ export class Level4Scene extends Phaser.Scene {
       this.mozartSoundtrack.setBossMode(true);
     }
     // Boss AI: Phantom Singer - teleports and fires sonic waves
+    // Boss AI: Antonio Salieri - plays dark note projectiles, pattern-matching battle
     updateBossAI(this, time, (scene, t) => {
       const boss = scene.boss;
       const target = getBossTarget(scene);
@@ -298,7 +305,7 @@ export class Level4Scene extends Phaser.Scene {
         boss.setVelocityX(0);
       }
 
-      // Sonic wave attack (spreads wider in later phases)
+      // Dark note attack pattern: fires dark projectiles in increasing waves
       const interval = boss.attackInterval / boss.phase;
       if (t > boss.attackTimer) {
         boss.attackTimer = t + interval;
@@ -306,7 +313,7 @@ export class Level4Scene extends Phaser.Scene {
         for (let i = 0; i < numProjectiles; i++) {
           const angle = Phaser.Math.Angle.Between(boss.x, boss.y, target.x, target.y);
           const spread = (i - (numProjectiles - 1) / 2) * 0.3;
-          const proj = scene.bossProjectiles.create(boss.x, boss.y - 10, 'bossProjectile');
+          const proj = scene.bossProjectiles.create(boss.x, boss.y - 10, 'darkProjectile');
           proj.body.setAllowGravity(false);
           const speed = 200;
           proj.setVelocity(Math.cos(angle + spread) * speed, Math.sin(angle + spread) * speed);

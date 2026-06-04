@@ -11,7 +11,7 @@ import { ComboSystem } from '../utils/ComboSystem.js';
 import { ScoreManager } from '../utils/ScoreManager.js';
 import { AdaptiveMusicManager } from '../utils/AdaptiveMusicManager.js';
 import { MozartSoundtracks } from '../utils/MozartSoundtracks.js';
-import { setupBoss, updateBossAI, getBossTarget } from '../utils/BossFight.js';
+import { setupBoss, updateBossAI, getBossTarget, showBossDialogue } from '../utils/BossFight.js';
 import { getAchievementManager } from '../utils/AchievementManager.js';
 import { CompositionCollector } from '../mechanics/CompositionCollector.js';
 
@@ -212,17 +212,23 @@ export class Level2Scene extends Phaser.Scene {
     this.instrument.setVisible(false);
     this.instrument.body.enable = false;
 
-    // Boss: The Forest Drummer
+    // Boss: Empress Maria Theresa
     setupBoss(this, {
       x: 2350,
       y: GAME_HEIGHT - 120,
-      texture: 'bossForestDrummer',
-      name: 'The Forest Drummer',
+      texture: 'bossEmpressMaria',
+      name: 'Empress Maria Theresa',
       health: 3,
       speed: 80,
       jumpForce: -400,
       attackInterval: 3000,
-      activateX: 2000
+      activateX: 2000,
+      dialogue: [
+        '"A child prodigy seeks audience with the Empress?"',
+        '"Prove yourself worthy of the Imperial court!"',
+        '"My guards shall test your resolve, young Mozart."'
+      ],
+      victoryQuote: '"The Empress kissed me and took me on her lap."\n— Mozart, age 6'
     });
 
     // Sheet music pages (hidden secrets in hard-to-reach spots)
@@ -398,6 +404,7 @@ export class Level2Scene extends Phaser.Scene {
       this.mozartSoundtrack.setBossMode(true);
     }
     // Boss AI: Forest Drummer - ground pound shockwave attack
+    // Boss AI: Empress Maria Theresa - summons palace guards (ground pound gauntlet)
     updateBossAI(this, time, (scene, t) => {
       const boss = scene.boss;
       const target = getBossTarget(scene);
@@ -413,12 +420,11 @@ export class Level2Scene extends Phaser.Scene {
         boss.setVelocityX(0);
       }
 
-      // Ground pound: jump high then slam down with screen shake
+      // Summons guards: stomps ground to create shockwaves (gauntlet style)
       const interval = boss.attackInterval / boss.phase;
       if (t > boss.attackTimer && (boss.body.blocked.down || boss.body.touching.down)) {
         boss.setVelocityY(boss.jumpForce * (1 + boss.phase * 0.1));
         boss.attackTimer = t + interval;
-        // Shake on landing (delayed)
         scene.time.delayedCall(600, () => {
           if (boss.active) {
             scene.particles.screenShake(0.01, 200);

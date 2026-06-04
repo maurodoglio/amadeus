@@ -13,7 +13,7 @@ import { DialogueBox } from '../ui/DialogueBox.js';
 import { NPC_DIALOGUES } from '../config/npcDialogues.js';
 import { AdaptiveMusicManager } from '../utils/AdaptiveMusicManager.js';
 import { MozartSoundtracks } from '../utils/MozartSoundtracks.js';
-import { setupBoss, updateBossAI, getBossTarget } from '../utils/BossFight.js';
+import { setupBoss, updateBossAI, getBossTarget, showBossDialogue } from '../utils/BossFight.js';
 import { getAchievementManager } from '../utils/AchievementManager.js';
 import { CompositionCollector } from '../mechanics/CompositionCollector.js';
 
@@ -195,17 +195,23 @@ export class Level1Scene extends Phaser.Scene {
     this.instrument.setVisible(false);
     this.instrument.body.enable = false;
 
-    // Boss: The Off-Key Conductor
+    // Boss: Leopold Mozart (Father/Teacher - Tutorial Boss)
     setupBoss(this, {
       x: 2100,
       y: GAME_HEIGHT - 120,
-      texture: 'bossOffKeyConductor',
-      name: 'The Off-Key Conductor',
+      texture: 'bossLeopoldMozart',
+      name: 'Leopold Mozart',
       health: 3,
       speed: 90,
       jumpForce: -320,
       attackInterval: 2800,
-      activateX: 1800
+      activateX: 1800,
+      dialogue: [
+        '"Wolfgang! You think you can surpass your own father?"',
+        '"Show me what I taught you — prove your independence!"',
+        '"Let us see if the student has outgrown the teacher..."'
+      ],
+      victoryQuote: '"I am convinced that my son can stand on his own."\n— Leopold Mozart'
     });
     this.bossProjectiles = this.physics.add.group();
 
@@ -414,10 +420,11 @@ export class Level1Scene extends Phaser.Scene {
       this.mozartSoundtrack.setBossMode(true);
     }
     // Boss AI: Off-Key Conductor fires note projectiles
+    // Boss AI: Leopold Mozart throws sheet music pages gently
     updateBossAI(this, time, (scene, t) => {
       const boss = scene.boss;
       const target = getBossTarget(scene);
-      const speedMult = boss.phase === 3 ? 1.5 : boss.phase === 2 ? 1.25 : 1;
+      const speedMult = boss.phase === 3 ? 1.3 : boss.phase === 2 ? 1.15 : 1;
 
       if (target.x > boss.x + 30) {
         boss.setVelocityX(boss.speed * speedMult);
@@ -429,14 +436,14 @@ export class Level1Scene extends Phaser.Scene {
         boss.setVelocityX(0);
       }
 
-      // Fire note projectiles with increasing frequency per phase
+      // Throws sheet music pages as gentle projectiles
       const interval = boss.attackInterval / boss.phase;
       if (t > boss.attackTimer) {
         boss.attackTimer = t + interval;
         const proj = scene.bossProjectiles.create(boss.x, boss.y - 10, 'bossProjectile');
         proj.body.setAllowGravity(false);
         const angle = Phaser.Math.Angle.Between(boss.x, boss.y, target.x, target.y);
-        const speed = 180 + boss.phase * 40;
+        const speed = 140 + boss.phase * 30;
         proj.setVelocity(Math.cos(angle) * speed, Math.sin(angle) * speed);
         scene.time.delayedCall(3000, () => { if (proj.active) proj.destroy(); });
       }

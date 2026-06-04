@@ -17,10 +17,15 @@ export function setupBoss(scene, config) {
     speed = 100,
     jumpForce = -350,
     attackInterval = 2500,
-    coopHealthBonus = 2
+    coopHealthBonus = 2,
+    dialogue = null,
+    victoryQuote = null
   } = config;
 
   scene.bossDefeated = false;
+  scene.bossDialogue = dialogue;
+  scene.bossVictoryQuote = victoryQuote;
+  scene.bossDialogueShown = false;
 
   scene.boss = scene.physics.add.sprite(x, y, texture);
   scene.boss.setScale(scale);
@@ -57,11 +62,49 @@ export function setupBoss(scene, config) {
 }
 
 /**
+ * Show pre-fight dialogue as a text overlay.
+ */
+export function showBossDialogue(scene, lines, onComplete) {
+  if (!lines || lines.length === 0) {
+    if (onComplete) onComplete();
+    return;
+  }
+
+  scene.boss.setVelocityX(0);
+  scene.boss.setVelocityY(0);
+
+  const bg = scene.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT - 80, GAME_WIDTH - 80, 70, 0x000000, 0.85)
+    .setScrollFactor(0).setDepth(200);
+  const text = scene.add.text(GAME_WIDTH / 2, GAME_HEIGHT - 80, lines[0], {
+    font: '14px monospace', fill: '#FFFFFF', wordWrap: { width: GAME_WIDTH - 120 }, align: 'center'
+  }).setOrigin(0.5).setScrollFactor(0).setDepth(201);
+
+  let lineIndex = 0;
+  scene.bossDialogueActive = true;
+
+  const advanceKey = scene.input.keyboard.addKey('SPACE');
+  const advanceDialogue = () => {
+    lineIndex++;
+    if (lineIndex < lines.length) {
+      text.setText(lines[lineIndex]);
+    } else {
+      bg.destroy();
+      text.destroy();
+      advanceKey.off('down', advanceDialogue);
+      scene.bossDialogueActive = false;
+      if (onComplete) onComplete();
+    }
+  };
+  advanceKey.on('down', advanceDialogue);
+}
+
+/**
  * Call in update() to handle boss activation and default AI.
  * Pass a custom updateFn for unique attack patterns.
  */
 export function updateBossAI(scene, time, customUpdateFn) {
   if (!scene.boss || !scene.boss.active) return;
+  if (scene.bossDialogueActive) return;
 
   // Activate boss when player gets close
   if (!scene.boss.isActive) {
@@ -76,6 +119,12 @@ export function updateBossAI(scene, time, customUpdateFn) {
       scene.sound.stopAll();
       if (scene.sound.get('music_boss')) {
         scene.sound.play('music_boss', { loop: true, volume: 0.3 });
+      }
+
+      // Show pre-fight dialogue
+      if (scene.bossDialogue && !scene.bossDialogueShown) {
+        scene.bossDialogueShown = true;
+        showBossDialogue(scene, scene.bossDialogue);
       }
     }
     return;
@@ -179,7 +228,9 @@ function defeatBoss(scene) {
   scene.bossDefeated = true;
 
   scene.particles.screenShake(0.025, 500);
-  scene.particles.emitStomp(scene.boss.x, scene.boss.y);
+
+  // Musical note explosion (not violent)
+  emitMusicalNoteExplosion(scene, scene.boss.x, scene.boss.y);
   scene.particles.emitSparkleCollect(scene.boss.x, scene.boss.y);
 
   scene.boss.destroy();
@@ -204,22 +255,46 @@ function defeatBoss(scene) {
     scene.instrumentSparkle = scene.particles.emitSparkle(scene.instrument.x, scene.instrument.y);
   }
 
-  // Victory text
-  const victoryText = scene.add.text(GAME_WIDTH / 2, GAME_HEIGHT / 2, 'Boss Defeated!', {
-    font: '32px monospace',
+  // Victory quote
+  const victoryMessage = scene.bossVictoryQuote || 'Boss Defeated!';
+  const victoryText = scene.add.text(GAME_WIDTH / 2, GAME_HEIGHT / 2, victoryMessage, {
+    font: '24px monospace',
     fill: '#FFD700',
     stroke: '#000000',
-    strokeThickness: 4
+    strokeThickness: 4,
+    wordWrap: { width: GAME_WIDTH - 100 },
+    align: 'center'
   }).setOrigin(0.5).setScrollFactor(0).setDepth(200);
 
   scene.tweens.add({
     targets: victoryText,
     alpha: 0,
-    delay: 2000,
+    delay: 3000,
     duration: 1000
   });
 
   if (scene.sound.get('sfx_levelComplete')) {
     scene.sound.play('sfx_levelComplete', { volume: 0.5 });
   }
+}
+
+/**
+ * Emit a burst of musical notes in all directions (non-violent defeat).
+ */
+function emitMusicalNoteExplosion(scene, x, y) {
+  const particles = scene.add.particles(x, y, 'particleNote', {
+    speed: { min: 100, max: 250 },
+    angle: { min: 0, max: 360 },
+    scale: { start: 1.5, end: 0 },
+    alpha: { start: 1, end: 0 },
+    lifespan: 1200,
+    quantity: 20,
+    tint: [0xFFD700, 0xFFFFFF, 0xFF69B4, 0x87CEEB],
+    rotate: { min: 0, max: 360 },
+    gravityY: -30,
+    emitting: false
+  });
+
+  particles.explode();
+  scene.time.delayedCall(1500, () => particles.destroy());
 }
