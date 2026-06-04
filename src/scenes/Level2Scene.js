@@ -285,6 +285,30 @@ export class Level2Scene extends Phaser.Scene {
 
     this.physics.add.overlap(this.mozart, this.checkpoints, this.activateCheckpoint, null, this);
 
+    // Practice Stage (rhythm mini-game trigger)
+    this.practiceStages = this.physics.add.staticGroup();
+    const practiceStage = this.practiceStages.create(1800, GAME_HEIGHT - 80, 'practiceStage')
+      .setDisplaySize(64, 48)
+      .refreshBody();
+    practiceStage.difficulty = 2;
+
+    this.add.text(1800, GAME_HEIGHT - 115, '♪ Practice ♪', {
+      font: '10px monospace',
+      fill: '#FFD700',
+      stroke: '#000000',
+      strokeThickness: 2
+    }).setOrigin(0.5);
+
+    this.tweens.add({
+      targets: practiceStage,
+      alpha: { from: 0.8, to: 1 },
+      duration: 800,
+      yoyo: true,
+      repeat: -1
+    });
+
+    this.physics.add.overlap(this.mozart, this.practiceStages, this.enterPracticeStage, null, this);
+
     // Camera
     this.cameras.main.setBounds(0, 0, GAME_WIDTH * 3.2, GAME_HEIGHT);
     this.physics.world.setBounds(0, 0, GAME_WIDTH * 3.2, GAME_HEIGHT);
@@ -303,6 +327,16 @@ export class Level2Scene extends Phaser.Scene {
     if (this.sound.get('music_forest')) {
       this.sound.play('music_forest', { loop: true, volume: 0.25 });
     }
+
+    // Handle resume from rhythm scene - apply power-up
+    this.events.on('resume', () => {
+      this.sound.resumeAll();
+      const powerUp = this.registry.get('rhythmPowerUp');
+      if (powerUp) {
+        this.registry.set('rhythmPowerUp', null);
+        this.applyRhythmPowerUp(powerUp);
+      }
+    });
   }
 
   update(time, delta) {
@@ -479,5 +513,49 @@ export class Level2Scene extends Phaser.Scene {
     if (this.sound.get('sfx_coin')) {
       this.sound.play('sfx_coin', { volume: 0.2 });
     }
+  }
+
+  enterPracticeStage(player, stage) {
+    if (!this.mozart.cursors.up.isDown && !this.mozart.wasdKeys?.W?.isDown) return;
+    if (this.rhythmCooldown) return;
+    this.rhythmCooldown = true;
+    this.time.delayedCall(1000, () => { this.rhythmCooldown = false; });
+
+    this.scene.pause();
+    this.sound.pauseAll();
+    this.scene.launch('RhythmScene', {
+      returnScene: 'Level2Scene',
+      difficulty: stage.difficulty || 2,
+      playerX: player.x,
+      playerY: player.y
+    });
+  }
+
+  applyRhythmPowerUp(powerUp) {
+    const indicator = this.add.text(this.mozart.x, this.mozart.y - 40, '⚡ SPEED BOOST ⚡', {
+      font: '12px monospace',
+      fill: '#FFD700',
+      stroke: '#000000',
+      strokeThickness: 2
+    }).setOrigin(0.5).setScrollFactor(0);
+
+    this.tweens.add({
+      targets: indicator,
+      alpha: 0,
+      y: indicator.y - 30,
+      duration: 2000,
+      onComplete: () => indicator.destroy()
+    });
+
+    const originalSpeed = this.mozart.moveSpeed || 200;
+    this.mozart.moveSpeed = originalSpeed * powerUp.multiplier;
+    this.mozart.setTint(0xFFD700);
+
+    this.time.delayedCall(powerUp.duration, () => {
+      if (this.mozart && !this.mozart.isDead) {
+        this.mozart.moveSpeed = originalSpeed;
+        this.mozart.clearTint();
+      }
+    });
   }
 }
