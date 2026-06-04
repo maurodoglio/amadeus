@@ -372,16 +372,19 @@ export class Level1Scene extends Phaser.Scene {
     instrument.destroy();
     player.collectInstrument('violin');
 
-    // Level complete - iris wipe transition
-    this.cameras.main.fade(500, 255, 255, 255, false, (cam, progress) => {
+    // Mark level as completed
+    const completedLevels = this.registry.get('completedLevels') || [];
+    if (!completedLevels.includes(1)) {
+      completedLevels.push(1);
+      this.registry.set('completedLevels', completedLevels);
+    }
+
+    // Transition to world map
+    this.cameras.main.fade(1000, 0, 0, 0, false, (cam, progress) => {
       if (progress === 1) {
         this.registry.set('currentLevel', 2);
-        this.scene.stop();
-        this.scene.start('TransitionScene', {
-          nextScene: 'CutsceneScene',
-          levelName: 'The Enchanted Forest',
-          sceneData: { cutscene: 'afterLevel1', nextScene: 'Level2Scene' }
-        });
+        this.scene.stop('UIScene');
+        this.scene.start('MapScene', { completedLevel: 1 });
       }
     });
   }
