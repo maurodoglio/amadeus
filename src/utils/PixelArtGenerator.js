@@ -15,6 +15,8 @@ export class PixelArtGenerator {
     this.generateTiles();
     this.generateItems();
     this.generateBackgrounds();
+    this.generateParticles();
+    this.generateParallaxLayers();
   }
 
   createTexture(key, pixelData, scale = 2) {
@@ -512,5 +514,290 @@ export class PixelArtGenerator {
     ctx.fillRect(0, 0, 800, 480);
 
     this.scene.textures.addCanvas(key, canvas);
+  }
+
+  generateParticles() {
+    // Dust particle (small brown circle)
+    this.generateCircleTexture('particleDust', 4, '#8B6914', 0.7);
+
+    // Musical note particle (small golden note shape)
+    this.generateNoteParticle('particleNote');
+
+    // Poof particle (white/grey cloud puff)
+    this.generateCircleTexture('particlePoof', 6, '#FFFFFF', 0.8);
+
+    // Sparkle particle (small star/diamond)
+    this.generateSparkleParticle('particleSparkle');
+  }
+
+  generateCircleTexture(key, radius, color, alpha = 1) {
+    const canvas = document.createElement('canvas');
+    const size = radius * 2 + 2;
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext('2d');
+
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(radius + 1, radius + 1, radius, 0, Math.PI * 2);
+    ctx.fill();
+
+    this.scene.textures.addCanvas(key, canvas);
+  }
+
+  generateNoteParticle(key) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 10;
+    canvas.height = 12;
+    const ctx = canvas.getContext('2d');
+
+    ctx.fillStyle = '#FFD700';
+    // Note head
+    ctx.beginPath();
+    ctx.ellipse(4, 9, 3, 2.5, -0.3, 0, Math.PI * 2);
+    ctx.fill();
+    // Stem
+    ctx.fillRect(6, 1, 1.5, 8);
+    // Flag
+    ctx.beginPath();
+    ctx.moveTo(7.5, 1);
+    ctx.quadraticCurveTo(10, 3, 7.5, 5);
+    ctx.fill();
+
+    this.scene.textures.addCanvas(key, canvas);
+  }
+
+  generateSparkleParticle(key) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 8;
+    canvas.height = 8;
+    const ctx = canvas.getContext('2d');
+
+    ctx.fillStyle = '#FFFFFF';
+    // Diamond/star shape
+    ctx.beginPath();
+    ctx.moveTo(4, 0);
+    ctx.lineTo(5, 3);
+    ctx.lineTo(8, 4);
+    ctx.lineTo(5, 5);
+    ctx.lineTo(4, 8);
+    ctx.lineTo(3, 5);
+    ctx.lineTo(0, 4);
+    ctx.lineTo(3, 3);
+    ctx.closePath();
+    ctx.fill();
+
+    this.scene.textures.addCanvas(key, canvas);
+  }
+
+  generateParallaxLayers() {
+    this.generateViennaParallax();
+    this.generateForestParallax();
+    this.generatePalaceParallax();
+  }
+
+  generateViennaParallax() {
+    // Far layer: sky with clouds
+    const canvas1 = document.createElement('canvas');
+    canvas1.width = 800;
+    canvas1.height = 480;
+    const ctx1 = canvas1.getContext('2d');
+    const gradient1 = ctx1.createLinearGradient(0, 0, 0, 480);
+    gradient1.addColorStop(0, '#87CEEB');
+    gradient1.addColorStop(1, '#B0C4DE');
+    ctx1.fillStyle = gradient1;
+    ctx1.fillRect(0, 0, 800, 480);
+    // Clouds
+    ctx1.fillStyle = 'rgba(255, 255, 255, 0.6)';
+    this.drawCloud(ctx1, 100, 60, 50);
+    this.drawCloud(ctx1, 350, 90, 40);
+    this.drawCloud(ctx1, 600, 50, 55);
+    this.drawCloud(ctx1, 750, 100, 35);
+    this.scene.textures.addCanvas('parallaxVienna_far', canvas1);
+
+    // Mid layer: distant buildings silhouette
+    const canvas2 = document.createElement('canvas');
+    canvas2.width = 800;
+    canvas2.height = 480;
+    const ctx2 = canvas2.getContext('2d');
+    ctx2.fillStyle = 'rgba(180, 160, 140, 0.5)';
+    for (let i = 0; i < 12; i++) {
+      const bx = i * 70;
+      const bh = 80 + Math.sin(i * 1.3) * 40;
+      ctx2.fillRect(bx, 480 - bh - 50, 55, bh);
+      // Roof
+      ctx2.beginPath();
+      ctx2.moveTo(bx, 480 - bh - 50);
+      ctx2.lineTo(bx + 27, 480 - bh - 70);
+      ctx2.lineTo(bx + 55, 480 - bh - 50);
+      ctx2.fill();
+    }
+    this.scene.textures.addCanvas('parallaxVienna_mid', canvas2);
+
+    // Near layer: closer buildings with detail
+    const canvas3 = document.createElement('canvas');
+    canvas3.width = 800;
+    canvas3.height = 480;
+    const ctx3 = canvas3.getContext('2d');
+    ctx3.fillStyle = 'rgba(139, 119, 101, 0.4)';
+    for (let i = 0; i < 6; i++) {
+      const bx = i * 140 + 20;
+      const bh = 120 + Math.sin(i * 2.1) * 50;
+      ctx3.fillRect(bx, 480 - bh - 32, 100, bh);
+      // Windows
+      ctx3.fillStyle = 'rgba(255, 250, 205, 0.3)';
+      for (let wy = 0; wy < 3; wy++) {
+        for (let wx = 0; wx < 3; wx++) {
+          ctx3.fillRect(bx + 15 + wx * 30, 480 - bh - 20 + wy * 35, 12, 15);
+        }
+      }
+      ctx3.fillStyle = 'rgba(139, 119, 101, 0.4)';
+    }
+    this.scene.textures.addCanvas('parallaxVienna_near', canvas3);
+  }
+
+  generateForestParallax() {
+    // Far layer: misty mountains
+    const canvas1 = document.createElement('canvas');
+    canvas1.width = 800;
+    canvas1.height = 480;
+    const ctx1 = canvas1.getContext('2d');
+    const gradient1 = ctx1.createLinearGradient(0, 0, 0, 480);
+    gradient1.addColorStop(0, '#0d3320');
+    gradient1.addColorStop(1, '#1a472a');
+    ctx1.fillStyle = gradient1;
+    ctx1.fillRect(0, 0, 800, 480);
+    // Mountains
+    ctx1.fillStyle = 'rgba(20, 60, 40, 0.6)';
+    ctx1.beginPath();
+    ctx1.moveTo(0, 400);
+    ctx1.lineTo(100, 200);
+    ctx1.lineTo(200, 320);
+    ctx1.lineTo(350, 180);
+    ctx1.lineTo(500, 300);
+    ctx1.lineTo(600, 220);
+    ctx1.lineTo(750, 280);
+    ctx1.lineTo(800, 250);
+    ctx1.lineTo(800, 480);
+    ctx1.lineTo(0, 480);
+    ctx1.fill();
+    this.scene.textures.addCanvas('parallaxForest_far', canvas1);
+
+    // Mid layer: distant trees
+    const canvas2 = document.createElement('canvas');
+    canvas2.width = 800;
+    canvas2.height = 480;
+    const ctx2 = canvas2.getContext('2d');
+    ctx2.fillStyle = 'rgba(34, 90, 34, 0.5)';
+    for (let i = 0; i < 16; i++) {
+      const tx = i * 55 + Math.sin(i) * 10;
+      const th = 60 + Math.sin(i * 1.7) * 20;
+      // Tree trunk
+      ctx2.fillStyle = 'rgba(60, 40, 20, 0.4)';
+      ctx2.fillRect(tx + 8, 480 - th - 40, 6, 40);
+      // Tree canopy
+      ctx2.fillStyle = 'rgba(34, 90, 34, 0.5)';
+      ctx2.beginPath();
+      ctx2.moveTo(tx, 480 - th);
+      ctx2.lineTo(tx + 11, 480 - th - 50);
+      ctx2.lineTo(tx + 22, 480 - th);
+      ctx2.fill();
+    }
+    this.scene.textures.addCanvas('parallaxForest_mid', canvas2);
+
+    // Near layer: closer foliage
+    const canvas3 = document.createElement('canvas');
+    canvas3.width = 800;
+    canvas3.height = 480;
+    const ctx3 = canvas3.getContext('2d');
+    for (let i = 0; i < 8; i++) {
+      const tx = i * 110 + 20;
+      const th = 100 + Math.sin(i * 2.3) * 40;
+      // Large tree
+      ctx3.fillStyle = 'rgba(50, 30, 15, 0.35)';
+      ctx3.fillRect(tx + 15, 480 - th - 32, 12, 80);
+      ctx3.fillStyle = 'rgba(40, 100, 40, 0.35)';
+      ctx3.beginPath();
+      ctx3.arc(tx + 21, 480 - th - 20, 30, 0, Math.PI * 2);
+      ctx3.fill();
+    }
+    this.scene.textures.addCanvas('parallaxForest_near', canvas3);
+  }
+
+  generatePalaceParallax() {
+    // Far layer: starry night sky
+    const canvas1 = document.createElement('canvas');
+    canvas1.width = 800;
+    canvas1.height = 480;
+    const ctx1 = canvas1.getContext('2d');
+    const gradient1 = ctx1.createLinearGradient(0, 0, 0, 480);
+    gradient1.addColorStop(0, '#0a0a1a');
+    gradient1.addColorStop(1, '#1a1a2e');
+    ctx1.fillStyle = gradient1;
+    ctx1.fillRect(0, 0, 800, 480);
+    // Stars
+    ctx1.fillStyle = 'rgba(255, 255, 255, 0.7)';
+    for (let i = 0; i < 50; i++) {
+      const sx = (i * 137 + 23) % 800;
+      const sy = (i * 89 + 47) % 300;
+      const size = (i % 3) + 1;
+      ctx1.fillRect(sx, sy, size, size);
+    }
+    this.scene.textures.addCanvas('parallaxPalace_far', canvas1);
+
+    // Mid layer: palace towers silhouette
+    const canvas2 = document.createElement('canvas');
+    canvas2.width = 800;
+    canvas2.height = 480;
+    const ctx2 = canvas2.getContext('2d');
+    ctx2.fillStyle = 'rgba(60, 20, 60, 0.5)';
+    // Palace outline
+    const towers = [50, 200, 400, 550, 700];
+    towers.forEach((tx, i) => {
+      const th = 150 + (i % 2) * 60;
+      ctx2.fillRect(tx, 480 - th - 50, 40, th);
+      // Dome top
+      ctx2.beginPath();
+      ctx2.arc(tx + 20, 480 - th - 50, 20, Math.PI, 0);
+      ctx2.fill();
+    });
+    // Connecting walls
+    ctx2.fillRect(50, 480 - 120, 690, 70);
+    this.scene.textures.addCanvas('parallaxPalace_mid', canvas2);
+
+    // Near layer: columns and drapes
+    const canvas3 = document.createElement('canvas');
+    canvas3.width = 800;
+    canvas3.height = 480;
+    const ctx3 = canvas3.getContext('2d');
+    for (let i = 0; i < 6; i++) {
+      const cx = i * 150 + 30;
+      // Column
+      ctx3.fillStyle = 'rgba(80, 40, 80, 0.3)';
+      ctx3.fillRect(cx, 200, 20, 250);
+      // Column top
+      ctx3.fillRect(cx - 5, 195, 30, 10);
+      // Drape between columns
+      if (i < 5) {
+        ctx3.fillStyle = 'rgba(100, 20, 80, 0.2)';
+        ctx3.beginPath();
+        ctx3.moveTo(cx + 20, 200);
+        ctx3.quadraticCurveTo(cx + 85, 240, cx + 150, 200);
+        ctx3.lineTo(cx + 150, 210);
+        ctx3.quadraticCurveTo(cx + 85, 250, cx + 20, 210);
+        ctx3.fill();
+      }
+    }
+    this.scene.textures.addCanvas('parallaxPalace_near', canvas3);
+  }
+
+  drawCloud(ctx, x, y, size) {
+    ctx.beginPath();
+    ctx.arc(x, y, size * 0.5, 0, Math.PI * 2);
+    ctx.arc(x + size * 0.4, y - size * 0.1, size * 0.4, 0, Math.PI * 2);
+    ctx.arc(x + size * 0.8, y, size * 0.35, 0, Math.PI * 2);
+    ctx.arc(x + size * 0.3, y + size * 0.1, size * 0.3, 0, Math.PI * 2);
+    ctx.fill();
   }
 }

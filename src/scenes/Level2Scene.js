@@ -4,6 +4,7 @@ import { Mozart } from '../sprites/Mozart.js';
 import { DrumTroll } from '../sprites/enemies/DrumTroll.js';
 import { BrokenInstrument } from '../sprites/enemies/BrokenInstrument.js';
 import { DissonantNote } from '../sprites/enemies/DissonantNote.js';
+import { ParticleManager } from '../utils/ParticleManager.js';
 
 export class Level2Scene extends Phaser.Scene {
   constructor() {
@@ -11,12 +12,15 @@ export class Level2Scene extends Phaser.Scene {
   }
 
   create() {
-    // Background
-    if (this.textures.exists('bgForest')) {
-      this.add.image(GAME_WIDTH / 2, GAME_HEIGHT / 2, 'bgForest');
-    } else {
-      this.cameras.main.setBackgroundColor('#1a472a');
-    }
+    this.particles = new ParticleManager(this);
+
+    // Parallax background layers
+    this.bgFar = this.add.tileSprite(0, 0, GAME_WIDTH, GAME_HEIGHT, 'parallaxForest_far')
+      .setOrigin(0, 0).setScrollFactor(0).setDepth(-10);
+    this.bgMid = this.add.tileSprite(0, 0, GAME_WIDTH, GAME_HEIGHT, 'parallaxForest_mid')
+      .setOrigin(0, 0).setScrollFactor(0).setDepth(-9);
+    this.bgNear = this.add.tileSprite(0, 0, GAME_WIDTH, GAME_HEIGHT, 'parallaxForest_near')
+      .setOrigin(0, 0).setScrollFactor(0).setDepth(-8);
 
     // Level title
     const title = this.add.text(GAME_WIDTH / 2, 60, 'The Enchanted Forest', {
@@ -172,6 +176,9 @@ export class Level2Scene extends Phaser.Scene {
       repeat: -1
     });
 
+    // Sparkle particles around instrument
+    this.instrumentSparkle = this.particles.emitSparkle(2450, GAME_HEIGHT - 100);
+
     // Collisions
     this.physics.add.collider(this.mozart, this.platforms);
     this.physics.add.collider(this.mozart, this.movingPlatforms);
@@ -194,6 +201,12 @@ export class Level2Scene extends Phaser.Scene {
       if (e.active) e.update(time, delta);
     });
 
+    // Parallax scrolling
+    const camX = this.cameras.main.scrollX;
+    this.bgFar.tilePositionX = camX * 0.1;
+    this.bgMid.tilePositionX = camX * 0.3;
+    this.bgNear.tilePositionX = camX * 0.5;
+
     if (this.mozart && this.mozart.y > GAME_HEIGHT + 50) {
       this.mozart.die();
     }
@@ -201,6 +214,7 @@ export class Level2Scene extends Phaser.Scene {
 
   hitEnemy(player, enemy) {
     if (player.body.velocity.y > 0 && player.y < enemy.y - 10) {
+      this.particles.emitStomp(enemy.x, enemy.y);
       enemy.destroy();
       this.enemyList = this.enemyList.filter(e => e !== enemy);
       player.setVelocityY(-200);
@@ -213,6 +227,7 @@ export class Level2Scene extends Phaser.Scene {
   }
 
   collectNote(player, note) {
+    this.particles.emitNoteCollect(note.x, note.y);
     note.destroy();
     const score = this.registry.get('score') + 50;
     this.registry.set('score', score);
@@ -220,6 +235,8 @@ export class Level2Scene extends Phaser.Scene {
   }
 
   collectInstrument(player, instrument) {
+    this.particles.emitSparkleCollect(instrument.x, instrument.y);
+    if (this.instrumentSparkle) this.instrumentSparkle.destroy();
     instrument.destroy();
     player.collectInstrument('flute');
 

@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { PLAYER } from '../config/constants.js';
+import { ParticleManager } from '../utils/ParticleManager.js';
 
 export class Mozart extends Phaser.Physics.Arcade.Sprite {
   constructor(scene, x, y) {
@@ -15,6 +16,9 @@ export class Mozart extends Phaser.Physics.Arcade.Sprite {
     this.isInvincible = false;
     this.isDead = false;
     this.canAttack = false;
+    this.wasInAir = false;
+
+    this.particles = new ParticleManager(scene);
 
     // Animations
     scene.anims.create({
@@ -47,6 +51,12 @@ export class Mozart extends Phaser.Physics.Arcade.Sprite {
     if (this.isDead) return;
 
     const onGround = this.body.blocked.down || this.body.touching.down;
+
+    // Emit dust on landing
+    if (onGround && this.wasInAir) {
+      this.particles.emitDust(this.x, this.y + this.height / 2);
+    }
+    this.wasInAir = !onGround;
 
     // Horizontal movement
     if (this.cursors.left.isDown) {
