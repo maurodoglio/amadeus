@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amadeus - Mozart's Musical Quest</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #1a1a2e;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Georgia', serif;
+            overflow: hidden;
+        }
+        #gameCanvas {
+            border: 3px solid #gold;
+            border-color: #c9a227;
+            background: #2d1b69;
+            image-rendering: pixelated;
+        }
+        #ui-overlay {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #f0e68c;
+            font-size: 18px;
+            text-align: center;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="ui-overlay">
+        <div id="hud"></div>
+    </div>
+    <canvas id="gameCanvas" width="960" height="540"></canvas>
+    <script type="module" src="js/game.js"></script>
+</body>
+</html>
