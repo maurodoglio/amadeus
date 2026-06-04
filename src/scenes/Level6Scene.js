@@ -6,6 +6,8 @@ import { BrokenInstrument } from '../sprites/enemies/BrokenInstrument.js';
 import { AdaptiveMusicManager } from '../utils/AdaptiveMusicManager.js';
 import { ParticleManager } from '../utils/ParticleManager.js';
 import { setupBoss, updateBossAI, getBossTarget } from '../utils/BossFight.js';
+import { ComboSystem } from '../utils/ComboSystem.js';
+import { getAchievementManager } from '../utils/AchievementManager.js';
 
 export class Level6Scene extends Phaser.Scene {
   constructor() {
@@ -14,6 +16,14 @@ export class Level6Scene extends Phaser.Scene {
 
   create() {
     this.particles = new ParticleManager(this);
+    this.combo = new ComboSystem(this);
+    this.levelStartTime = this.time.now;
+    this.levelStartScore = this.registry.get('score') || 0;
+
+    // Achievement tracking
+    const achievements = getAchievementManager();
+    if (achievements) achievements.onLevelStart(6);
+
     // Background - dark caves
     if (this.textures.exists('bgCaves')) {
       this.add.image(GAME_WIDTH / 2, GAME_HEIGHT / 2, 'bgCaves');
@@ -249,6 +259,17 @@ export class Level6Scene extends Phaser.Scene {
       player.setVelocityY(-200);
       const score = this.registry.get('score') + 100;
       this.registry.set('score', score);
+      this.combo.registerAction();
+      this.registry.set('comboMultiplier', this.combo.getMultiplier());
+      this.registry.set('comboCount', this.combo.getComboCount());
+
+      // Achievement tracking
+      const achievements = getAchievementManager();
+      if (achievements) {
+        achievements.onEnemyDefeated();
+        achievements.onComboUpdate(this.combo.getComboCount());
+      }
+
       if (this.sound.get('sfx_coin')) this.sound.play('sfx_coin', { volume: 0.2 });
 
       // Victory fanfare
@@ -256,6 +277,10 @@ export class Level6Scene extends Phaser.Scene {
     } else {
       player.hit();
       if (this.adaptiveMusic) this.adaptiveMusic.playDamageStinger();
+
+      // Achievement tracking - damage taken
+      const achievements = getAchievementManager();
+      if (achievements) achievements.onDamageTaken();
     }
   }
 
@@ -263,6 +288,14 @@ export class Level6Scene extends Phaser.Scene {
     note.destroy();
     const score = this.registry.get('score') + 50;
     this.registry.set('score', score);
+    this.combo.registerAction();
+    this.registry.set('comboMultiplier', this.combo.getMultiplier());
+    this.registry.set('comboCount', this.combo.getComboCount());
+
+    // Achievement tracking - combo
+    const achievements = getAchievementManager();
+    if (achievements) achievements.onComboUpdate(this.combo.getComboCount());
+
     if (this.sound.get('sfx_coin')) this.sound.play('sfx_coin', { volume: 0.3 });
     // Collecting notes slightly increases visibility
     this.glowRadius = Math.min(this.glowRadius + 5, 180);
@@ -275,12 +308,25 @@ export class Level6Scene extends Phaser.Scene {
     if (this.darkness) {
       this.tweens.add({ targets: this.darkness, alpha: 0, duration: 800 });
     }
+    const elapsedSeconds = Math.floor((this.time.now - this.levelStartTime) / 1000);
+    this.combo.destroy();
 
     const completedLevels = this.registry.get('completedLevels') || [];
     if (!completedLevels.includes(6)) {
       completedLevels.push(6);
       this.registry.set('completedLevels', completedLevels);
     }
+
+    // Achievement tracking
+    const achievements = getAchievementManager();
+    if (achievements) achievements.onLevelComplete(6, elapsedSeconds);
+
+    // Light up the cave on instrument collect
+    this.tweens.add({
+      targets: this.darkness,
+      alpha: 0,
+      duration: 800
+    });
 
     this.cameras.main.fade(1500, 0, 0, 0, false, (cam, progress) => {
       if (progress === 1) {

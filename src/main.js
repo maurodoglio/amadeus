@@ -19,6 +19,9 @@ import { TouchControls } from './ui/TouchControls.js';
 import { PauseScene } from './scenes/PauseScene.js';
 import { AccessibilityScene } from './scenes/AccessibilityScene.js';
 import { RhythmScene } from './scenes/RhythmScene.js';
+import { AchievementsScene } from './scenes/AchievementsScene.js';
+import { AchievementPopup } from './ui/AchievementPopup.js';
+import { initAchievementManager } from './utils/AchievementManager.js';
 
 const config = {
   type: Phaser.AUTO,
@@ -40,7 +43,10 @@ const config = {
       debug: false
     }
   },
-  scene: [BootScene, MenuScene, MapScene, CutsceneScene, TransitionScene, Level1Scene, Level2Scene, Level3Scene, Level4Scene, Level5Scene, Level6Scene, Level7Scene, LevelCompleteScene, ConcertScene, UIScene, TouchControls, PauseScene, AccessibilityScene, RhythmScene]
+  scene: [BootScene, MenuScene, MapScene, CutsceneScene, TransitionScene, Level1Scene, Level2Scene, Level3Scene, Level4Scene, Level5Scene, Level6Scene, Level7Scene, LevelCompleteScene, ConcertScene, UIScene, TouchControls, PauseScene, AccessibilityScene, RhythmScene, AchievementsScene, AchievementPopup]
 };
 
 const game = new Phaser.Game(config);
+
+// Initialize achievement system after game creation
+initAchievementManager(game);
