@@ -239,10 +239,21 @@ export class Level5Scene extends Phaser.Scene {
     instrument.destroy();
     player.collectInstrument('trumpet');
 
+    const completedLevels = this.registry.get('completedLevels') || [];
+    if (!completedLevels.includes(5)) {
+      completedLevels.push(5);
+      this.registry.set('completedLevels', completedLevels);
+    }
+
     this.cameras.main.fade(1000, 0, 0, 0, false, (cam, progress) => {
       if (progress === 1) {
-        this.registry.set('currentLevel', 6);
-        this.scene.start('Level6Scene');
+        this.scene.stop('UIScene');
+        this.scene.start('LevelCompleteScene', {
+          level: 5,
+          levelScore: this.registry.get('score'),
+          timeBonus: 0,
+          nextScene: 'Level6Scene'
+        });
       }
     });
   }

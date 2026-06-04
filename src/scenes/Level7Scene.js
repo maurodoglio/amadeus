@@ -199,8 +199,13 @@ export class Level7Scene extends Phaser.Scene {
     instrument.destroy();
     player.collectInstrument('harp');
 
-    // Restore gravity before transitioning
     this.physics.world.gravity.y = 800;
+
+    const completedLevels = this.registry.get('completedLevels') || [];
+    if (!completedLevels.includes(7)) {
+      completedLevels.push(7);
+      this.registry.set('completedLevels', completedLevels);
+    }
 
     this.cameras.main.fade(1500, 255, 255, 255, false, (cam, progress) => {
       if (progress === 1) {

@@ -216,17 +216,25 @@ export class Level6Scene extends Phaser.Scene {
     instrument.destroy();
     player.collectInstrument('drums');
 
-    // Light up the cave on instrument collect
-    this.tweens.add({
-      targets: this.darkness,
-      alpha: 0,
-      duration: 800
-    });
+    if (this.darkness) {
+      this.tweens.add({ targets: this.darkness, alpha: 0, duration: 800 });
+    }
+
+    const completedLevels = this.registry.get('completedLevels') || [];
+    if (!completedLevels.includes(6)) {
+      completedLevels.push(6);
+      this.registry.set('completedLevels', completedLevels);
+    }
 
     this.cameras.main.fade(1500, 0, 0, 0, false, (cam, progress) => {
       if (progress === 1) {
-        this.registry.set('currentLevel', 7);
-        this.scene.start('Level7Scene');
+        this.scene.stop('UIScene');
+        this.scene.start('LevelCompleteScene', {
+          level: 6,
+          levelScore: this.registry.get('score'),
+          timeBonus: 0,
+          nextScene: 'Level7Scene'
+        });
       }
     });
   }

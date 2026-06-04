@@ -248,10 +248,21 @@ export class Level4Scene extends Phaser.Scene {
     instrument.destroy();
     player.collectInstrument('harpsichord');
 
+    const completedLevels = this.registry.get('completedLevels') || [];
+    if (!completedLevels.includes(4)) {
+      completedLevels.push(4);
+      this.registry.set('completedLevels', completedLevels);
+    }
+
     this.cameras.main.fade(1000, 0, 0, 0, false, (cam, progress) => {
       if (progress === 1) {
-        this.registry.set('currentLevel', 5);
-        this.scene.start('Level5Scene');
+        this.scene.stop('UIScene');
+        this.scene.start('LevelCompleteScene', {
+          level: 4,
+          levelScore: this.registry.get('score'),
+          timeBonus: 0,
+          nextScene: 'Level5Scene'
+        });
       }
     });
   }

@@ -2,9 +2,13 @@ import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT } from '../config/constants.js';
 
 const LEVEL_DATA = [
-  { id: 1, name: 'Vienna Streets', scene: 'Level1Scene', instrument: 'violin', x: 120, y: 350, cutscene: 'intro' },
-  { id: 2, name: 'Enchanted Forest', scene: 'Level2Scene', instrument: 'flute', x: 350, y: 250, cutscene: 'afterLevel1' },
-  { id: 3, name: 'Royal Palace', scene: 'Level3Scene', instrument: 'piano', x: 600, y: 180, cutscene: 'afterLevel2' }
+  { id: 1, name: 'Vienna Streets', scene: 'Level1Scene', instrument: 'violin', x: 80, y: 380, cutscene: 'intro' },
+  { id: 2, name: 'Enchanted Forest', scene: 'Level2Scene', instrument: 'flute', x: 200, y: 300, cutscene: 'afterLevel1' },
+  { id: 3, name: 'Royal Palace', scene: 'Level3Scene', instrument: 'piano', x: 340, y: 240, cutscene: 'afterLevel2' },
+  { id: 4, name: 'The Opera House', scene: 'Level4Scene', instrument: 'harpsichord', x: 470, y: 320, cutscene: 'afterLevel3' },
+  { id: 5, name: 'Storm Symphony', scene: 'Level5Scene', instrument: 'trumpet', x: 580, y: 200, cutscene: 'afterLevel4' },
+  { id: 6, name: 'Crystal Caverns', scene: 'Level6Scene', instrument: 'drums', x: 680, y: 300, cutscene: 'afterLevel5' },
+  { id: 7, name: 'Celestial Stage', scene: 'Level7Scene', instrument: 'harp', x: 750, y: 160, cutscene: 'afterLevel6' }
 ];
 
 export class MapScene extends Phaser.Scene {
