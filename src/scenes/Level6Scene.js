@@ -4,6 +4,8 @@ import { Mozart } from '../sprites/Mozart.js';
 import { DrumTroll } from '../sprites/enemies/DrumTroll.js';
 import { BrokenInstrument } from '../sprites/enemies/BrokenInstrument.js';
 import { AdaptiveMusicManager } from '../utils/AdaptiveMusicManager.js';
+import { ParticleManager } from '../utils/ParticleManager.js';
+import { setupBoss, updateBossAI, getBossTarget } from '../utils/BossFight.js';
 
 export class Level6Scene extends Phaser.Scene {
   constructor() {
@@ -11,6 +13,7 @@ export class Level6Scene extends Phaser.Scene {
   }
 
   create() {
+    this.particles = new ParticleManager(this);
     // Background - dark caves
     if (this.textures.exists('bgCaves')) {
       this.add.image(GAME_WIDTH / 2, GAME_HEIGHT / 2, 'bgCaves');
@@ -116,17 +119,24 @@ export class Level6Scene extends Phaser.Scene {
       });
     });
 
-    // Instrument at end
+    // Instrument at end (hidden until boss defeated)
     this.instrument = this.physics.add.sprite(2500, GAME_HEIGHT - 100, 'drums');
     this.instrument.body.setAllowGravity(false);
     this.instrument.setDisplaySize(40, 36);
-    this.tweens.add({
-      targets: this.instrument,
-      scaleX: 1.2,
-      scaleY: 1.2,
-      duration: 800,
-      yoyo: true,
-      repeat: -1
+    this.instrument.setVisible(false);
+    this.instrument.body.enable = false;
+
+    // Boss: The Crystal Drummer
+    setupBoss(this, {
+      x: 2400,
+      y: GAME_HEIGHT - 120,
+      texture: 'bossCrystalDrummer',
+      name: 'The Crystal Drummer',
+      health: 3,
+      speed: 95,
+      jumpForce: -380,
+      attackInterval: 2600,
+      activateX: 2050
     });
 
     // Darkness overlay - limited visibility
@@ -164,6 +174,40 @@ export class Level6Scene extends Phaser.Scene {
 
     // Update adaptive music system
     if (this.adaptiveMusic) this.adaptiveMusic.update(this);
+    // Boss AI: Crystal Drummer - shockwave ground pounds
+    updateBossAI(this, time, (scene, t) => {
+      const boss = scene.boss;
+      const target = getBossTarget(scene);
+      const speedMult = boss.phase === 3 ? 1.5 : boss.phase === 2 ? 1.2 : 1;
+
+      if (target.x > boss.x + 30) {
+        boss.setVelocityX(boss.speed * speedMult);
+        boss.setFlipX(false);
+      } else if (target.x < boss.x - 30) {
+        boss.setVelocityX(-boss.speed * speedMult);
+        boss.setFlipX(true);
+      } else {
+        boss.setVelocityX(0);
+      }
+
+      // Echoing drum shockwave: jumps and creates screen shake on landing
+      const interval = boss.attackInterval / boss.phase;
+      if (t > boss.attackTimer && (boss.body.blocked.down || boss.body.touching.down)) {
+        boss.setVelocityY(boss.jumpForce);
+        boss.attackTimer = t + interval;
+        scene.time.delayedCall(500, () => {
+          if (boss.active && (boss.body.blocked.down || boss.body.touching.down)) {
+            scene.particles.screenShake(0.012 * boss.phase, 300);
+            scene.particles.emitStomp(boss.x, boss.y + 20);
+            // Push nearby player away
+            if (Math.abs(target.x - boss.x) < 150) {
+              const pushDir = target.x > boss.x ? 1 : -1;
+              target.setVelocityX(pushDir * 200 * boss.phase);
+            }
+          }
+        });
+      }
+    });
 
     // Draw darkness with circular cutout around player
     this.updateDarkness();

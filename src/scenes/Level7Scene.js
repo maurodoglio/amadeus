@@ -8,6 +8,8 @@ import { NPC } from '../sprites/NPC.js';
 import { DialogueBox } from '../ui/DialogueBox.js';
 import { NPC_DIALOGUES } from '../config/npcDialogues.js';
 import { AdaptiveMusicManager } from '../utils/AdaptiveMusicManager.js';
+import { ParticleManager } from '../utils/ParticleManager.js';
+import { setupBoss, updateBossAI, getBossTarget } from '../utils/BossFight.js';
 
 export class Level7Scene extends Phaser.Scene {
   constructor() {
@@ -15,6 +17,7 @@ export class Level7Scene extends Phaser.Scene {
   }
 
   create() {
+    this.particles = new ParticleManager(this);
     // Background - sky cathedral
     if (this.textures.exists('bgSky')) {
       this.add.image(GAME_WIDTH / 2, GAME_HEIGHT / 2, 'bgSky');
@@ -139,18 +142,26 @@ export class Level7Scene extends Phaser.Scene {
       });
     });
 
-    // Instrument at end (harp)
+    // Instrument at end (hidden until boss defeated)
     this.instrument = this.physics.add.sprite(2550, 240, 'harp');
     this.instrument.body.setAllowGravity(false);
     this.instrument.setDisplaySize(36, 48);
-    this.tweens.add({
-      targets: this.instrument,
-      scaleX: 1.2,
-      scaleY: 1.2,
-      duration: 800,
-      yoyo: true,
-      repeat: -1
+    this.instrument.setVisible(false);
+    this.instrument.body.enable = false;
+
+    // Boss: The Sky Harpist
+    setupBoss(this, {
+      x: 2450,
+      y: 200,
+      texture: 'bossSkyHarpist',
+      name: 'The Sky Harpist',
+      health: 3,
+      speed: 100,
+      jumpForce: -300,
+      attackInterval: 2000,
+      activateX: 2100
     });
+    this.bossProjectiles = this.physics.add.group();
 
     // Collisions
     this.physics.add.collider(this.mozart, this.platforms);
@@ -208,6 +219,51 @@ export class Level7Scene extends Phaser.Scene {
     }
     // Update adaptive music system
     if (this.adaptiveMusic) this.adaptiveMusic.update(this);
+    // Boss AI: Sky Harpist - fires harp string projectiles in arcs
+    updateBossAI(this, time, (scene, t) => {
+      const boss = scene.boss;
+      const target = getBossTarget(scene);
+      const speedMult = boss.phase === 3 ? 1.4 : boss.phase === 2 ? 1.2 : 1;
+
+      if (target.x > boss.x + 40) {
+        boss.setVelocityX(boss.speed * speedMult);
+        boss.setFlipX(false);
+      } else if (target.x < boss.x - 40) {
+        boss.setVelocityX(-boss.speed * speedMult);
+        boss.setFlipX(true);
+      } else {
+        boss.setVelocityX(0);
+      }
+
+      // Harp string rain: fires projectiles downward in arc pattern
+      const interval = boss.attackInterval / boss.phase;
+      if (t > boss.attackTimer) {
+        boss.attackTimer = t + interval;
+        const count = 2 + boss.phase;
+        for (let i = 0; i < count; i++) {
+          scene.time.delayedCall(i * 150, () => {
+            if (!boss.active) return;
+            const proj = scene.bossProjectiles.create(
+              boss.x + (i - count / 2) * 30,
+              boss.y + 10,
+              'bossProjectile'
+            );
+            proj.body.setAllowGravity(true);
+            proj.setVelocityX((i - count / 2) * 50);
+            proj.setVelocityY(100);
+            scene.time.delayedCall(3000, () => { if (proj.active) proj.destroy(); });
+          });
+        }
+      }
+    });
+
+    // Projectile collision
+    if (this.bossProjectiles) {
+      this.physics.add.overlap(this.mozart, this.bossProjectiles, (player, proj) => {
+        proj.destroy();
+        player.hit();
+      });
+    }
 
     // Fall death (fall off bottom of sky)
     if (this.mozart && this.mozart.y > GAME_HEIGHT + 50) {

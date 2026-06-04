@@ -7,6 +7,8 @@ import { NPC } from '../sprites/NPC.js';
 import { DialogueBox } from '../ui/DialogueBox.js';
 import { NPC_DIALOGUES } from '../config/npcDialogues.js';
 import { AdaptiveMusicManager } from '../utils/AdaptiveMusicManager.js';
+import { ParticleManager } from '../utils/ParticleManager.js';
+import { setupBoss, updateBossAI, getBossTarget } from '../utils/BossFight.js';
 
 export class Level4Scene extends Phaser.Scene {
   constructor() {
@@ -14,6 +16,7 @@ export class Level4Scene extends Phaser.Scene {
   }
 
   create() {
+    this.particles = new ParticleManager(this);
     this.rhythmActive = false;
     this.rhythmTimer = 0;
     this.rhythmBeat = false;
@@ -151,18 +154,26 @@ export class Level4Scene extends Phaser.Scene {
       });
     });
 
-    // Instrument at end
+    // Instrument at end (hidden until boss defeated)
     this.instrument = this.physics.add.sprite(2350, GAME_HEIGHT - 100, 'harpsichord');
     this.instrument.body.setAllowGravity(false);
     this.instrument.setDisplaySize(48, 32);
-    this.tweens.add({
-      targets: this.instrument,
-      scaleX: 1.2,
-      scaleY: 1.2,
-      duration: 800,
-      yoyo: true,
-      repeat: -1
+    this.instrument.setVisible(false);
+    this.instrument.body.enable = false;
+
+    // Boss: The Phantom Singer
+    setupBoss(this, {
+      x: 2250,
+      y: GAME_HEIGHT - 120,
+      texture: 'bossPhantomSinger',
+      name: 'The Phantom Singer',
+      health: 3,
+      speed: 120,
+      jumpForce: -380,
+      attackInterval: 2200,
+      activateX: 1900
     });
+    this.bossProjectiles = this.physics.add.group();
 
     // Rhythm beat indicator (UI)
     this.beatIndicator = this.add.circle(GAME_WIDTH / 2, 30, 15, 0xFF4500, 0.5)
@@ -228,6 +239,46 @@ export class Level4Scene extends Phaser.Scene {
     }
     // Update adaptive music system
     if (this.adaptiveMusic) this.adaptiveMusic.update(this);
+    // Boss AI: Phantom Singer - teleports and fires sonic waves
+    updateBossAI(this, time, (scene, t) => {
+      const boss = scene.boss;
+      const target = getBossTarget(scene);
+      const speedMult = boss.phase === 3 ? 1.6 : boss.phase === 2 ? 1.3 : 1;
+
+      if (target.x > boss.x + 50) {
+        boss.setVelocityX(boss.speed * speedMult);
+        boss.setFlipX(false);
+      } else if (target.x < boss.x - 50) {
+        boss.setVelocityX(-boss.speed * speedMult);
+        boss.setFlipX(true);
+      } else {
+        boss.setVelocityX(0);
+      }
+
+      // Sonic wave attack (spreads wider in later phases)
+      const interval = boss.attackInterval / boss.phase;
+      if (t > boss.attackTimer) {
+        boss.attackTimer = t + interval;
+        const numProjectiles = boss.phase;
+        for (let i = 0; i < numProjectiles; i++) {
+          const angle = Phaser.Math.Angle.Between(boss.x, boss.y, target.x, target.y);
+          const spread = (i - (numProjectiles - 1) / 2) * 0.3;
+          const proj = scene.bossProjectiles.create(boss.x, boss.y - 10, 'bossProjectile');
+          proj.body.setAllowGravity(false);
+          const speed = 200;
+          proj.setVelocity(Math.cos(angle + spread) * speed, Math.sin(angle + spread) * speed);
+          scene.time.delayedCall(3000, () => { if (proj.active) proj.destroy(); });
+        }
+      }
+    });
+
+    // Projectile collision
+    if (this.bossProjectiles) {
+      this.physics.add.overlap(this.mozart, this.bossProjectiles, (player, proj) => {
+        proj.destroy();
+        player.hit();
+      });
+    }
 
     // Rhythm mechanic: platforms toggle on/off every 1.2 seconds
     this.rhythmTimer += delta;
