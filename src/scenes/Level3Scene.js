@@ -17,6 +17,7 @@ import { AdaptiveMusicManager } from '../utils/AdaptiveMusicManager.js';
 import { MozartSoundtracks } from '../utils/MozartSoundtracks.js';
 import { getAchievementManager } from '../utils/AchievementManager.js';
 import { CompositionCollector } from '../mechanics/CompositionCollector.js';
+import { showBossDialogue } from '../utils/BossFight.js';
 
 export class Level3Scene extends Phaser.Scene {
   constructor() {
@@ -317,12 +318,11 @@ export class Level3Scene extends Phaser.Scene {
   }
 
   createBoss() {
-    // The Discordant Maestro - a large enemy at the end
-    this.boss = this.physics.add.sprite(2500, GAME_HEIGHT - 120, 'drumTroll');
+    // Archbishop Colloredo - throws chains/obligations, tries to trap Mozart
+    this.boss = this.physics.add.sprite(2500, GAME_HEIGHT - 120, 'bossArchbishopColloredo');
     this.boss.setScale(2.5);
     this.boss.body.setAllowGravity(true);
     this.boss.setCollideWorldBounds(true);
-    // More health in co-op for balance
     this.boss.health = this.coopMode ? 7 : 5;
     this.boss.maxHealth = this.boss.health;
     this.boss.isActive = false;
@@ -334,9 +334,12 @@ export class Level3Scene extends Phaser.Scene {
     // Boss health bar
     this.bossHealthBg = this.add.rectangle(2500, 80, 200, 20, 0x333333).setScrollFactor(0).setVisible(false);
     this.bossHealthBar = this.add.rectangle(2500, 80, 196, 16, 0xFF0000).setScrollFactor(0).setVisible(false);
-    this.bossLabel = this.add.text(2500, 55, 'The Discordant Maestro', {
+    this.bossLabel = this.add.text(2500, 55, 'Archbishop Colloredo', {
       font: '12px monospace', fill: '#FFD700'
     }).setOrigin(0.5).setScrollFactor(0).setVisible(false);
+
+    this.bossProjectiles = this.physics.add.group();
+    this.bossDialogueShown = false;
 
     this.physics.add.overlap(this.mozart, this.boss, this.hitBoss, null, this);
   }
@@ -409,12 +412,22 @@ export class Level3Scene extends Phaser.Scene {
         }
         if (this.mozartSoundtrack) {
           this.mozartSoundtrack.setBossMode(true);
+
+        // Show pre-fight dialogue
+        if (!this.bossDialogueShown) {
+          this.bossDialogueShown = true;
+          this.bossDialogueActive = true;
+          showBossDialogue(this, [
+            '"You ungrateful servant! You belong to me, Mozart!"',
+            '"I shall bind you with obligations you cannot escape!"',
+            '"No one leaves my service without permission!"'
+          ]);
         }
       }
     }
 
     // Boss AI
-    if (this.boss && this.boss.active && this.boss.isActive) {
+    if (this.boss && this.boss.active && this.boss.isActive && !this.bossDialogueActive) {
       this.updateBoss(time);
     }
 
@@ -439,6 +452,8 @@ export class Level3Scene extends Phaser.Scene {
     }
   }
 
+  }
+
   updateBoss(time) {
     const boss = this.boss;
 
@@ -448,28 +463,44 @@ export class Level3Scene extends Phaser.Scene {
       if (this.mozart.isDead) {
         target = this.nannerl;
       } else {
-        // Target closest player
         const d1 = Math.abs(this.mozart.x - boss.x);
         const d2 = Math.abs(this.nannerl.x - boss.x);
         target = d1 < d2 ? this.mozart : this.nannerl;
       }
     }
 
-    // Move toward target player
+    // Move toward target player, trying to corner them
     if (target.x > boss.x + 30) {
-      boss.setVelocityX(100);
+      boss.setVelocityX(110);
       boss.setFlipX(false);
     } else if (target.x < boss.x - 30) {
-      boss.setVelocityX(-100);
+      boss.setVelocityX(-110);
       boss.setFlipX(true);
     } else {
       boss.setVelocityX(0);
     }
 
-    // Periodic jump attack
+    // Throw chain projectiles that try to trap Mozart in corners
     if (time > boss.attackTimer && (boss.body.blocked.down || boss.body.touching.down)) {
-      boss.setVelocityY(-350);
       boss.attackTimer = time + (this.coopMode ? 2000 : 2500);
+
+      // Fire chain projectile toward player
+      const proj = this.bossProjectiles.create(boss.x, boss.y - 10, 'chainProjectile');
+      proj.body.setAllowGravity(false);
+      const angle = Phaser.Math.Angle.Between(boss.x, boss.y, target.x, target.y);
+      proj.setVelocity(Math.cos(angle) * 200, Math.sin(angle) * 200);
+      this.time.delayedCall(3000, () => { if (proj.active) proj.destroy(); });
+
+      // Also jump to pressure player
+      boss.setVelocityY(-350);
+    }
+
+    // Projectile collision
+    if (this.bossProjectiles) {
+      this.physics.add.overlap(this.mozart, this.bossProjectiles, (player, proj) => {
+        proj.destroy();
+        player.hit();
+      });
     }
   }
 
@@ -522,10 +553,25 @@ export class Level3Scene extends Phaser.Scene {
   defeatBoss() {
     this.bossDefeated = true;
 
-    // Big screen shake and poof on boss defeat
+    // Musical note explosion (not violent)
     this.particles.screenShake(0.025, 500);
-    this.particles.emitStomp(this.boss.x, this.boss.y);
     this.particles.emitSparkleCollect(this.boss.x, this.boss.y);
+
+    // Musical notes burst
+    const noteParticles = this.add.particles(this.boss.x, this.boss.y, 'particleNote', {
+      speed: { min: 100, max: 250 },
+      angle: { min: 0, max: 360 },
+      scale: { start: 1.5, end: 0 },
+      alpha: { start: 1, end: 0 },
+      lifespan: 1200,
+      quantity: 20,
+      tint: [0xFFD700, 0xFFFFFF, 0xFF69B4, 0x87CEEB],
+      rotate: { min: 0, max: 360 },
+      gravityY: -30,
+      emitting: false
+    });
+    noteParticles.explode();
+    this.time.delayedCall(1500, () => noteParticles.destroy());
 
     this.boss.destroy();
     this.bossHealthBg.setVisible(false);
@@ -545,21 +591,23 @@ export class Level3Scene extends Phaser.Scene {
       repeat: -1
     });
 
-    // Sparkle on the piano instrument
     this.instrumentSparkle = this.particles.emitSparkle(2700, GAME_HEIGHT - 100);
 
-    // Victory text
-    const victoryText = this.add.text(GAME_WIDTH / 2, GAME_HEIGHT / 2, 'Boss Defeated!', {
-      font: '32px monospace',
+    // Victory quote referencing Mozart's real letter about leaving Colloredo
+    const victoryText = this.add.text(GAME_WIDTH / 2, GAME_HEIGHT / 2,
+      '"I am no longer so unfortunate as to be in Salzburg service."\n— Mozart, 1781', {
+      font: '20px monospace',
       fill: '#FFD700',
       stroke: '#000000',
-      strokeThickness: 4
+      strokeThickness: 4,
+      wordWrap: { width: GAME_WIDTH - 100 },
+      align: 'center'
     }).setOrigin(0.5).setScrollFactor(0);
 
     this.tweens.add({
       targets: victoryText,
       alpha: 0,
-      delay: 2000,
+      delay: 3000,
       duration: 1000
     });
 

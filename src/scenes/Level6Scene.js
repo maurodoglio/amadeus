@@ -6,7 +6,7 @@ import { BrokenInstrument } from '../sprites/enemies/BrokenInstrument.js';
 import { AdaptiveMusicManager } from '../utils/AdaptiveMusicManager.js';
 import { MozartSoundtracks } from '../utils/MozartSoundtracks.js';
 import { ParticleManager } from '../utils/ParticleManager.js';
-import { setupBoss, updateBossAI, getBossTarget } from '../utils/BossFight.js';
+import { setupBoss, updateBossAI, getBossTarget, showBossDialogue } from '../utils/BossFight.js';
 import { ComboSystem } from '../utils/ComboSystem.js';
 import { getAchievementManager } from '../utils/AchievementManager.js';
 import { CompositionCollector } from '../mechanics/CompositionCollector.js';
@@ -143,17 +143,23 @@ export class Level6Scene extends Phaser.Scene {
     this.instrument.setVisible(false);
     this.instrument.body.enable = false;
 
-    // Boss: The Crystal Drummer
+    // Boss: The Grey Messenger - commissioned the Requiem
     setupBoss(this, {
       x: 2400,
       y: GAME_HEIGHT - 120,
-      texture: 'bossCrystalDrummer',
-      name: 'The Crystal Drummer',
+      texture: 'bossGreyMessenger',
+      name: 'The Grey Messenger',
       health: 3,
       speed: 95,
       jumpForce: -380,
       attackInterval: 2600,
-      activateX: 2050
+      activateX: 2050,
+      dialogue: [
+        '"I come with a commission... a Requiem Mass."',
+        '"Who sends me? That you need not know..."',
+        '"Complete the work, Mozart. Time grows short."'
+      ],
+      victoryQuote: '"I feel that I shall not last much longer... the Requiem... for myself."\n— Mozart, 1791'
     });
 
     // Darkness overlay - limited visibility
@@ -219,6 +225,7 @@ export class Level6Scene extends Phaser.Scene {
       this.mozartSoundtrack.setBossMode(true);
     }
     // Boss AI: Crystal Drummer - shockwave ground pounds
+    // Boss AI: The Grey Messenger - teleports, shadow attacks, disappears/reappears
     updateBossAI(this, time, (scene, t) => {
       const boss = scene.boss;
       const target = getBossTarget(scene);
@@ -234,13 +241,28 @@ export class Level6Scene extends Phaser.Scene {
         boss.setVelocityX(0);
       }
 
-      // Echoing drum shockwave: jumps and creates screen shake on landing
+      // Teleport and shadow attack: disappears, reappears near player
       const interval = boss.attackInterval / boss.phase;
       if (t > boss.attackTimer && (boss.body.blocked.down || boss.body.touching.down)) {
-        boss.setVelocityY(boss.jumpForce);
         boss.attackTimer = t + interval;
-        scene.time.delayedCall(500, () => {
-          if (boss.active && (boss.body.blocked.down || boss.body.touching.down)) {
+
+        // Teleport effect: fade out, reposition, fade in
+        scene.tweens.add({
+          targets: boss,
+          alpha: 0,
+          duration: 300,
+          onComplete: () => {
+            if (!boss.active) return;
+            // Reappear near player but with some offset
+            const offset = Phaser.Math.RND.pick([-150, 150]);
+            const newX = Phaser.Math.Clamp(target.x + offset, 100, scene.physics.world.bounds.width - 100);
+            boss.setPosition(newX, boss.y);
+            scene.tweens.add({
+              targets: boss,
+              alpha: 1,
+              duration: 300
+            });
+            // Screen shake on reappear
             scene.particles.screenShake(0.012 * boss.phase, 300);
             scene.particles.emitStomp(boss.x, boss.y + 20);
             // Push nearby player away

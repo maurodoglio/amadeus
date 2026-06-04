@@ -6,7 +6,7 @@ import { DissonantNote } from '../sprites/enemies/DissonantNote.js';
 import { AdaptiveMusicManager } from '../utils/AdaptiveMusicManager.js';
 import { MozartSoundtracks } from '../utils/MozartSoundtracks.js';
 import { ParticleManager } from '../utils/ParticleManager.js';
-import { setupBoss, updateBossAI, getBossTarget } from '../utils/BossFight.js';
+import { setupBoss, updateBossAI, getBossTarget, showBossDialogue } from '../utils/BossFight.js';
 import { ComboSystem } from '../utils/ComboSystem.js';
 import { getAchievementManager } from '../utils/AchievementManager.js';
 import { CompositionCollector } from '../mechanics/CompositionCollector.js';
@@ -151,17 +151,23 @@ export class Level5Scene extends Phaser.Scene {
     this.instrument.setVisible(false);
     this.instrument.body.enable = false;
 
-    // Boss: The Storm Trumpeter
+    // Boss: Muzio Clementi - Piano duel rival
     setupBoss(this, {
       x: 2450,
       y: GAME_HEIGHT - 120,
-      texture: 'bossStormTrumpeter',
-      name: 'The Storm Trumpeter',
+      texture: 'bossClementi',
+      name: 'Muzio Clementi',
       health: 3,
-      speed: 110,
+      speed: 130,
       jumpForce: -360,
-      attackInterval: 2400,
-      activateX: 2100
+      attackInterval: 2000,
+      activateX: 2100,
+      dialogue: [
+        '"Mozart! The Emperor pits us against each other!"',
+        '"My rapid scales shall outrun your melodies!"',
+        '"Let us see whose fingers are truly faster!"'
+      ],
+      victoryQuote: '"He plays well, but has no taste or feeling."\n— Mozart on Clementi, 1782'
     });
     this.bossProjectiles = this.physics.add.group();
 
@@ -237,6 +243,7 @@ export class Level5Scene extends Phaser.Scene {
       this.mozartSoundtrack.setBossMode(true);
     }
     // Boss AI: Storm Trumpeter - wind blasts push player
+    // Boss AI: Muzio Clementi - rapid scales as sweeping horizontal attacks
     updateBossAI(this, time, (scene, t) => {
       const boss = scene.boss;
       const target = getBossTarget(scene);
@@ -252,17 +259,18 @@ export class Level5Scene extends Phaser.Scene {
         boss.setVelocityX(0);
       }
 
-      // Wind blast attack: fires fast horizontal projectiles
+      // Rapid scale attacks: fires fast horizontal projectile bursts
       const interval = boss.attackInterval / boss.phase;
       if (t > boss.attackTimer && (boss.body.blocked.down || boss.body.touching.down)) {
         boss.attackTimer = t + interval;
         const direction = target.x > boss.x ? 1 : -1;
-        for (let i = 0; i < boss.phase; i++) {
-          scene.time.delayedCall(i * 200, () => {
+        const count = 1 + boss.phase;
+        for (let i = 0; i < count; i++) {
+          scene.time.delayedCall(i * 120, () => {
             if (!boss.active) return;
-            const proj = scene.bossProjectiles.create(boss.x + direction * 20, boss.y - 10 - i * 15, 'bossProjectile');
+            const proj = scene.bossProjectiles.create(boss.x + direction * 20, boss.y - 10 - i * 12, 'bossProjectile');
             proj.body.setAllowGravity(false);
-            proj.setVelocity(direction * 280, 0);
+            proj.setVelocity(direction * 300, 0);
             scene.time.delayedCall(2500, () => { if (proj.active) proj.destroy(); });
           });
         }

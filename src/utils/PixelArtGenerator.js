@@ -523,15 +523,16 @@ export class PixelArtGenerator {
   generateBosses() {
     const _ = null;
 
-    // Boss 1: Off-Key Conductor (20x24) - Level 1 Vienna Streets
+    // Boss 1: Leopold Mozart (20x24) - Mozart's father, tutorial boss
     const W = '#F5F5DC'; // white wig
     const B = '#1a1a1a'; // black
     const S = '#FFE4B5'; // skin
-    const C = '#800020'; // burgundy coat
-    const G = '#FFD700'; // gold baton
+    const C = '#4A2C2A'; // brown coat
+    const G = '#FFD700'; // gold (music sheets)
+    const P2 = '#F5F5DC'; // sheet music white
 
-    const conductor = [
-      [_,_,_,_,_,_,_,G,G,G,G,G,G,G,_,_,_,_,_,_],
+    const leopoldMozart = [
+      [_,_,_,_,_,_,_,W,W,W,W,W,W,_,_,_,_,_,_,_],
       [_,_,_,_,_,_,W,W,W,W,W,W,W,W,_,_,_,_,_,_],
       [_,_,_,_,_,W,W,W,W,W,W,W,W,W,W,_,_,_,_,_],
       [_,_,_,_,W,W,W,W,W,W,W,W,W,W,W,W,_,_,_,_],
@@ -539,14 +540,14 @@ export class PixelArtGenerator {
       [_,_,_,_,S,S,S,S,S,S,S,S,S,S,S,S,_,_,_,_],
       [_,_,_,_,S,B,B,S,S,S,S,B,B,S,S,S,_,_,_,_],
       [_,_,_,_,S,S,S,S,S,S,S,S,S,S,S,S,_,_,_,_],
-      [_,_,_,_,S,S,S,S,B,B,S,S,S,S,S,S,_,_,_,_],
+      [_,_,_,_,S,S,S,S,S,S,S,S,S,S,S,S,_,_,_,_],
       [_,_,_,_,_,S,S,S,S,S,S,S,S,S,_,_,_,_,_,_],
       [_,_,_,C,C,C,C,C,C,C,C,C,C,C,C,C,_,_,_,_],
       [_,_,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,_,_,_],
       [_,_,C,C,C,G,G,C,C,C,C,G,G,C,C,C,C,_,_,_],
       [_,S,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,S,_,_],
-      [_,S,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,S,_,_],
-      [_,_,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,_,_,_],
+      [_,S,C,C,C,P2,P2,P2,C,C,C,C,C,C,C,C,C,S,_,_],
+      [_,_,C,C,C,P2,P2,P2,C,C,C,C,C,C,C,C,C,_,_,_],
       [_,_,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,_,_,_],
       [_,_,_,C,C,C,C,C,C,C,C,C,C,C,C,_,_,_,_,_],
       [_,_,_,C,C,C,C,C,C,C,C,C,C,C,C,_,_,_,_,_],
@@ -556,167 +557,206 @@ export class PixelArtGenerator {
       [_,_,_,B,B,B,B,_,_,_,_,B,B,B,B,_,_,_,_,_],
       [_,_,_,B,B,B,B,_,_,_,_,B,B,B,B,_,_,_,_,_],
     ];
-    this.createTexture('bossOffKeyConductor', conductor);
+    this.createTexture('bossLeopoldMozart', leopoldMozart);
 
-    // Boss 2: Forest Drummer (20x22) - Level 2 Enchanted Forest
-    const T = '#2E8B57'; // forest green
-    const D = '#8B4513'; // drum brown
-    const M = '#90EE90'; // light green moss
-    const E = '#FF4500'; // angry eyes
+    // Boss 2: Empress Maria Theresa (20x24) - Royal figure with crown
+    const R = '#800020'; // royal burgundy
+    const Gd = '#FFD700'; // gold crown/trim
+    const Bl = '#4169E1'; // royal blue
+    const Wh = '#FFFFFF'; // white
 
-    const forestDrummer = [
-      [_,_,_,_,_,_,M,M,M,M,M,M,M,M,_,_,_,_,_,_],
-      [_,_,_,_,_,M,M,T,T,T,T,T,T,M,M,_,_,_,_,_],
-      [_,_,_,_,T,T,T,T,T,T,T,T,T,T,T,T,_,_,_,_],
-      [_,_,_,_,T,T,T,T,T,T,T,T,T,T,T,T,_,_,_,_],
-      [_,_,_,_,T,E,E,T,T,T,T,E,E,T,T,T,_,_,_,_],
-      [_,_,_,_,T,T,T,T,T,T,T,T,T,T,T,T,_,_,_,_],
-      [_,_,_,_,T,T,T,B,B,B,B,T,T,T,T,T,_,_,_,_],
-      [_,_,_,_,_,T,T,T,T,T,T,T,T,T,_,_,_,_,_,_],
-      [_,_,_,T,T,T,T,T,T,T,T,T,T,T,T,T,_,_,_,_],
-      [_,_,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,_,_,_],
-      [_,T,T,T,T,D,D,D,D,D,D,D,D,T,T,T,T,T,_,_],
-      [_,T,T,T,T,D,D,D,D,D,D,D,D,T,T,T,T,T,_,_],
-      [_,T,T,T,T,D,D,D,D,D,D,D,D,T,T,T,T,T,_,_],
-      [_,T,T,T,T,D,D,D,D,D,D,D,D,T,T,T,T,T,_,_],
-      [_,_,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,_,_,_],
-      [_,_,_,T,T,T,T,T,T,T,T,T,T,T,T,_,_,_,_,_],
-      [_,_,_,T,T,T,T,T,T,T,T,T,T,T,T,_,_,_,_,_],
-      [_,_,_,_,T,T,T,T,T,T,T,T,T,T,_,_,_,_,_,_],
-      [_,_,_,_,T,T,T,_,_,_,T,T,T,_,_,_,_,_,_,_],
-      [_,_,_,_,T,T,T,_,_,_,T,T,T,_,_,_,_,_,_,_],
-      [_,_,_,T,T,T,T,_,_,_,T,T,T,T,_,_,_,_,_,_],
-      [_,_,_,T,T,T,T,_,_,_,T,T,T,T,_,_,_,_,_,_],
+    const empressMaria = [
+      [_,_,_,_,_,_,Gd,Gd,Gd,Gd,Gd,Gd,Gd,Gd,_,_,_,_,_,_],
+      [_,_,_,_,_,Gd,Gd,_,Gd,_,Gd,_,Gd,Gd,Gd,_,_,_,_,_],
+      [_,_,_,_,_,Gd,Gd,Gd,Gd,Gd,Gd,Gd,Gd,Gd,Gd,_,_,_,_,_],
+      [_,_,_,_,_,W,W,W,W,W,W,W,W,W,W,_,_,_,_,_],
+      [_,_,_,_,_,S,S,S,S,S,S,S,S,S,S,_,_,_,_,_],
+      [_,_,_,_,_,S,B,S,S,S,S,S,B,S,S,_,_,_,_,_],
+      [_,_,_,_,_,S,S,S,S,S,S,S,S,S,S,_,_,_,_,_],
+      [_,_,_,_,_,S,S,S,R,R,S,S,S,S,S,_,_,_,_,_],
+      [_,_,_,_,_,_,S,S,S,S,S,S,S,_,_,_,_,_,_,_],
+      [_,_,_,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,_,_,_],
+      [_,_,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,_,_],
+      [_,_,Bl,Bl,Bl,Gd,Gd,Bl,Bl,Bl,Bl,Gd,Gd,Bl,Bl,Bl,Bl,Bl,_,_],
+      [_,S,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,S,_,_],
+      [_,S,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,S,_,_],
+      [_,_,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,_,_,_],
+      [_,_,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,_,_,_],
+      [_,_,_,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,_,_,_,_],
+      [_,_,_,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,_,_,_,_],
+      [_,_,_,_,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,_,_,_,_,_],
+      [_,_,_,_,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,_,_,_,_,_],
+      [_,_,_,_,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,_,_,_,_,_],
+      [_,_,_,_,_,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,_,_,_,_,_,_],
+      [_,_,_,_,_,B,B,B,_,_,_,B,B,B,_,_,_,_,_,_],
+      [_,_,_,_,_,B,B,B,_,_,_,B,B,B,_,_,_,_,_,_],
     ];
-    this.createTexture('bossForestDrummer', forestDrummer);
+    this.createTexture('bossEmpressMaria', empressMaria);
 
-    // Boss 4: Phantom Singer (18x24) - Level 4 Opera House
-    const P = '#4B0082'; // indigo phantom
-    const V = '#9400D3'; // violet glow
-    const F = '#FFFFFF'; // white mask
+    // Boss 3: Archbishop Colloredo (20x24) - Stern figure with chains
+    const Pr = '#4B0082'; // purple vestments
+    const Ch = '#808080'; // chain grey
+    const Cr = '#FFD700'; // gold cross
 
-    const phantomSinger = [
-      [_,_,_,_,_,_,V,V,V,V,V,V,_,_,_,_,_,_],
-      [_,_,_,_,_,V,V,V,V,V,V,V,V,_,_,_,_,_],
-      [_,_,_,_,V,V,V,V,V,V,V,V,V,V,_,_,_,_],
-      [_,_,_,_,F,F,F,F,F,F,F,F,F,F,_,_,_,_],
-      [_,_,_,_,F,B,F,F,F,F,F,B,F,F,_,_,_,_],
-      [_,_,_,_,F,F,F,F,F,F,F,F,F,F,_,_,_,_],
-      [_,_,_,_,F,F,F,B,B,B,B,F,F,F,_,_,_,_],
-      [_,_,_,_,_,F,F,F,F,F,F,F,F,_,_,_,_,_],
-      [_,_,_,P,P,P,P,P,P,P,P,P,P,P,P,_,_,_],
-      [_,_,P,P,P,P,P,P,P,P,P,P,P,P,P,P,_,_],
-      [_,_,P,P,P,P,P,P,P,P,P,P,P,P,P,P,_,_],
-      [_,V,P,P,P,P,P,P,P,P,P,P,P,P,P,P,V,_],
-      [_,V,P,P,P,P,P,P,P,P,P,P,P,P,P,P,V,_],
-      [_,_,P,P,P,P,P,P,P,P,P,P,P,P,P,P,_,_],
-      [_,_,P,P,P,P,P,P,P,P,P,P,P,P,P,P,_,_],
-      [_,_,_,P,P,P,P,P,P,P,P,P,P,P,_,_,_,_],
-      [_,_,_,P,P,P,P,P,P,P,P,P,P,P,_,_,_,_],
-      [_,_,_,_,P,P,P,P,P,P,P,P,P,_,_,_,_,_],
-      [_,_,_,_,P,P,P,P,P,P,P,P,P,_,_,_,_,_],
-      [_,_,_,_,_,P,P,P,P,P,P,P,_,_,_,_,_,_],
-      [_,_,_,_,_,V,V,V,V,V,V,V,_,_,_,_,_,_],
-      [_,_,_,_,V,V,V,V,V,V,V,V,V,_,_,_,_,_],
-      [_,_,_,V,V,V,V,_,_,V,V,V,V,V,_,_,_,_],
-      [_,_,_,V,V,V,_,_,_,_,V,V,V,_,_,_,_,_],
+    const archbishopColloredo = [
+      [_,_,_,_,_,_,_,B,B,B,B,B,B,_,_,_,_,_,_,_],
+      [_,_,_,_,_,_,B,Pr,Pr,Pr,Pr,Pr,B,_,_,_,_,_,_,_],
+      [_,_,_,_,_,B,Pr,Pr,Pr,Pr,Pr,Pr,Pr,B,_,_,_,_,_,_],
+      [_,_,_,_,_,S,S,S,S,S,S,S,S,S,S,_,_,_,_,_],
+      [_,_,_,_,_,S,S,S,S,S,S,S,S,S,S,_,_,_,_,_],
+      [_,_,_,_,_,S,B,S,S,S,S,B,S,S,S,_,_,_,_,_],
+      [_,_,_,_,_,S,S,S,S,S,S,S,S,S,S,_,_,_,_,_],
+      [_,_,_,_,_,S,S,S,B,B,S,S,S,S,S,_,_,_,_,_],
+      [_,_,_,_,_,_,S,S,S,S,S,S,S,_,_,_,_,_,_,_],
+      [_,_,_,Pr,Pr,Pr,Pr,Pr,Pr,Pr,Pr,Pr,Pr,Pr,Pr,Pr,Pr,_,_,_],
+      [_,_,Pr,Pr,Pr,Pr,Cr,Pr,Pr,Pr,Pr,Cr,Pr,Pr,Pr,Pr,Pr,Pr,_,_],
+      [_,_,Pr,Pr,Pr,Cr,Cr,Cr,Pr,Pr,Cr,Cr,Cr,Pr,Pr,Pr,Pr,Pr,_,_],
+      [_,Ch,Pr,Pr,Pr,Pr,Cr,Pr,Pr,Pr,Pr,Cr,Pr,Pr,Pr,Pr,Pr,Ch,_,_],
+      [_,Ch,Pr,Pr,Pr,Pr,Pr,Pr,Pr,Pr,Pr,Pr,Pr,Pr,Pr,Pr,Pr,Ch,_,_],
+      [_,Ch,Pr,Pr,Pr,Pr,Pr,Pr,Pr,Pr,Pr,Pr,Pr,Pr,Pr,Pr,Pr,Ch,_,_],
+      [_,_,Pr,Pr,Pr,Pr,Pr,Pr,Pr,Pr,Pr,Pr,Pr,Pr,Pr,Pr,Pr,_,_,_],
+      [_,_,_,Pr,Pr,Pr,Pr,Pr,Pr,Pr,Pr,Pr,Pr,Pr,Pr,Pr,_,_,_,_],
+      [_,_,_,Pr,Pr,Pr,Pr,Pr,Pr,Pr,Pr,Pr,Pr,Pr,Pr,Pr,_,_,_,_],
+      [_,_,_,_,Pr,Pr,Pr,Pr,Pr,Pr,Pr,Pr,Pr,Pr,Pr,_,_,_,_,_],
+      [_,_,_,_,Ch,Ch,Pr,Pr,Pr,Pr,Pr,Pr,Ch,Ch,_,_,_,_,_,_],
+      [_,_,_,_,B,B,B,B,_,_,B,B,B,B,_,_,_,_,_,_],
+      [_,_,_,_,B,B,B,B,_,_,B,B,B,B,_,_,_,_,_,_],
+      [_,_,_,B,B,B,B,_,_,_,_,B,B,B,B,_,_,_,_,_],
+      [_,_,_,B,B,B,B,_,_,_,_,B,B,B,B,_,_,_,_,_],
     ];
-    this.createTexture('bossPhantomSinger', phantomSinger);
+    this.createTexture('bossArchbishopColloredo', archbishopColloredo);
 
-    // Boss 5: Storm Trumpeter (18x22) - Level 5 Mountain Pass
-    const A = '#4682B4'; // steel blue armor
-    const Y = '#FFD700'; // gold trumpet
-    const L = '#87CEEB'; // lightning blue
+    // Boss 4: Antonio Salieri (18x24) - Dark coat, musical rival
+    const D = '#2C2C2C'; // dark coat
+    const V = '#8B0000'; // dark red vest
 
-    const stormTrumpeter = [
-      [_,_,_,_,_,_,_,L,L,L,L,_,_,_,_,_,_,_],
-      [_,_,_,_,_,_,L,A,A,A,A,L,_,_,_,_,_,_],
-      [_,_,_,_,_,A,A,A,A,A,A,A,A,_,_,_,_,_],
-      [_,_,_,_,_,A,A,A,A,A,A,A,A,_,_,_,_,_],
-      [_,_,_,_,_,A,L,A,A,A,L,A,A,_,_,_,_,_],
-      [_,_,_,_,_,A,A,A,A,A,A,A,A,_,_,_,_,_],
-      [_,_,_,_,_,A,A,A,B,A,A,A,A,_,_,_,_,_],
-      [_,_,_,_,_,_,A,A,A,A,A,A,_,_,_,_,_,_],
-      [_,_,_,_,A,A,A,A,A,A,A,A,A,A,_,_,_,_],
-      [_,_,_,A,A,A,A,A,A,A,A,A,A,A,A,_,_,_],
-      [_,_,Y,Y,Y,Y,Y,A,A,A,A,A,A,A,A,A,_,_],
-      [_,_,_,_,_,_,Y,A,A,A,A,A,A,A,A,_,_,_],
-      [_,_,_,_,A,A,A,A,A,A,A,A,A,A,A,_,_,_],
-      [_,_,_,_,A,A,A,A,A,A,A,A,A,A,_,_,_,_],
-      [_,_,_,_,A,A,A,A,A,A,A,A,A,A,_,_,_,_],
-      [_,_,_,_,_,A,A,A,A,A,A,A,A,_,_,_,_,_],
-      [_,_,_,_,_,A,A,A,A,A,A,A,A,_,_,_,_,_],
-      [_,_,_,_,_,_,A,A,A,A,A,A,_,_,_,_,_,_],
-      [_,_,_,_,_,_,A,A,_,A,A,_,_,_,_,_,_,_],
-      [_,_,_,_,_,_,A,A,_,A,A,_,_,_,_,_,_,_],
-      [_,_,_,_,_,A,A,A,_,A,A,A,_,_,_,_,_,_],
-      [_,_,_,_,_,A,A,A,_,A,A,A,_,_,_,_,_,_],
+    const antonioSalieri = [
+      [_,_,_,_,_,_,B,B,B,B,B,B,_,_,_,_,_,_],
+      [_,_,_,_,_,B,B,B,B,B,B,B,B,_,_,_,_,_],
+      [_,_,_,_,B,B,B,B,B,B,B,B,B,B,_,_,_,_],
+      [_,_,_,_,S,S,S,S,S,S,S,S,S,S,_,_,_,_],
+      [_,_,_,_,S,B,S,S,S,S,S,B,S,S,_,_,_,_],
+      [_,_,_,_,S,S,S,S,S,S,S,S,S,S,_,_,_,_],
+      [_,_,_,_,S,S,S,S,B,B,S,S,S,S,_,_,_,_],
+      [_,_,_,_,_,S,S,S,S,S,S,S,S,_,_,_,_,_],
+      [_,_,_,D,D,D,D,D,D,D,D,D,D,D,D,_,_,_],
+      [_,_,D,D,D,D,D,D,D,D,D,D,D,D,D,D,_,_],
+      [_,_,D,D,D,V,V,V,V,V,V,V,V,D,D,D,_,_],
+      [_,S,D,D,D,V,V,V,V,V,V,V,V,D,D,D,S,_],
+      [_,S,D,D,D,V,V,V,V,V,V,V,V,D,D,D,S,_],
+      [_,_,D,D,D,D,D,D,D,D,D,D,D,D,D,D,_,_],
+      [_,_,D,D,D,D,D,D,D,D,D,D,D,D,D,D,_,_],
+      [_,_,_,D,D,D,D,D,D,D,D,D,D,D,_,_,_,_],
+      [_,_,_,D,D,D,D,D,D,D,D,D,D,D,_,_,_,_],
+      [_,_,_,_,D,D,D,D,D,D,D,D,D,_,_,_,_,_],
+      [_,_,_,_,D,D,D,D,D,D,D,D,D,_,_,_,_,_],
+      [_,_,_,_,_,D,D,D,D,D,D,D,_,_,_,_,_,_],
+      [_,_,_,_,_,B,B,B,_,B,B,B,_,_,_,_,_,_],
+      [_,_,_,_,_,B,B,B,_,B,B,B,_,_,_,_,_,_],
+      [_,_,_,_,B,B,B,_,_,_,B,B,B,_,_,_,_,_],
+      [_,_,_,_,B,B,B,_,_,_,B,B,B,_,_,_,_,_],
     ];
-    this.createTexture('bossStormTrumpeter', stormTrumpeter);
+    this.createTexture('bossSalieri', antonioSalieri);
 
-    // Boss 6: Crystal Drummer (20x22) - Level 6 Underground Caves
-    const Q = '#7B68EE'; // crystal purple
-    const R = '#E0E0E0'; // crystal white
-    const X = '#00CED1'; // cyan glow
+    // Boss 5: Muzio Clementi (18x22) - Piano rival, elegant suit
+    const T = '#2F4F4F'; // dark teal coat
+    const Iv = '#FFFFF0'; // ivory (piano keys)
+    const Gy = '#696969'; // grey
 
-    const crystalDrummer = [
-      [_,_,_,_,_,_,R,R,R,R,R,R,R,R,_,_,_,_,_,_],
-      [_,_,_,_,_,R,Q,Q,Q,Q,Q,Q,Q,Q,R,_,_,_,_,_],
-      [_,_,_,_,R,Q,Q,Q,Q,Q,Q,Q,Q,Q,Q,R,_,_,_,_],
-      [_,_,_,_,Q,Q,Q,Q,Q,Q,Q,Q,Q,Q,Q,Q,_,_,_,_],
-      [_,_,_,_,Q,X,X,Q,Q,Q,Q,X,X,Q,Q,Q,_,_,_,_],
-      [_,_,_,_,Q,Q,Q,Q,Q,Q,Q,Q,Q,Q,Q,Q,_,_,_,_],
-      [_,_,_,_,Q,Q,Q,Q,B,B,Q,Q,Q,Q,Q,Q,_,_,_,_],
-      [_,_,_,_,_,Q,Q,Q,Q,Q,Q,Q,Q,Q,_,_,_,_,_,_],
-      [_,_,_,Q,Q,Q,Q,Q,Q,Q,Q,Q,Q,Q,Q,Q,_,_,_,_],
-      [_,_,Q,Q,Q,Q,Q,Q,Q,Q,Q,Q,Q,Q,Q,Q,Q,_,_,_],
-      [_,X,Q,Q,Q,R,R,R,R,R,R,R,R,Q,Q,Q,Q,X,_,_],
-      [_,X,Q,Q,Q,R,R,R,R,R,R,R,R,Q,Q,Q,Q,X,_,_],
-      [_,X,Q,Q,Q,R,R,R,R,R,R,R,R,Q,Q,Q,Q,X,_,_],
-      [_,_,Q,Q,Q,R,R,R,R,R,R,R,R,Q,Q,Q,Q,_,_,_],
-      [_,_,_,Q,Q,Q,Q,Q,Q,Q,Q,Q,Q,Q,Q,_,_,_,_,_],
-      [_,_,_,Q,Q,Q,Q,Q,Q,Q,Q,Q,Q,Q,Q,_,_,_,_,_],
-      [_,_,_,_,Q,Q,Q,Q,Q,Q,Q,Q,Q,Q,_,_,_,_,_,_],
-      [_,_,_,_,Q,Q,Q,Q,Q,Q,Q,Q,Q,Q,_,_,_,_,_,_],
-      [_,_,_,_,_,Q,Q,Q,_,Q,Q,Q,_,_,_,_,_,_,_,_],
-      [_,_,_,_,_,Q,Q,Q,_,Q,Q,Q,_,_,_,_,_,_,_,_],
-      [_,_,_,_,R,Q,Q,Q,_,Q,Q,Q,R,_,_,_,_,_,_,_],
-      [_,_,_,_,R,R,R,_,_,_,R,R,R,_,_,_,_,_,_,_],
-    ];
-    this.createTexture('bossCrystalDrummer', crystalDrummer);
-
-    // Boss 7: Sky Harpist (18x24) - Level 7 Sky Cathedral
-    const H2 = '#F0E68C'; // harp gold
-    const K = '#FFFFFF'; // white wings
-    const I = '#ADD8E6'; // light blue robe
-
-    const skyHarpist = [
-      [_,_,_,_,_,_,_,K,K,K,K,_,_,_,_,_,_,_],
-      [_,_,_,_,_,_,K,K,K,K,K,K,_,_,_,_,_,_],
-      [_,_,_,_,_,K,K,K,K,K,K,K,K,_,_,_,_,_],
+    const muzioClementi = [
+      [_,_,_,_,_,_,_,B,B,B,B,_,_,_,_,_,_,_],
+      [_,_,_,_,_,_,B,B,B,B,B,B,_,_,_,_,_,_],
+      [_,_,_,_,_,B,B,B,B,B,B,B,B,_,_,_,_,_],
       [_,_,_,_,_,S,S,S,S,S,S,S,S,_,_,_,_,_],
       [_,_,_,_,_,S,B,S,S,S,B,S,S,_,_,_,_,_],
       [_,_,_,_,_,S,S,S,S,S,S,S,S,_,_,_,_,_],
       [_,_,_,_,_,S,S,S,B,S,S,S,S,_,_,_,_,_],
       [_,_,_,_,_,_,S,S,S,S,S,_,_,_,_,_,_,_],
-      [_,K,K,_,I,I,I,I,I,I,I,I,I,_,K,K,_,_],
-      [K,K,K,_,I,I,I,I,I,I,I,I,I,_,K,K,K,_],
-      [K,K,K,_,I,I,I,I,I,I,I,I,I,_,K,K,K,_],
-      [K,K,_,S,I,I,I,I,I,I,I,I,I,S,_,K,K,_],
-      [_,K,_,S,I,I,I,I,I,I,I,I,I,S,_,K,_,_],
-      [_,_,_,_,I,I,H2,H2,H2,H2,I,I,_,_,_,_,_,_],
-      [_,_,_,_,I,I,H2,H2,H2,H2,I,I,_,_,_,_,_,_],
-      [_,_,_,_,I,I,H2,H2,H2,H2,I,I,_,_,_,_,_,_],
-      [_,_,_,_,I,I,I,I,I,I,I,I,I,_,_,_,_,_,_,_],
-      [_,_,_,_,_,I,I,I,I,I,I,I,_,_,_,_,_,_,_,_],
-      [_,_,_,_,_,I,I,I,I,I,I,I,_,_,_,_,_,_,_,_],
-      [_,_,_,_,_,_,I,I,I,I,I,_,_,_,_,_,_,_,_,_],
-      [_,_,_,_,_,_,I,I,_,I,I,_,_,_,_,_,_,_,_,_],
-      [_,_,_,_,_,_,I,I,_,I,I,_,_,_,_,_,_,_,_,_],
-      [_,_,_,_,_,K,K,K,_,K,K,K,_,_,_,_,_,_,_,_],
-      [_,_,_,_,_,K,K,_,_,_,K,K,_,_,_,_,_,_,_,_],
+      [_,_,_,_,T,T,T,T,T,T,T,T,T,T,_,_,_,_],
+      [_,_,_,T,T,T,T,T,T,T,T,T,T,T,T,_,_,_],
+      [_,_,T,T,T,Iv,Iv,T,T,T,T,Iv,Iv,T,T,T,_,_],
+      [_,S,T,T,T,T,T,T,T,T,T,T,T,T,T,T,S,_],
+      [_,S,T,T,T,T,T,T,T,T,T,T,T,T,T,T,S,_],
+      [_,_,T,T,T,T,T,T,T,T,T,T,T,T,T,T,_,_],
+      [_,_,_,T,T,T,T,T,T,T,T,T,T,T,T,_,_,_],
+      [_,_,_,T,T,T,T,T,T,T,T,T,T,T,T,_,_,_],
+      [_,_,_,_,T,T,T,T,T,T,T,T,T,T,_,_,_,_],
+      [_,_,_,_,T,T,T,T,T,T,T,T,T,T,_,_,_,_],
+      [_,_,_,_,_,T,T,T,_,T,T,T,_,_,_,_,_,_],
+      [_,_,_,_,_,T,T,T,_,T,T,T,_,_,_,_,_,_],
+      [_,_,_,_,B,B,B,B,_,B,B,B,B,_,_,_,_,_],
+      [_,_,_,_,B,B,B,B,_,B,B,B,B,_,_,_,_,_],
     ];
-    this.createTexture('bossSkyHarpist', skyHarpist);
+    this.createTexture('bossClementi', muzioClementi);
+
+    // Boss 6: The Grey Messenger (18x24) - Mysterious hooded figure
+    const Dg = '#3A3A3A'; // dark grey cloak
+    const Lg = '#696969'; // lighter grey
+    const Sh = '#1a1a1a'; // shadow black
+    const Gl = '#9400D3'; // purple glow
+
+    const greyMessenger = [
+      [_,_,_,_,_,_,Dg,Dg,Dg,Dg,Dg,Dg,_,_,_,_,_,_],
+      [_,_,_,_,_,Dg,Dg,Dg,Dg,Dg,Dg,Dg,Dg,_,_,_,_,_],
+      [_,_,_,_,Dg,Dg,Dg,Dg,Dg,Dg,Dg,Dg,Dg,Dg,_,_,_,_],
+      [_,_,_,_,Dg,Dg,Sh,Sh,Sh,Sh,Sh,Sh,Dg,Dg,_,_,_,_],
+      [_,_,_,_,Dg,Sh,Gl,Sh,Sh,Sh,Gl,Sh,Sh,Dg,_,_,_,_],
+      [_,_,_,_,Dg,Sh,Sh,Sh,Sh,Sh,Sh,Sh,Sh,Dg,_,_,_,_],
+      [_,_,_,_,Dg,Sh,Sh,Sh,Sh,Sh,Sh,Sh,Sh,Dg,_,_,_,_],
+      [_,_,_,_,_,Dg,Dg,Dg,Dg,Dg,Dg,Dg,Dg,_,_,_,_,_],
+      [_,_,_,Dg,Dg,Dg,Dg,Dg,Dg,Dg,Dg,Dg,Dg,Dg,Dg,_,_,_],
+      [_,_,Dg,Dg,Dg,Dg,Dg,Dg,Dg,Dg,Dg,Dg,Dg,Dg,Dg,Dg,_,_],
+      [_,Gl,Dg,Dg,Dg,Dg,Dg,Dg,Dg,Dg,Dg,Dg,Dg,Dg,Dg,Dg,Gl,_],
+      [_,Gl,Dg,Dg,Dg,Dg,Dg,Dg,Dg,Dg,Dg,Dg,Dg,Dg,Dg,Dg,Gl,_],
+      [_,_,Dg,Dg,Dg,Dg,Dg,Dg,Dg,Dg,Dg,Dg,Dg,Dg,Dg,Dg,_,_],
+      [_,_,Dg,Dg,Dg,Dg,Dg,Dg,Dg,Dg,Dg,Dg,Dg,Dg,Dg,Dg,_,_],
+      [_,_,_,Dg,Dg,Dg,Dg,Dg,Dg,Dg,Dg,Dg,Dg,Dg,Dg,_,_,_],
+      [_,_,_,Dg,Dg,Dg,Dg,Dg,Dg,Dg,Dg,Dg,Dg,Dg,Dg,_,_,_],
+      [_,_,_,_,Dg,Dg,Dg,Dg,Dg,Dg,Dg,Dg,Dg,Dg,_,_,_,_],
+      [_,_,_,_,Dg,Dg,Dg,Dg,Dg,Dg,Dg,Dg,Dg,Dg,_,_,_,_],
+      [_,_,_,_,_,Dg,Dg,Dg,Dg,Dg,Dg,Dg,Dg,_,_,_,_,_],
+      [_,_,_,_,_,Gl,Gl,Gl,Gl,Gl,Gl,Gl,Gl,_,_,_,_,_],
+      [_,_,_,_,Gl,Gl,Gl,Gl,Gl,Gl,Gl,Gl,Gl,Gl,_,_,_,_],
+      [_,_,_,Gl,Gl,Gl,Gl,_,_,Gl,Gl,Gl,Gl,Gl,_,_,_,_],
+      [_,_,_,Gl,Gl,Gl,_,_,_,_,Gl,Gl,Gl,_,_,_,_,_],
+      [_,_,_,_,Gl,_,_,_,_,_,_,_,Gl,_,_,_,_,_],
+    ];
+    this.createTexture('bossGreyMessenger', greyMessenger);
+
+    // Boss 7: Mozart's Shadow (18x24) - Dark mirror of Mozart
+    const Dk = '#1a1a1a'; // dark version of Mozart
+    const Dw = '#3A3A3A'; // dark wig
+    const Dc = '#191970'; // dark coat (midnight blue)
+    const Dr = '#8B0000'; // dark red eyes
+    const Ds = '#4A4A4A'; // dark skin shadow
+
+    const mozartShadow = [
+      [_,_,_,_,_,_,Dw,Dw,Dw,Dw,Dw,Dw,_,_,_,_,_,_],
+      [_,_,_,_,_,Dw,Dw,Dw,Dw,Dw,Dw,Dw,Dw,_,_,_,_,_],
+      [_,_,_,_,Dw,Dw,Dw,Dw,Dw,Dw,Dw,Dw,Dw,Dw,_,_,_,_],
+      [_,_,_,_,Ds,Ds,Ds,Ds,Ds,Ds,Ds,Ds,Ds,Ds,_,_,_,_],
+      [_,_,_,_,Ds,Dr,Dr,Ds,Ds,Ds,Dr,Dr,Ds,Ds,_,_,_,_],
+      [_,_,_,_,Ds,Ds,Ds,Ds,Ds,Ds,Ds,Ds,Ds,Ds,_,_,_,_],
+      [_,_,_,_,Ds,Ds,Ds,Ds,Dk,Dk,Ds,Ds,Ds,Ds,_,_,_,_],
+      [_,_,_,_,_,Ds,Ds,Ds,Ds,Ds,Ds,Ds,Ds,_,_,_,_,_],
+      [_,_,_,Dc,Dc,Dc,Dc,Dc,Dc,Dc,Dc,Dc,Dc,Dc,Dc,_,_,_],
+      [_,_,Dc,Dc,Dc,Dc,Dc,Dc,Dc,Dc,Dc,Dc,Dc,Dc,Dc,Dc,_,_],
+      [_,_,Dc,Dc,Dc,Dc,Dc,Dc,Dc,Dc,Dc,Dc,Dc,Dc,Dc,Dc,_,_],
+      [_,Ds,Dc,Dc,Dc,Dc,Dc,Dc,Dc,Dc,Dc,Dc,Dc,Dc,Dc,Dc,Ds,_],
+      [_,Ds,Dc,Dc,Dc,Dc,Dc,Dc,Dc,Dc,Dc,Dc,Dc,Dc,Dc,Dc,Ds,_],
+      [_,_,Dc,Dc,Dc,Dc,Dc,Dc,Dc,Dc,Dc,Dc,Dc,Dc,Dc,Dc,_,_],
+      [_,_,Dc,Dc,Dc,Dc,Dc,Dc,Dc,Dc,Dc,Dc,Dc,Dc,Dc,Dc,_,_],
+      [_,_,_,Dc,Dc,Dc,Dc,Dc,Dc,Dc,Dc,Dc,Dc,Dc,_,_,_,_],
+      [_,_,_,Dc,Dc,Dc,Dc,Dc,Dc,Dc,Dc,Dc,Dc,Dc,_,_,_,_],
+      [_,_,_,_,Dc,Dc,Dc,Dc,Dc,Dc,Dc,Dc,Dc,_,_,_,_,_],
+      [_,_,_,_,Dc,Dc,Dc,Dc,Dc,Dc,Dc,Dc,Dc,_,_,_,_,_],
+      [_,_,_,_,_,Dc,Dc,Dc,Dc,Dc,Dc,Dc,_,_,_,_,_,_],
+      [_,_,_,_,_,Dk,Dk,Dk,_,Dk,Dk,Dk,_,_,_,_,_,_],
+      [_,_,_,_,_,Dk,Dk,Dk,_,Dk,Dk,Dk,_,_,_,_,_,_],
+      [_,_,_,_,Dk,Dk,Dk,_,_,_,Dk,Dk,Dk,_,_,_,_,_],
+      [_,_,_,_,Dk,Dk,Dk,_,_,_,Dk,Dk,Dk,_,_,_,_,_],
+    ];
+    this.createTexture('bossMozartShadow', mozartShadow);
 
     // Boss projectile texture (8x8 note)
     const N = '#FF4500';
@@ -731,6 +771,44 @@ export class PixelArtGenerator {
       [_,_,_,_,_,_,_,_],
     ];
     this.createTexture('bossProjectile', bossProjectile);
+
+    // Dark note projectile for Salieri (8x8)
+    const Dn = '#4B0082';
+    const darkProjectile = [
+      [_,_,_,Dn,Dn,_,_,_],
+      [_,_,Dn,Dn,Dn,Dn,_,_],
+      [_,Dn,Dn,Dn,Dn,Dn,Dn,_],
+      [_,Dn,Dn,Dn,Dn,Dn,Dn,_],
+      [_,Dn,Dn,Dn,Dn,Dn,Dn,_],
+      [_,_,Dn,Dn,Dn,Dn,_,_],
+      [_,_,_,Dn,Dn,_,_,_],
+      [_,_,_,_,_,_,_,_],
+    ];
+    this.createTexture('darkProjectile', darkProjectile);
+
+    // Chain projectile for Colloredo (10x4)
+    const Cn = '#808080';
+    const chainProjectile = [
+      [Cn,_,Cn,_,Cn,_,Cn,_,Cn,_],
+      [_,Cn,_,Cn,_,Cn,_,Cn,_,Cn],
+      [Cn,_,Cn,_,Cn,_,Cn,_,Cn,_],
+      [_,Cn,_,Cn,_,Cn,_,Cn,_,Cn],
+    ];
+    this.createTexture('chainProjectile', chainProjectile);
+
+    // Mozart counter-note (bright, 8x8)
+    const Mn = '#FFD700';
+    const mozartNote = [
+      [_,_,_,Mn,Mn,_,_,_],
+      [_,_,Mn,Mn,Mn,Mn,_,_],
+      [_,Mn,Mn,Mn,Mn,Mn,Mn,_],
+      [_,Mn,Mn,Mn,Mn,Mn,Mn,_],
+      [_,Mn,Mn,Mn,Mn,Mn,Mn,_],
+      [_,_,Mn,Mn,Mn,Mn,_,_],
+      [_,_,_,Mn,Mn,_,_,_],
+      [_,_,_,_,_,_,_,_],
+    ];
+    this.createTexture('mozartNote', mozartNote);
   }
 
   generateTiles() {
