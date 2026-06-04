@@ -14,6 +14,7 @@ import { NPC } from '../sprites/NPC.js';
 import { DialogueBox } from '../ui/DialogueBox.js';
 import { NPC_DIALOGUES } from '../config/npcDialogues.js';
 import { AdaptiveMusicManager } from '../utils/AdaptiveMusicManager.js';
+import { MozartSoundtracks } from '../utils/MozartSoundtracks.js';
 import { getAchievementManager } from '../utils/AchievementManager.js';
 
 export class Level3Scene extends Phaser.Scene {
@@ -282,6 +283,10 @@ export class Level3Scene extends Phaser.Scene {
     // Dialogue system
     this.dialogueBox = new DialogueBox(this);
     this.interactKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
+    // Background music - Mozart's Alla Turca K.331
+    this.mozartSoundtrack = new MozartSoundtracks(this);
+    this.mozartSoundtrack.play('level3');
+
     // Background music - adaptive system
     this.adaptiveMusic = new AdaptiveMusicManager(this);
     this.adaptiveMusic.start('exploration');
@@ -339,6 +344,10 @@ export class Level3Scene extends Phaser.Scene {
     }
     // Update adaptive music system
     if (this.adaptiveMusic) this.adaptiveMusic.update(this);
+    // Sync Mozart soundtrack boss mode with game state
+    if (this.mozartSoundtrack && this.bossActive && !this.mozartSoundtrack.isBossMode) {
+      this.mozartSoundtrack.setBossMode(true);
+    }
 
     // Camera follows midpoint in co-op
     if (this.coopMode && this.cameraTarget) {
@@ -373,6 +382,9 @@ export class Level3Scene extends Phaser.Scene {
         // Switch adaptive music to combat state for boss
         if (this.adaptiveMusic) {
           this.adaptiveMusic.setState('combat');
+        }
+        if (this.mozartSoundtrack) {
+          this.mozartSoundtrack.setBossMode(true);
         }
       }
     }
@@ -611,6 +623,9 @@ export class Level3Scene extends Phaser.Scene {
 
     // Stop background music
     this.sound.stopAll();
+    if (this.mozartSoundtrack) {
+      this.mozartSoundtrack.stop();
+    }
     if (this.adaptiveMusic) {
       this.adaptiveMusic.stop();
     }

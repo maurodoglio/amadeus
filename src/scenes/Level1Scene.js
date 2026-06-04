@@ -12,6 +12,7 @@ import { NPC } from '../sprites/NPC.js';
 import { DialogueBox } from '../ui/DialogueBox.js';
 import { NPC_DIALOGUES } from '../config/npcDialogues.js';
 import { AdaptiveMusicManager } from '../utils/AdaptiveMusicManager.js';
+import { MozartSoundtracks } from '../utils/MozartSoundtracks.js';
 import { setupBoss, updateBossAI, getBossTarget } from '../utils/BossFight.js';
 import { getAchievementManager } from '../utils/AchievementManager.js';
 
@@ -347,7 +348,11 @@ export class Level1Scene extends Phaser.Scene {
         this.applyRhythmPowerUp(powerUp);
       }
     });
-    // Background music - adaptive system
+    // Background music - Mozart's Eine kleine Nachtmusik K.525
+    this.mozartSoundtrack = new MozartSoundtracks(this);
+    this.mozartSoundtrack.play('level1');
+
+    // Background music - adaptive system for combat transitions
     this.adaptiveMusic = new AdaptiveMusicManager(this);
     this.adaptiveMusic.start('exploration');
   }
@@ -378,6 +383,10 @@ export class Level1Scene extends Phaser.Scene {
     }
     // Update adaptive music system
     if (this.adaptiveMusic) this.adaptiveMusic.update(this);
+    // Sync Mozart soundtrack boss mode with game state
+    if (this.mozartSoundtrack && this.bossActive && !this.mozartSoundtrack.isBossMode) {
+      this.mozartSoundtrack.setBossMode(true);
+    }
     // Boss AI: Off-Key Conductor fires note projectiles
     updateBossAI(this, time, (scene, t) => {
       const boss = scene.boss;
@@ -546,6 +555,9 @@ export class Level1Scene extends Phaser.Scene {
 
     // Stop background music
     this.sound.stopAll();
+    if (this.mozartSoundtrack) {
+      this.mozartSoundtrack.stop();
+    }
     if (this.adaptiveMusic) {
       this.adaptiveMusic.stop();
     }

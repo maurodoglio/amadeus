@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT } from '../config/constants.js';
 import { ScoreManager } from '../utils/ScoreManager.js';
+import { MozartSoundtracks } from '../utils/MozartSoundtracks.js';
 
 export class MenuScene extends Phaser.Scene {
   constructor() {
@@ -131,10 +132,9 @@ export class MenuScene extends Phaser.Scene {
     this.input.keyboard.on('keydown-ENTER', () => this.confirmSelection());
     this.input.once('pointerdown', () => this.confirmSelection());
 
-    // Play menu music
-    if (this.sound.get('music_menu')) {
-      this.sound.play('music_menu', { loop: true, volume: 0.3 });
-    }
+    // Play menu music - Mozart medley
+    this.mozartSoundtrack = new MozartSoundtracks(this);
+    this.mozartSoundtrack.play('menu');
   }
 
   changeSelection(dir) {
@@ -150,6 +150,9 @@ export class MenuScene extends Phaser.Scene {
   startGame(coopMode) {
     // Stop menu music
     this.sound.stopAll();
+    if (this.mozartSoundtrack) {
+      this.mozartSoundtrack.stop();
+    }
 
     // Reset game state
     this.registry.set('lives', coopMode ? 5 : 3);

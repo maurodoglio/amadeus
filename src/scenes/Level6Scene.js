@@ -4,6 +4,7 @@ import { Mozart } from '../sprites/Mozart.js';
 import { DrumTroll } from '../sprites/enemies/DrumTroll.js';
 import { BrokenInstrument } from '../sprites/enemies/BrokenInstrument.js';
 import { AdaptiveMusicManager } from '../utils/AdaptiveMusicManager.js';
+import { MozartSoundtracks } from '../utils/MozartSoundtracks.js';
 import { ParticleManager } from '../utils/ParticleManager.js';
 import { setupBoss, updateBossAI, getBossTarget } from '../utils/BossFight.js';
 import { ComboSystem } from '../utils/ComboSystem.js';
@@ -171,6 +172,10 @@ export class Level6Scene extends Phaser.Scene {
     this.physics.world.setBounds(0, 0, GAME_WIDTH * 3.2, GAME_HEIGHT);
     this.mozart.setCollideWorldBounds(true);
 
+    // Mozart's Lacrimosa from Requiem K.626
+    this.mozartSoundtrack = new MozartSoundtracks(this);
+    this.mozartSoundtrack.play('level6');
+
     // Adaptive music system
     this.adaptiveMusic = new AdaptiveMusicManager(this);
     this.adaptiveMusic.start('tension');
@@ -184,6 +189,10 @@ export class Level6Scene extends Phaser.Scene {
 
     // Update adaptive music system
     if (this.adaptiveMusic) this.adaptiveMusic.update(this);
+    // Sync Mozart soundtrack boss mode with game state
+    if (this.mozartSoundtrack && this.bossActive && !this.mozartSoundtrack.isBossMode) {
+      this.mozartSoundtrack.setBossMode(true);
+    }
     // Boss AI: Crystal Drummer - shockwave ground pounds
     updateBossAI(this, time, (scene, t) => {
       const boss = scene.boss;
