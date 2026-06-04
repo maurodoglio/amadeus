@@ -61,7 +61,7 @@ export class MenuScene extends Phaser.Scene {
     this.registry.set('instruments', []);
     this.registry.set('currentLevel', 1);
 
-    this.scene.start('Level1Scene');
+    this.scene.start('CutsceneScene', { cutscene: 'intro', nextScene: 'Level1Scene' });
     this.scene.launch('UIScene');
   }
 }

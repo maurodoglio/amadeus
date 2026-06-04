@@ -218,11 +218,11 @@ export class Level1Scene extends Phaser.Scene {
     instrument.destroy();
     player.collectInstrument('violin');
 
-    // Level complete - transition
+    // Level complete - transition through cutscene
     this.cameras.main.fade(1000, 0, 0, 0, false, (cam, progress) => {
       if (progress === 1) {
         this.registry.set('currentLevel', 2);
-        this.scene.start('Level2Scene');
+        this.scene.start('CutsceneScene', { cutscene: 'afterLevel1', nextScene: 'Level2Scene' });
       }
     });
   }
