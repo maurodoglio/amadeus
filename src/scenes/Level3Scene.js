@@ -555,7 +555,7 @@ export class Level3Scene extends Phaser.Scene {
           level: 3,
           levelScore,
           timeBonus,
-          nextScene: 'ConcertScene'
+          nextScene: 'Level4Scene'
         });
       }
     });
