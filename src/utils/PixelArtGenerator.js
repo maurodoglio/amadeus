@@ -492,6 +492,82 @@ export class PixelArtGenerator {
       [Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y],
     ];
     this.createTexture('palaceGround', palaceTile);
+
+    // Opera House tile (16x16)
+    const OT = '#3d0000';
+    const OR = '#8B0000';
+    const OG = '#FFD700';
+
+    const operaTile = [
+      [OT,OT,OT,OT,OT,OT,OT,OT,OT,OT,OT,OT,OT,OT,OT,OT],
+      [OT,OR,OT,OT,OT,OT,OR,OT,OT,OT,OT,OR,OT,OT,OT,OT],
+      [OT,OT,OT,OT,OT,OT,OT,OT,OT,OT,OT,OT,OT,OT,OT,OT],
+      [OT,OT,OT,OG,OT,OT,OT,OT,OG,OT,OT,OT,OT,OG,OT,OT],
+      [OT,OT,OT,OT,OT,OT,OT,OT,OT,OT,OT,OT,OT,OT,OT,OT],
+      [OT,OR,OT,OT,OT,OT,OR,OT,OT,OT,OT,OR,OT,OT,OT,OT],
+      [OT,OT,OT,OT,OT,OT,OT,OT,OT,OT,OT,OT,OT,OT,OT,OT],
+      [OT,OT,OT,OG,OT,OT,OT,OT,OG,OT,OT,OT,OT,OG,OT,OT],
+      [OT,OT,OT,OT,OT,OT,OT,OT,OT,OT,OT,OT,OT,OT,OT,OT],
+      [OT,OR,OT,OT,OT,OT,OR,OT,OT,OT,OT,OR,OT,OT,OT,OT],
+      [OT,OT,OT,OT,OT,OT,OT,OT,OT,OT,OT,OT,OT,OT,OT,OT],
+      [OT,OT,OT,OG,OT,OT,OT,OT,OG,OT,OT,OT,OT,OG,OT,OT],
+      [OT,OT,OT,OT,OT,OT,OT,OT,OT,OT,OT,OT,OT,OT,OT,OT],
+      [OT,OR,OT,OT,OT,OT,OR,OT,OT,OT,OT,OR,OT,OT,OT,OT],
+      [OT,OT,OT,OT,OT,OT,OT,OT,OT,OT,OT,OT,OT,OT,OT,OT],
+      [OG,OG,OG,OG,OG,OG,OG,OG,OG,OG,OG,OG,OG,OG,OG,OG],
+    ];
+    this.createTexture('operaGround', operaTile);
+
+    // Mountain tile (16x16)
+    const MG = '#696969';
+    const ML = '#808080';
+    const MD = '#4a4a4a';
+    const MW = '#FFFFFF';
+
+    const mountainTile = [
+      [ML,ML,MW,ML,MG,MG,MG,MG,MG,MG,MG,ML,MW,ML,MG,MG],
+      [MG,MG,MG,MG,MG,MG,MG,MD,MG,MG,MG,MG,MG,MG,MG,MG],
+      [MG,MD,MG,MG,MG,MG,MG,MG,MG,MG,MD,MG,MG,MG,MG,MG],
+      [MG,MG,MG,MG,MD,MG,MG,MG,MG,MG,MG,MG,MG,MD,MG,MG],
+      [MG,MG,MG,MG,MG,MG,MG,MG,MG,MG,MG,MG,MG,MG,MG,MG],
+      [MD,MG,MG,MG,MG,MG,MD,MG,MG,MG,MG,MG,MG,MG,MD,MG],
+      [MG,MG,MG,MD,MG,MG,MG,MG,MG,MD,MG,MG,MG,MG,MG,MG],
+      [MG,MG,MG,MG,MG,MG,MG,MG,MG,MG,MG,MG,MG,MG,MG,MG],
+      [MG,MD,MG,MG,MG,MG,MG,MG,MD,MG,MG,MG,MD,MG,MG,MG],
+      [MG,MG,MG,MG,MD,MG,MG,MG,MG,MG,MG,MG,MG,MG,MD,MG],
+      [MG,MG,MG,MG,MG,MG,MG,MG,MG,MG,MG,MG,MG,MG,MG,MG],
+      [MD,MG,MG,MG,MG,MD,MG,MG,MG,MG,MD,MG,MG,MG,MG,MG],
+      [MG,MG,MG,MG,MG,MG,MG,MG,MG,MG,MG,MG,MG,MG,MG,MG],
+      [MG,MG,MD,MG,MG,MG,MG,MG,MD,MG,MG,MG,MG,MD,MG,MG],
+      [MG,MG,MG,MG,MG,MG,MG,MG,MG,MG,MG,MG,MG,MG,MG,MG],
+      [MD,MD,MD,MD,MD,MD,MD,MD,MD,MD,MD,MD,MD,MD,MD,MD],
+    ];
+    this.createTexture('mountainGround', mountainTile);
+
+    // Cave tile (16x16)
+    const CG = '#2a2a2a';
+    const CD = '#1a1a1a';
+    const CP = '#4a3080';
+
+    const caveTile = [
+      [CG,CG,CD,CG,CG,CG,CD,CG,CG,CG,CG,CD,CG,CG,CG,CG],
+      [CG,CG,CG,CG,CG,CG,CG,CG,CG,CD,CG,CG,CG,CG,CD,CG],
+      [CD,CG,CG,CG,CD,CG,CG,CG,CG,CG,CG,CG,CD,CG,CG,CG],
+      [CG,CG,CG,CG,CG,CG,CG,CD,CG,CG,CG,CG,CG,CG,CG,CG],
+      [CG,CP,CG,CG,CG,CG,CG,CG,CG,CG,CP,CG,CG,CG,CG,CP],
+      [CG,CG,CG,CG,CG,CP,CG,CG,CG,CG,CG,CG,CG,CP,CG,CG],
+      [CG,CG,CG,CD,CG,CG,CG,CG,CD,CG,CG,CG,CG,CG,CG,CG],
+      [CD,CG,CG,CG,CG,CG,CG,CG,CG,CG,CG,CG,CG,CG,CD,CG],
+      [CG,CG,CG,CG,CG,CG,CG,CG,CG,CG,CG,CG,CG,CG,CG,CG],
+      [CG,CG,CP,CG,CG,CG,CG,CP,CG,CG,CG,CG,CP,CG,CG,CG],
+      [CG,CG,CG,CG,CG,CG,CG,CG,CG,CG,CG,CG,CG,CG,CG,CG],
+      [CD,CG,CG,CG,CD,CG,CG,CG,CG,CD,CG,CG,CG,CG,CD,CG],
+      [CG,CG,CG,CG,CG,CG,CG,CG,CG,CG,CG,CG,CG,CG,CG,CG],
+      [CG,CG,CG,CG,CG,CG,CG,CG,CG,CG,CG,CG,CG,CG,CG,CG],
+      [CG,CP,CG,CG,CP,CG,CG,CP,CG,CG,CP,CG,CG,CP,CG,CG],
+      [CD,CD,CD,CD,CD,CD,CD,CD,CD,CD,CD,CD,CD,CD,CD,CD],
+    ];
+    this.createTexture('caveGround', caveTile);
   }
 
   generateItems() {
@@ -590,6 +666,114 @@ export class PixelArtGenerator {
     ];
     this.createTexture('piano', piano);
 
+    // Harpsichord (24x16)
+    const HC = '#8B4513';
+    const HW = '#FFFACD';
+    const HG = '#FFD700';
+    const HK2 = '#1a1a1a';
+
+    const harpsichord = [
+      [HK2,HK2,HK2,HK2,HK2,HK2,HK2,HK2,HK2,HK2,HK2,HK2,HK2,HK2,HK2,HK2,HK2,HK2,HK2,HK2,HK2,HK2,HK2,HK2],
+      [HK2,HC,HC,HC,HC,HC,HC,HC,HC,HC,HC,HC,HC,HC,HC,HC,HC,HC,HC,HC,HC,HC,HC,HK2],
+      [HK2,HC,HW,HK2,HW,HW,HK2,HW,HW,HK2,HW,HW,HK2,HW,HW,HK2,HW,HW,HK2,HW,HW,HK2,HC,HK2],
+      [HK2,HC,HW,HK2,HW,HW,HK2,HW,HW,HK2,HW,HW,HK2,HW,HW,HK2,HW,HW,HK2,HW,HW,HK2,HC,HK2],
+      [HK2,HC,HW,HK2,HW,HW,HK2,HW,HW,HK2,HW,HW,HK2,HW,HW,HK2,HW,HW,HK2,HW,HW,HK2,HC,HK2],
+      [HK2,HC,HW,HW,HW,HW,HW,HW,HW,HW,HW,HW,HW,HW,HW,HW,HW,HW,HW,HW,HW,HW,HC,HK2],
+      [HK2,HC,HW,HW,HW,HW,HW,HW,HW,HW,HW,HW,HW,HW,HW,HW,HW,HW,HW,HW,HW,HW,HC,HK2],
+      [HK2,HC,HC,HC,HC,HC,HC,HC,HC,HC,HC,HC,HC,HC,HC,HC,HC,HC,HC,HC,HC,HC,HC,HK2],
+      [HK2,HK2,HK2,HK2,HK2,HK2,HK2,HK2,HK2,HK2,HK2,HK2,HK2,HK2,HK2,HK2,HK2,HK2,HK2,HK2,HK2,HK2,HK2,HK2],
+      [_,_,HC,HC,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,HC,HC],
+      [_,_,HC,HC,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,HC,HC],
+      [_,_,HC,HC,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,HC,HC],
+      [_,_,HC,HC,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,HC,HC],
+      [_,_,HC,HC,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,HC,HC],
+      [_,HG,HC,HC,HG,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,HG,HC,HC,HG],
+      [_,HG,HG,HG,HG,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,HG,HG,HG,HG],
+    ];
+    this.createTexture('harpsichord', harpsichord);
+
+    // Trumpet (20x12)
+    const TG = '#FFD700';
+    const TS = '#C0C0C0';
+    const TB = '#B8860B';
+
+    const trumpet = [
+      [_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_],
+      [_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,TG,TG,TG,_,_],
+      [_,_,_,_,_,_,_,_,_,_,_,_,_,_,TG,TG,TG,TG,TG,_],
+      [_,TG,TG,TG,TG,TG,TG,TG,TG,TG,TG,TG,TG,TG,TG,TG,TG,TG,TG,TG],
+      [TG,TG,TB,TG,TG,TB,TG,TG,TB,TG,TG,TG,TG,TG,TG,TG,TG,TG,TG,TG],
+      [TG,TG,TB,TG,TG,TB,TG,TG,TB,TG,TG,TG,TG,TG,TG,TG,TG,TG,TG,TG],
+      [TG,TG,TG,TG,TG,TG,TG,TG,TG,TG,TG,TG,TG,TG,TG,TG,TG,TG,TG,TG],
+      [_,TG,TG,TG,TG,TG,TG,TG,TG,TG,TG,TG,TG,TG,TG,TG,TG,TG,TG,TG],
+      [_,_,_,_,_,_,_,_,_,_,_,_,_,_,TG,TG,TG,TG,TG,_],
+      [_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,TG,TG,TG,_,_],
+      [_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_],
+      [_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_],
+    ];
+    this.createTexture('trumpet', trumpet);
+
+    // Drums (20x18)
+    const DR = '#8B0000';
+    const DW = '#F5F5DC';
+    const DB = '#654321';
+    const DG2 = '#FFD700';
+
+    const drums = [
+      [_,_,_,_,_,_,_,DB,DB,_,_,DB,DB,_,_,_,_,_,_,_],
+      [_,_,_,_,_,_,DB,_,_,DB,DB,_,_,DB,_,_,_,_,_,_],
+      [_,_,_,_,_,DG2,DG2,DG2,DG2,DG2,DG2,DG2,DG2,DG2,DG2,_,_,_,_,_],
+      [_,_,_,_,DG2,DR,DR,DR,DR,DR,DR,DR,DR,DR,DR,DG2,_,_,_,_],
+      [_,_,_,DG2,DR,DR,DR,DR,DR,DR,DR,DR,DR,DR,DR,DR,DG2,_,_,_],
+      [_,_,_,DG2,DR,DW,DR,DR,DW,DR,DR,DW,DR,DR,DW,DR,DG2,_,_,_],
+      [_,_,_,DG2,DR,DR,DR,DR,DR,DR,DR,DR,DR,DR,DR,DR,DG2,_,_,_],
+      [_,_,_,DG2,DR,DR,DW,DR,DR,DW,DR,DR,DW,DR,DR,DR,DG2,_,_,_],
+      [_,_,_,DG2,DR,DR,DR,DR,DR,DR,DR,DR,DR,DR,DR,DR,DG2,_,_,_],
+      [_,_,_,DG2,DR,DW,DR,DR,DW,DR,DR,DW,DR,DR,DW,DR,DG2,_,_,_],
+      [_,_,_,DG2,DR,DR,DR,DR,DR,DR,DR,DR,DR,DR,DR,DR,DG2,_,_,_],
+      [_,_,_,_,DG2,DR,DR,DR,DR,DR,DR,DR,DR,DR,DR,DG2,_,_,_,_],
+      [_,_,_,_,_,DG2,DG2,DG2,DG2,DG2,DG2,DG2,DG2,DG2,DG2,_,_,_,_,_],
+      [_,_,_,_,_,_,DB,DB,DB,DB,DB,DB,DB,DB,DB,_,_,_,_,_],
+      [_,_,_,_,_,_,_,DB,_,_,_,_,_,DB,_,_,_,_,_,_],
+      [_,_,_,_,_,_,_,DB,_,_,_,_,_,DB,_,_,_,_,_,_],
+      [_,_,_,_,_,_,DB,DB,DB,_,_,DB,DB,DB,_,_,_,_,_,_],
+      [_,_,_,_,_,_,DB,DB,DB,_,_,DB,DB,DB,_,_,_,_,_,_],
+    ];
+    this.createTexture('drums', drums);
+
+    // Harp (16x24)
+    const HP = '#DAA520';
+    const HS = '#FFD700';
+    const HB2 = '#8B6914';
+
+    const harp = [
+      [_,_,_,_,_,_,HP,HP,HP,HP,_,_,_,_,_,_],
+      [_,_,_,_,_,HP,HP,HP,HP,HP,HP,_,_,_,_,_],
+      [_,_,_,_,HP,HP,_,_,_,_,HP,HP,_,_,_,_],
+      [_,_,_,HP,HP,_,_,_,_,_,_,HP,HP,_,_,_],
+      [_,_,HP,HP,_,HS,_,HS,_,HS,_,_,HP,_,_,_],
+      [_,_,HP,_,_,HS,_,HS,_,HS,_,_,HP,_,_,_],
+      [_,HP,HP,_,_,HS,_,HS,_,HS,_,_,HP,_,_,_],
+      [_,HP,_,_,_,HS,_,HS,_,HS,_,_,_,HP,_,_],
+      [_,HP,_,_,_,HS,_,HS,_,HS,_,_,_,HP,_,_],
+      [HP,HP,_,_,_,HS,_,HS,_,HS,_,_,_,HP,_,_],
+      [HP,_,_,_,_,HS,_,HS,_,HS,_,_,_,_,HP,_],
+      [HP,_,_,_,_,HS,_,HS,_,HS,_,_,_,_,HP,_],
+      [HP,_,_,_,_,HS,_,HS,_,HS,_,_,_,_,HP,_],
+      [HP,_,_,_,_,HS,_,HS,_,HS,_,_,_,_,HP,_],
+      [HP,_,_,_,_,HS,_,HS,_,HS,_,_,_,_,HP,_],
+      [HP,_,_,_,_,HS,_,HS,_,HS,_,_,_,_,HP,_],
+      [HP,_,_,_,_,HS,_,HS,_,HS,_,_,_,_,HP,_],
+      [HP,_,_,_,_,HS,_,HS,_,HS,_,_,_,HP,_,_],
+      [HP,HP,_,_,_,HS,_,HS,_,HS,_,_,HP,HP,_,_],
+      [_,HP,HP,_,_,HS,_,HS,_,HS,_,HP,HP,_,_,_],
+      [_,_,HP,HP,HP,HP,HP,HP,HP,HP,HP,HP,_,_,_,_],
+      [_,_,_,HP,HP,HP,HP,HP,HP,HP,HP,_,_,_,_,_],
+      [_,_,_,_,HB2,HB2,HB2,HB2,HB2,HB2,_,_,_,_,_,_],
+      [_,_,_,_,_,HB2,HB2,HB2,HB2,_,_,_,_,_,_,_],
+    ];
+    this.createTexture('harp', harp);
+
     // Sheet Music Page (parchment with notes) (12x16)
     const P = '#F5DEB3'; // parchment
     const E = '#D2B48C'; // parchment edge
@@ -676,6 +860,10 @@ export class PixelArtGenerator {
     this.generateGradientBackground('bgVienna', '#87CEEB', '#B0C4DE', '#DEB887');
     this.generateGradientBackground('bgForest', '#1a472a', '#2d5a27', '#3d6b3d');
     this.generateGradientBackground('bgPalace', '#1a1a2e', '#4a1942', '#16213e');
+    this.generateGradientBackground('bgOpera', '#2a0a0a', '#4a1010', '#1a0505');
+    this.generateGradientBackground('bgMountain', '#4a6fa5', '#6a8fbb', '#8ab0d4');
+    this.generateGradientBackground('bgCaves', '#0a0a0a', '#151515', '#0a0a0a');
+    this.generateGradientBackground('bgSky', '#1a1a4e', '#2a2a7e', '#4a4aae');
   }
 
   generateGradientBackground(key, topColor, midColor, bottomColor) {

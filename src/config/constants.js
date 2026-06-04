@@ -31,7 +31,11 @@ export const COLORS = {
 export const LEVELS = {
   VIENNA: 'Level1Scene',
   FOREST: 'Level2Scene',
-  PALACE: 'Level3Scene'
+  PALACE: 'Level3Scene',
+  OPERA: 'Level4Scene',
+  MOUNTAIN: 'Level5Scene',
+  CAVES: 'Level6Scene',
+  SKY: 'Level7Scene'
 };
 
-export const INSTRUMENTS = ['violin', 'flute', 'piano'];
+export const INSTRUMENTS = ['violin', 'flute', 'piano', 'harpsichord', 'trumpet', 'drums', 'harp'];
