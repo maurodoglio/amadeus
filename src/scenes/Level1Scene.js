@@ -16,6 +16,7 @@ export class Level1Scene extends Phaser.Scene {
     setupPause(this);
     this.particles = new ParticleManager(this);
     this.coopMode = this.registry.get('coopMode') || false;
+    this.lastCheckpoint = null;
 
     // Parallax background layers
     const worldWidth = GAME_WIDTH * 3;
@@ -245,6 +246,22 @@ export class Level1Scene extends Phaser.Scene {
       this.physics.add.collider(this.mozart, this.nannerl, this.playerBounce, null, this);
     }
 
+    // Checkpoint flags
+    this.checkpoints = this.physics.add.staticGroup();
+    const checkpointPositions = [
+      { x: 800, y: GAME_HEIGHT - 64 },
+      { x: 1500, y: GAME_HEIGHT - 64 },
+    ];
+
+    checkpointPositions.forEach(pos => {
+      const flag = this.checkpoints.create(pos.x, pos.y, 'checkpointFlag')
+        .setDisplaySize(24, 40)
+        .refreshBody();
+      flag.activated = false;
+    });
+
+    this.physics.add.overlap(this.mozart, this.checkpoints, this.activateCheckpoint, null, this);
+
     // Camera
     this.cameras.main.setBounds(0, 0, GAME_WIDTH * 3, GAME_HEIGHT);
     this.physics.world.setBounds(0, 0, GAME_WIDTH * 3, GAME_HEIGHT);
@@ -355,11 +372,16 @@ export class Level1Scene extends Phaser.Scene {
     instrument.destroy();
     player.collectInstrument('violin');
 
-    // Level complete - transition through cutscene
-    this.cameras.main.fade(1000, 0, 0, 0, false, (cam, progress) => {
+    // Level complete - iris wipe transition
+    this.cameras.main.fade(500, 255, 255, 255, false, (cam, progress) => {
       if (progress === 1) {
         this.registry.set('currentLevel', 2);
-        this.scene.start('CutsceneScene', { cutscene: 'afterLevel1', nextScene: 'Level2Scene' });
+        this.scene.stop();
+        this.scene.start('TransitionScene', {
+          nextScene: 'CutsceneScene',
+          levelName: 'The Enchanted Forest',
+          sceneData: { cutscene: 'afterLevel1', nextScene: 'Level2Scene' }
+        });
       }
     });
   }
@@ -399,5 +421,19 @@ export class Level1Scene extends Phaser.Scene {
 
     // Disable physics body immediately to prevent double-collection
     page.body.enable = false;
+  }
+
+  activateCheckpoint(player, flag) {
+    if (flag.activated) return;
+    flag.activated = true;
+    this.lastCheckpoint = { x: flag.x, y: flag.y };
+
+    // Visual feedback - flag turns gold
+    flag.setTint(0xFFD700);
+    this.particles.emitSparkleCollect(flag.x, flag.y - 20);
+
+    if (this.sound.get('sfx_coin')) {
+      this.sound.play('sfx_coin', { volume: 0.2 });
+    }
   }
 }

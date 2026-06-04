@@ -7,11 +7,9 @@ export class UIScene extends Phaser.Scene {
   }
 
   create() {
-    // Lives display
-    this.livesText = this.add.text(16, 16, '', {
-      font: '16px monospace',
-      fill: '#FFFFFF'
-    });
+    // Lives display - Mozart head icons
+    this.livesIcons = [];
+    this.updateLivesIcons(this.registry.get('lives'));
 
     // Score display
     this.scoreText = this.add.text(GAME_WIDTH - 16, 16, '', {
@@ -46,17 +44,26 @@ export class UIScene extends Phaser.Scene {
     this.registry.events.on('changedata-instruments', this.updateInstruments, this);
     this.registry.events.on('changedata-sheetMusicCurrentLevel', this.updateSheetMusic, this);
 
-    this.updateLives(null, this.registry.get('lives'));
     this.updateScore(null, this.registry.get('score'));
     this.updateInstruments(null, this.registry.get('instruments'));
     this.updateSheetMusic(null, this.registry.get('sheetMusicCurrentLevel'));
   }
 
+  updateLivesIcons(count) {
+    // Clear existing icons
+    this.livesIcons.forEach(icon => icon.destroy());
+    this.livesIcons = [];
+
+    for (let i = 0; i < count; i++) {
+      const icon = this.add.image(20 + i * 28, 20, 'mozartHead')
+        .setDisplaySize(22, 22)
+        .setOrigin(0, 0);
+      this.livesIcons.push(icon);
+    }
+  }
+
   updateLives(_, value) {
-    let hearts = '';
-    for (let i = 0; i < value; i++) hearts += '♥ ';
-    const coopMode = this.registry.get('coopMode');
-    this.livesText.setText(coopMode ? `Lives: ${hearts}` : hearts);
+    this.updateLivesIcons(value);
   }
 
   updateScore(_, value) {
