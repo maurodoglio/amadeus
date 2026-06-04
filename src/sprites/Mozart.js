@@ -45,11 +45,20 @@ export class Mozart extends Phaser.Physics.Arcade.Sprite {
     // Input
     this.cursors = scene.input.keyboard.createCursorKeys();
     this.spaceKey = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+
+    // Reference to touch controls scene (if running)
+    this.touchControls = null;
   }
 
   update() {
     if (this.isDead) return;
 
+    // Lazily acquire touch controls reference
+    if (!this.touchControls) {
+      this.touchControls = this.scene.scene.get('TouchControls');
+    }
+
+    const touch = this.touchControls || {};
     const onGround = this.body.blocked.down || this.body.touching.down;
 
     // Emit dust on landing
@@ -58,12 +67,12 @@ export class Mozart extends Phaser.Physics.Arcade.Sprite {
     }
     this.wasInAir = !onGround;
 
-    // Horizontal movement
-    if (this.cursors.left.isDown) {
+    // Horizontal movement (keyboard OR touch)
+    if (this.cursors.left.isDown || touch.isLeft) {
       this.setVelocityX(-PLAYER.SPEED);
       this.setFlipX(true);
       if (onGround) this.play('mozart_walk', true);
-    } else if (this.cursors.right.isDown) {
+    } else if (this.cursors.right.isDown || touch.isRight) {
       this.setVelocityX(PLAYER.SPEED);
       this.setFlipX(false);
       if (onGround) this.play('mozart_walk', true);
@@ -72,8 +81,8 @@ export class Mozart extends Phaser.Physics.Arcade.Sprite {
       if (onGround) this.play('mozart_idle', true);
     }
 
-    // Jumping
-    if ((this.cursors.up.isDown || this.spaceKey.isDown) && onGround) {
+    // Jumping (keyboard OR touch)
+    if ((this.cursors.up.isDown || this.spaceKey.isDown || touch.isJump) && onGround) {
       this.setVelocityY(PLAYER.JUMP_VELOCITY);
       this.play('mozart_jump', true);
       if (this.scene.sound.get('sfx_jump')) {
