@@ -3,6 +3,7 @@ import { GAME_WIDTH, GAME_HEIGHT, TILE_SIZE } from '../config/constants.js';
 import { Mozart } from '../sprites/Mozart.js';
 import { Singer } from '../sprites/enemies/Singer.js';
 import { DissonantNote } from '../sprites/enemies/DissonantNote.js';
+import { ParticleManager } from '../utils/ParticleManager.js';
 
 export class Level1Scene extends Phaser.Scene {
   constructor() {
@@ -10,12 +11,16 @@ export class Level1Scene extends Phaser.Scene {
   }
 
   create() {
-    // Background
-    if (this.textures.exists('bgVienna')) {
-      this.add.image(GAME_WIDTH / 2, GAME_HEIGHT / 2, 'bgVienna');
-    } else {
-      this.cameras.main.setBackgroundColor('#87CEEB');
-    }
+    this.particles = new ParticleManager(this);
+
+    // Parallax background layers
+    const worldWidth = GAME_WIDTH * 3;
+    this.bgFar = this.add.tileSprite(0, 0, GAME_WIDTH, GAME_HEIGHT, 'parallaxVienna_far')
+      .setOrigin(0, 0).setScrollFactor(0).setDepth(-10);
+    this.bgMid = this.add.tileSprite(0, 0, GAME_WIDTH, GAME_HEIGHT, 'parallaxVienna_mid')
+      .setOrigin(0, 0).setScrollFactor(0).setDepth(-9);
+    this.bgNear = this.add.tileSprite(0, 0, GAME_WIDTH, GAME_HEIGHT, 'parallaxVienna_near')
+      .setOrigin(0, 0).setScrollFactor(0).setDepth(-8);
 
     // Level title
     const title = this.add.text(GAME_WIDTH / 2, 60, 'The Vienna Streets', {
@@ -156,6 +161,9 @@ export class Level1Scene extends Phaser.Scene {
       ease: 'Sine.easeInOut'
     });
 
+    // Sparkle particles around instrument
+    this.instrumentSparkle = this.particles.emitSparkle(2200, GAME_HEIGHT - 100);
+
     // Collisions
     this.physics.add.collider(this.mozart, this.platforms);
     this.physics.add.collider(this.enemies, this.platforms);
@@ -179,6 +187,12 @@ export class Level1Scene extends Phaser.Scene {
     this.singers.forEach(s => s.update());
     this.notes.forEach(n => n.update(time, delta));
 
+    // Parallax scrolling
+    const camX = this.cameras.main.scrollX;
+    this.bgFar.tilePositionX = camX * 0.1;
+    this.bgMid.tilePositionX = camX * 0.3;
+    this.bgNear.tilePositionX = camX * 0.5;
+
     // Fall death
     if (this.mozart && this.mozart.y > GAME_HEIGHT + 50) {
       this.mozart.die();
@@ -188,6 +202,7 @@ export class Level1Scene extends Phaser.Scene {
   hitEnemy(player, enemy) {
     // If player is falling on enemy, kill the enemy
     if (player.body.velocity.y > 0 && player.y < enemy.y - 10) {
+      this.particles.emitStomp(enemy.x, enemy.y);
       enemy.destroy();
       this.singers = this.singers.filter(s => s !== enemy);
       this.notes = this.notes.filter(n => n !== enemy);
@@ -205,6 +220,7 @@ export class Level1Scene extends Phaser.Scene {
   }
 
   collectNote(player, note) {
+    this.particles.emitNoteCollect(note.x, note.y);
     note.destroy();
     const score = this.registry.get('score') + 50;
     this.registry.set('score', score);
@@ -215,6 +231,8 @@ export class Level1Scene extends Phaser.Scene {
   }
 
   collectInstrument(player, instrument) {
+    this.particles.emitSparkleCollect(instrument.x, instrument.y);
+    if (this.instrumentSparkle) this.instrumentSparkle.destroy();
     instrument.destroy();
     player.collectInstrument('violin');
 
