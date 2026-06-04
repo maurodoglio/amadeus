@@ -17,6 +17,7 @@ import { LevelCompleteScene } from './scenes/LevelCompleteScene.js';
 import { UIScene } from './scenes/UIScene.js';
 import { TouchControls } from './ui/TouchControls.js';
 import { PauseScene } from './scenes/PauseScene.js';
+import { AccessibilityScene } from './scenes/AccessibilityScene.js';
 
 const config = {
   type: Phaser.AUTO,
@@ -38,7 +39,7 @@ const config = {
       debug: false
     }
   },
-  scene: [BootScene, MenuScene, MapScene, CutsceneScene, TransitionScene, Level1Scene, Level2Scene, Level3Scene, Level4Scene, Level5Scene, Level6Scene, Level7Scene, LevelCompleteScene, ConcertScene, UIScene, TouchControls, PauseScene]
+  scene: [BootScene, MenuScene, MapScene, CutsceneScene, TransitionScene, Level1Scene, Level2Scene, Level3Scene, Level4Scene, Level5Scene, Level6Scene, Level7Scene, LevelCompleteScene, ConcertScene, UIScene, TouchControls, PauseScene, AccessibilityScene]
 };
 
 const game = new Phaser.Game(config);
