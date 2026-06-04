@@ -106,6 +106,25 @@ export class ParticleManager {
   }
 
   /**
+   * Emit sparkle burst for sheet music page collection (spin + sparkle).
+   */
+  emitSheetMusicCollect(x, y) {
+    const particles = this.scene.add.particles(x, y, 'particleSparkle', {
+      speed: { min: 60, max: 150 },
+      angle: { min: 0, max: 360 },
+      scale: { start: 1.2, end: 0 },
+      alpha: { start: 1, end: 0 },
+      lifespan: 900,
+      quantity: 12,
+      tint: [0xF5DEB3, 0xFFD700, 0xFFFFFF],
+      emitting: false
+    });
+
+    particles.explode();
+    this.scene.time.delayedCall(1100, () => particles.destroy());
+  }
+
+  /**
    * Screen shake effect for boss hits.
    */
   screenShake(intensity = 0.01, duration = 200) {

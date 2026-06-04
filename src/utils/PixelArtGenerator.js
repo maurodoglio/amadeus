@@ -490,6 +490,32 @@ export class PixelArtGenerator {
       [K,G,K,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,K,G,K],
     ];
     this.createTexture('piano', piano);
+
+    // Sheet Music Page (parchment with notes) (12x16)
+    const P = '#F5DEB3'; // parchment
+    const E = '#D2B48C'; // parchment edge
+    const L = '#2F1B0E'; // ink lines (staff)
+    const O = '#2F1B0E'; // ink notes
+
+    const sheetMusic = [
+      [_,E,E,E,E,E,E,E,E,E,E,_],
+      [E,P,P,P,P,P,P,P,P,P,P,E],
+      [E,P,L,L,L,L,L,L,L,L,P,E],
+      [E,P,P,P,P,P,P,P,P,P,P,E],
+      [E,P,L,L,L,L,L,L,L,L,P,E],
+      [E,P,P,O,P,P,O,P,O,P,P,E],
+      [E,P,L,L,L,L,L,L,L,L,P,E],
+      [E,P,P,P,P,P,P,P,P,P,P,E],
+      [E,P,L,L,L,L,L,L,L,L,P,E],
+      [E,P,O,P,P,O,P,P,P,O,P,E],
+      [E,P,L,L,L,L,L,L,L,L,P,E],
+      [E,P,P,P,P,P,P,P,P,P,P,E],
+      [E,P,L,L,L,L,L,L,L,L,P,E],
+      [E,P,P,O,P,O,P,P,O,P,P,E],
+      [E,P,P,P,P,P,P,P,P,P,P,E],
+      [_,E,E,E,E,E,E,E,E,E,E,_],
+    ];
+    this.createTexture('sheetMusic', sheetMusic);
   }
 
   generateBackgrounds() {

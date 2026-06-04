@@ -54,6 +54,11 @@ export class BootScene extends Phaser.Scene {
     this.registry.set('instruments', []);
     this.registry.set('currentLevel', 1);
 
+    // Initialize sheet music collection state
+    const savedSheetMusic = JSON.parse(localStorage.getItem('sheetMusicCollected') || '{}');
+    this.registry.set('sheetMusic', savedSheetMusic);
+    this.registry.set('sheetMusicCurrentLevel', { found: 0, total: 3 });
+
     // Small delay to let audio decode
     this.time.delayedCall(500, () => {
       this.scene.start('MenuScene');
