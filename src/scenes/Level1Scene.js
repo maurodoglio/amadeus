@@ -14,6 +14,7 @@ import { NPC_DIALOGUES } from '../config/npcDialogues.js';
 import { AdaptiveMusicManager } from '../utils/AdaptiveMusicManager.js';
 import { setupBoss, updateBossAI, getBossTarget } from '../utils/BossFight.js';
 import { getAchievementManager } from '../utils/AchievementManager.js';
+import { CompositionCollector } from '../mechanics/CompositionCollector.js';
 
 export class Level1Scene extends Phaser.Scene {
   constructor() {
@@ -248,6 +249,21 @@ export class Level1Scene extends Phaser.Scene {
     });
 
     this.registry.set('sheetMusicCurrentLevel', { found: this.sheetMusicCollected, total: 3 });
+
+    // Composition melody collectibles (hidden in challenging spots)
+    this.compositionCollector = new CompositionCollector(this, 1);
+    const compositionNotePositions = [
+      { x: 180, y: 140 },
+      { x: 420, y: 180 },
+      { x: 640, y: 150 },
+      { x: 870, y: 160 },
+      { x: 1070, y: 130 },
+      { x: 1270, y: 170 },
+      { x: 1470, y: 120 },
+      { x: 1700, y: 140 }
+    ];
+    this.compositionCollector.create(compositionNotePositions);
+    this.compositionCollector.setupOverlap(this.mozart);
 
     // Collisions
     this.physics.add.collider(this.mozart, this.platforms);

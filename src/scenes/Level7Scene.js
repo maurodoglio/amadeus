@@ -12,6 +12,7 @@ import { ParticleManager } from '../utils/ParticleManager.js';
 import { setupBoss, updateBossAI, getBossTarget } from '../utils/BossFight.js';
 import { ComboSystem } from '../utils/ComboSystem.js';
 import { getAchievementManager } from '../utils/AchievementManager.js';
+import { CompositionCollector } from '../mechanics/CompositionCollector.js';
 
 export class Level7Scene extends Phaser.Scene {
   constructor() {
@@ -177,6 +178,17 @@ export class Level7Scene extends Phaser.Scene {
       activateX: 2100
     });
     this.bossProjectiles = this.physics.add.group();
+
+    // Composition melody collectibles (Jupiter fugue - sky platforms)
+    this.compositionCollector = new CompositionCollector(this, 7);
+    const compositionNotePositions = [
+      { x: 400, y: 80 },
+      { x: 800, y: 100 },
+      { x: 1200, y: 70 },
+      { x: 1600, y: 90 }
+    ];
+    this.compositionCollector.create(compositionNotePositions);
+    this.compositionCollector.setupOverlap(this.mozart);
 
     // Collisions
     this.physics.add.collider(this.mozart, this.platforms);

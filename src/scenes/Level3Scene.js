@@ -15,6 +15,7 @@ import { DialogueBox } from '../ui/DialogueBox.js';
 import { NPC_DIALOGUES } from '../config/npcDialogues.js';
 import { AdaptiveMusicManager } from '../utils/AdaptiveMusicManager.js';
 import { getAchievementManager } from '../utils/AchievementManager.js';
+import { CompositionCollector } from '../mechanics/CompositionCollector.js';
 
 export class Level3Scene extends Phaser.Scene {
   constructor() {
@@ -218,6 +219,19 @@ export class Level3Scene extends Phaser.Scene {
     });
 
     this.registry.set('sheetMusicCurrentLevel', { found: this.sheetMusicCollected, total: 3 });
+
+    // Composition melody collectibles (Alla Turca - on palace rooftops)
+    this.compositionCollector = new CompositionCollector(this, 3);
+    const compositionNotePositions = [
+      { x: 300, y: 100 },
+      { x: 550, y: 120 },
+      { x: 800, y: 90 },
+      { x: 1050, y: 110 },
+      { x: 1300, y: 100 },
+      { x: 1550, y: 130 }
+    ];
+    this.compositionCollector.create(compositionNotePositions);
+    this.compositionCollector.setupOverlap(this.mozart);
 
     // Collisions
     this.physics.add.collider(this.mozart, this.platforms);

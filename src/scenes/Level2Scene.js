@@ -12,6 +12,7 @@ import { ScoreManager } from '../utils/ScoreManager.js';
 import { AdaptiveMusicManager } from '../utils/AdaptiveMusicManager.js';
 import { setupBoss, updateBossAI, getBossTarget } from '../utils/BossFight.js';
 import { getAchievementManager } from '../utils/AchievementManager.js';
+import { CompositionCollector } from '../mechanics/CompositionCollector.js';
 
 export class Level2Scene extends Phaser.Scene {
   constructor() {
@@ -263,6 +264,20 @@ export class Level2Scene extends Phaser.Scene {
     });
 
     this.registry.set('sheetMusicCurrentLevel', { found: this.sheetMusicCollected, total: 3 });
+
+    // Composition melody collectibles (Magic Flute - hidden in treetops)
+    this.compositionCollector = new CompositionCollector(this, 2);
+    const compositionNotePositions = [
+      { x: 220, y: 100 },
+      { x: 480, y: 130 },
+      { x: 720, y: 90 },
+      { x: 960, y: 120 },
+      { x: 1200, y: 100 },
+      { x: 1440, y: 140 },
+      { x: 1680, y: 110 }
+    ];
+    this.compositionCollector.create(compositionNotePositions);
+    this.compositionCollector.setupOverlap(this.mozart);
 
     // Collisions
     this.physics.add.collider(this.mozart, this.platforms);
