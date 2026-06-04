@@ -1,35 +1,40 @@
-# Amadeus - Mozart's Musical Quest
+# Amadeus 🎵
 
-A retro-style platformer game where young Mozart collects magic instruments across three levels to become the greatest musician of all time!
+A platform game where young Mozart is on a quest to become the best musician of the world.
 
-## 🎮 How to Play
+## How to Play
 
-- **Arrow Keys** — Move left/right
-- **Space / Up Arrow** — Jump
-- **Stomp enemies** — Jump on top of them to defeat them
+Open `index.html` in a modern browser — no build step required.
 
-## 🎵 Levels
+### Controls
 
-1. **The Vienna Streets** — Dodge off-key singers and dissonant notes → Collect the Magic Violin
-2. **The Enchanted Forest** — Navigate moving platforms, avoid drum trolls and broken instruments → Collect the Magic Flute
-3. **The Royal Palace** — Defeat all enemies and the Discordant Maestro boss → Collect the Magic Piano
+| Key | Action |
+|-----|--------|
+| ← → | Move left/right |
+| Space | Jump |
+| X | Attack (uses instrument abilities) |
 
-## 🏆 Goal
+### Power-Up System
 
-Collect all three magic instruments to unlock the Grand Concert finale!
+Collecting instruments unlocks permanent abilities for subsequent levels:
 
-## 🚀 Getting Started
+| Instrument | Unlock | Ability | How to Use |
+|------------|--------|---------|------------|
+| 🎻 Violin | Level 1 | Sound Wave projectile | Press X on ground |
+| 🪈 Flute | Level 2 | Float/Glide (double jump) | Press Space mid-air |
+| 🎹 Piano | Level 3 | Ground Pound (stuns enemies) | Press X mid-air |
 
-```bash
-npm install
-npm run dev
-```
+**Priority rules:**
+- On ground + X → Violin sound wave
+- In air + X → Piano ground pound (if collected), otherwise Violin sound wave
+- In air + Space → Flute float (if collected, one use per jump)
 
-Then open http://localhost:3000 in your browser.
+### Levels
 
-## 🛠️ Tech Stack
+1. **The Concert Hall** — Collect the Violin, then test your sound wave on enemies
+2. **The Rooftops** — Collect the Flute, then float across wide gaps
+3. **The Grand Stage** — Collect the Piano, then ground pound clusters of enemies
 
-- **Phaser 3** — HTML5 game framework
-- **Vite** — Development server and bundler
-- **Procedural Art** — Pixel art sprites generated programmatically
-- **Chiptune Audio** — Sound effects generated via Web Audio API
+## Development
+
+Single-file HTML5 Canvas game with no dependencies. Just edit `index.html`.
