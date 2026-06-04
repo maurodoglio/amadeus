@@ -8,6 +8,8 @@ import { DissonantNote } from '../sprites/enemies/DissonantNote.js';
 import { BrokenInstrument } from '../sprites/enemies/BrokenInstrument.js';
 import { ParticleManager } from '../utils/ParticleManager.js';
 import { setupPause } from '../utils/PauseHelper.js';
+import { ComboSystem } from '../utils/ComboSystem.js';
+import { ScoreManager } from '../utils/ScoreManager.js';
 
 export class Level3Scene extends Phaser.Scene {
   constructor() {
@@ -20,6 +22,9 @@ export class Level3Scene extends Phaser.Scene {
     this.particles = new ParticleManager(this);
     this.coopMode = this.registry.get('coopMode') || false;
     this.lastCheckpoint = null;
+    this.combo = new ComboSystem(this);
+    this.levelStartTime = this.time.now;
+    this.levelStartScore = this.registry.get('score') || 0;
 
     // Parallax background layers
     this.bgFar = this.add.tileSprite(0, 0, GAME_WIDTH, GAME_HEIGHT, 'parallaxPalace_far')
@@ -395,6 +400,13 @@ export class Level3Scene extends Phaser.Scene {
       boss.health--;
       player.setVelocityY(-300);
 
+      const multiplier = this.combo.registerAction();
+      const points = 200 * multiplier;
+      const score = this.registry.get('score') + points;
+      this.registry.set('score', score);
+      this.registry.set('comboMultiplier', this.combo.getMultiplier());
+      this.registry.set('comboCount', this.combo.getComboCount());
+
       // Screen shake on boss hit
       this.particles.screenShake(0.015, 300);
       this.particles.emitStomp(boss.x, boss.y - 20);
@@ -485,8 +497,14 @@ export class Level3Scene extends Phaser.Scene {
       enemy.destroy();
       this.enemyList = this.enemyList.filter(e => e !== enemy);
       player.setVelocityY(-200);
-      const score = this.registry.get('score') + 100;
+
+      const multiplier = this.combo.registerAction();
+      const points = 100 * multiplier;
+      const score = this.registry.get('score') + points;
       this.registry.set('score', score);
+      this.registry.set('comboMultiplier', this.combo.getMultiplier());
+      this.registry.set('comboCount', this.combo.getComboCount());
+
       if (this.sound.get('sfx_coin')) this.sound.play('sfx_coin', { volume: 0.2 });
     } else {
       player.hit();
@@ -496,8 +514,14 @@ export class Level3Scene extends Phaser.Scene {
   collectNote(player, note) {
     this.particles.emitNoteCollect(note.x, note.y);
     note.destroy();
-    const score = this.registry.get('score') + 50;
+
+    const multiplier = this.combo.registerAction();
+    const points = 50 * multiplier;
+    const score = this.registry.get('score') + points;
     this.registry.set('score', score);
+    this.registry.set('comboMultiplier', this.combo.getMultiplier());
+    this.registry.set('comboCount', this.combo.getComboCount());
+
     if (this.sound.get('sfx_coin')) this.sound.play('sfx_coin', { volume: 0.3 });
   }
 
@@ -510,6 +534,13 @@ export class Level3Scene extends Phaser.Scene {
     // Stop background music
     this.sound.stopAll();
 
+    const elapsedSeconds = Math.floor((this.time.now - this.levelStartTime) / 1000);
+    const levelScore = this.registry.get('score') - this.levelStartScore;
+    const timeBonus = ScoreManager.calculateTimeBonus(3, elapsedSeconds);
+
+    this.registry.set('score', this.registry.get('score') + timeBonus);
+    this.combo.destroy();
+
     // Mark level as completed
     const completedLevels = this.registry.get('completedLevels') || [];
     if (!completedLevels.includes(3)) {
@@ -520,11 +551,11 @@ export class Level3Scene extends Phaser.Scene {
     this.cameras.main.fade(1500, 0, 0, 0, false, (cam, progress) => {
       if (progress === 1) {
         this.scene.stop('UIScene');
-        this.scene.stop();
-        this.scene.start('TransitionScene', {
-          nextScene: 'ConcertScene',
-          levelName: 'The Grand Concert',
-          sceneData: {}
+        this.scene.start('LevelCompleteScene', {
+          level: 3,
+          levelScore,
+          timeBonus,
+          nextScene: 'ConcertScene'
         });
       }
     });
