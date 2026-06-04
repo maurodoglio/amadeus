@@ -8,6 +8,7 @@ import { Level2Scene } from './scenes/Level2Scene.js';
 import { Level3Scene } from './scenes/Level3Scene.js';
 import { ConcertScene } from './scenes/ConcertScene.js';
 import { UIScene } from './scenes/UIScene.js';
+import { TouchControls } from './ui/TouchControls.js';
 
 const config = {
   type: Phaser.AUTO,
@@ -15,6 +16,13 @@ const config = {
   height: GAME_HEIGHT,
   parent: 'game-container',
   pixelArt: true,
+  scale: {
+    mode: Phaser.Scale.FIT,
+    autoCenter: Phaser.Scale.CENTER_BOTH
+  },
+  input: {
+    activePointers: 3
+  },
   physics: {
     default: 'arcade',
     arcade: {
@@ -22,7 +30,7 @@ const config = {
       debug: false
     }
   },
-  scene: [BootScene, MenuScene, CutsceneScene, Level1Scene, Level2Scene, Level3Scene, ConcertScene, UIScene]
+  scene: [BootScene, MenuScene, CutsceneScene, Level1Scene, Level2Scene, Level3Scene, ConcertScene, UIScene, TouchControls]
 };
 
 const game = new Phaser.Game(config);

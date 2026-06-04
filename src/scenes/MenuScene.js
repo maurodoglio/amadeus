@@ -30,13 +30,13 @@ export class MenuScene extends Phaser.Scene {
     }
 
     // Instructions
-    this.add.text(GAME_WIDTH / 2, 380, 'Press SPACE or ENTER to start', {
+    this.add.text(GAME_WIDTH / 2, 380, 'Press SPACE, ENTER, or Tap to start', {
       font: '18px monospace',
       fill: '#87CEEB'
     }).setOrigin(0.5);
 
-    this.add.text(GAME_WIDTH / 2, 420, 'Arrow Keys to move | SPACE to jump', {
-      font: '14px monospace',
+    this.add.text(GAME_WIDTH / 2, 420, 'Arrow Keys / Touch D-pad to move | SPACE / Button to jump', {
+      font: '12px monospace',
       fill: '#808080'
     }).setOrigin(0.5);
 
@@ -52,6 +52,7 @@ export class MenuScene extends Phaser.Scene {
     // Input
     this.input.keyboard.once('keydown-SPACE', () => this.startGame());
     this.input.keyboard.once('keydown-ENTER', () => this.startGame());
+    this.input.once('pointerdown', () => this.startGame());
   }
 
   startGame() {
@@ -63,5 +64,6 @@ export class MenuScene extends Phaser.Scene {
 
     this.scene.start('CutsceneScene', { cutscene: 'intro', nextScene: 'Level1Scene' });
     this.scene.launch('UIScene');
+    this.scene.launch('TouchControls');
   }
 }
