@@ -6,6 +6,7 @@ import { DissonantNote } from '../sprites/enemies/DissonantNote.js';
 import { NPC } from '../sprites/NPC.js';
 import { DialogueBox } from '../ui/DialogueBox.js';
 import { NPC_DIALOGUES } from '../config/npcDialogues.js';
+import { AdaptiveMusicManager } from '../utils/AdaptiveMusicManager.js';
 
 export class Level4Scene extends Phaser.Scene {
   constructor() {
@@ -197,6 +198,9 @@ export class Level4Scene extends Phaser.Scene {
     // Dialogue system
     this.dialogueBox = new DialogueBox(this);
     this.interactKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
+    // Adaptive music system
+    this.adaptiveMusic = new AdaptiveMusicManager(this);
+    this.adaptiveMusic.start('exploration');
   }
 
   update(time, delta) {
@@ -222,6 +226,8 @@ export class Level4Scene extends Phaser.Scene {
         this.nannerlNPC.interact(this.dialogueBox);
       }
     }
+    // Update adaptive music system
+    if (this.adaptiveMusic) this.adaptiveMusic.update(this);
 
     // Rhythm mechanic: platforms toggle on/off every 1.2 seconds
     this.rhythmTimer += delta;
@@ -266,8 +272,12 @@ export class Level4Scene extends Phaser.Scene {
       const score = this.registry.get('score') + 100;
       this.registry.set('score', score);
       if (this.sound.get('sfx_coin')) this.sound.play('sfx_coin', { volume: 0.2 });
+
+      // Victory fanfare
+      if (this.adaptiveMusic) this.adaptiveMusic.playVictoryFanfare();
     } else {
       player.hit();
+      if (this.adaptiveMusic) this.adaptiveMusic.playDamageStinger();
     }
   }
 

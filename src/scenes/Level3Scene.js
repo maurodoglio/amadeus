@@ -13,6 +13,7 @@ import { ScoreManager } from '../utils/ScoreManager.js';
 import { NPC } from '../sprites/NPC.js';
 import { DialogueBox } from '../ui/DialogueBox.js';
 import { NPC_DIALOGUES } from '../config/npcDialogues.js';
+import { AdaptiveMusicManager } from '../utils/AdaptiveMusicManager.js';
 
 export class Level3Scene extends Phaser.Scene {
   constructor() {
@@ -276,6 +277,9 @@ export class Level3Scene extends Phaser.Scene {
     // Dialogue system
     this.dialogueBox = new DialogueBox(this);
     this.interactKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
+    // Background music - adaptive system
+    this.adaptiveMusic = new AdaptiveMusicManager(this);
+    this.adaptiveMusic.start('exploration');
   }
 
   createBoss() {
@@ -328,6 +332,8 @@ export class Level3Scene extends Phaser.Scene {
         this.salieri.interact(this.dialogueBox);
       }
     }
+    // Update adaptive music system
+    if (this.adaptiveMusic) this.adaptiveMusic.update(this);
 
     // Camera follows midpoint in co-op
     if (this.coopMode && this.cameraTarget) {
@@ -354,14 +360,14 @@ export class Level3Scene extends Phaser.Scene {
         (this.nannerl && !this.nannerl.isDead && this.nannerl.x > 2100);
       if (anyPlayerClose) {
         this.boss.isActive = true;
+        this.bossActive = true;
         this.bossHealthBg.setVisible(true).setPosition(GAME_WIDTH / 2, 60);
         this.bossHealthBar.setVisible(true).setPosition(GAME_WIDTH / 2, 60);
         this.bossLabel.setVisible(true).setPosition(GAME_WIDTH / 2, 40);
 
-        // Switch to boss music
-        this.sound.stopAll();
-        if (this.sound.get('music_boss')) {
-          this.sound.play('music_boss', { loop: true, volume: 0.3 });
+        // Switch adaptive music to combat state for boss
+        if (this.adaptiveMusic) {
+          this.adaptiveMusic.setState('combat');
         }
       }
     }
@@ -540,8 +546,22 @@ export class Level3Scene extends Phaser.Scene {
       this.registry.set('comboCount', this.combo.getComboCount());
 
       if (this.sound.get('sfx_coin')) this.sound.play('sfx_coin', { volume: 0.2 });
+
+      // Victory fanfare on enemy defeat streak
+      if (this.adaptiveMusic && multiplier >= 2) {
+        this.adaptiveMusic.playVictoryFanfare();
+      }
     } else {
       player.hit();
+      // Damage stinger
+      if (this.adaptiveMusic) {
+        const lives = this.registry.get('lives') || 0;
+        if (lives <= 1) {
+          this.adaptiveMusic.playNearDeathStinger();
+        } else {
+          this.adaptiveMusic.playDamageStinger();
+        }
+      }
     }
   }
 
@@ -567,6 +587,9 @@ export class Level3Scene extends Phaser.Scene {
 
     // Stop background music
     this.sound.stopAll();
+    if (this.adaptiveMusic) {
+      this.adaptiveMusic.stop();
+    }
 
     const elapsedSeconds = Math.floor((this.time.now - this.levelStartTime) / 1000);
     const levelScore = this.registry.get('score') - this.levelStartScore;
