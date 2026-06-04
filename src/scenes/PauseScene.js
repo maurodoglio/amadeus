@@ -44,6 +44,7 @@ export class PauseScene extends Phaser.Scene {
       { text: 'Resume', action: () => this.resume() },
       { text: 'Restart Level', action: () => this.restartLevel() },
       { text: 'Settings', action: () => this.showSettings() },
+      { text: 'Accessibility', action: () => this.showAccessibility() },
       { text: 'Quit to Menu', action: () => this.quitToMenu() }
     ];
 
@@ -182,6 +183,11 @@ export class PauseScene extends Phaser.Scene {
       stateText.setText(newValue ? 'ON' : 'OFF');
       stateText.setStyle({ fill: newValue ? '#4CAF50' : '#888888' });
     });
+  }
+
+  showAccessibility() {
+    this.scene.sleep();
+    this.scene.launch('AccessibilityScene', { returnScene: 'PauseScene' });
   }
 
   hideSettings() {

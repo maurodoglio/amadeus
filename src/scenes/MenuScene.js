@@ -90,13 +90,25 @@ export class MenuScene extends Phaser.Scene {
       fill: '#FFD700'
     }).setOrigin(0.5);
 
+    // Accessibility button
+    const accessBtn = this.add.text(GAME_WIDTH / 2, 440, 'Accessibility Options', {
+      font: '16px monospace',
+      fill: '#87CEEB'
+    }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+    accessBtn.on('pointerover', () => accessBtn.setStyle({ fill: '#FFD700' }));
+    accessBtn.on('pointerout', () => accessBtn.setStyle({ fill: '#87CEEB' }));
+    accessBtn.on('pointerdown', () => {
+      this.scene.sleep();
+      this.scene.launch('AccessibilityScene', { returnScene: 'MenuScene' });
+    });
+
     // Controls help
-    this.add.text(GAME_WIDTH / 2, 440, 'Arrow Keys / ENTER to select | Touch D-pad to move', {
+    this.add.text(GAME_WIDTH / 2, 470, 'Arrow Keys / ENTER to select | Touch D-pad to move', {
       font: '14px monospace',
       fill: '#808080'
     }).setOrigin(0.5);
 
-    this.add.text(GAME_WIDTH / 2, 460, 'P1: Arrows + SPACE | P2: WASD + E', {
+    this.add.text(GAME_WIDTH / 2, 490, 'P1: Arrows + SPACE | P2: WASD + E', {
       font: '12px monospace',
       fill: '#606060'
     }).setOrigin(0.5);
