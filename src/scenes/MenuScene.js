@@ -84,6 +84,11 @@ export class MenuScene extends Phaser.Scene {
     this.input.keyboard.on('keydown-SPACE', () => this.confirmSelection());
     this.input.keyboard.on('keydown-ENTER', () => this.confirmSelection());
     this.input.once('pointerdown', () => this.confirmSelection());
+
+    // Play menu music
+    if (this.sound.get('music_menu')) {
+      this.sound.play('music_menu', { loop: true, volume: 0.3 });
+    }
   }
 
   changeSelection(dir) {
@@ -97,6 +102,9 @@ export class MenuScene extends Phaser.Scene {
   }
 
   startGame(coopMode) {
+    // Stop menu music
+    this.sound.stopAll();
+
     // Reset game state
     this.registry.set('lives', coopMode ? 5 : 3);
     this.registry.set('score', 0);

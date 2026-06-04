@@ -293,6 +293,11 @@ export class Level2Scene extends Phaser.Scene {
 
     this.mozart.setCollideWorldBounds(true);
     if (this.nannerl) this.nannerl.setCollideWorldBounds(true);
+
+    // Background music
+    if (this.sound.get('music_forest')) {
+      this.sound.play('music_forest', { loop: true, volume: 0.25 });
+    }
   }
 
   update(time, delta) {
@@ -378,6 +383,9 @@ export class Level2Scene extends Phaser.Scene {
     if (this.instrumentSparkle) this.instrumentSparkle.destroy();
     instrument.destroy();
     player.collectInstrument('flute');
+
+    // Stop background music
+    this.sound.stopAll();
 
     // Mark level as completed
     const completedLevels = this.registry.get('completedLevels') || [];
