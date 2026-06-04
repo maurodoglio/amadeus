@@ -6,6 +6,7 @@ import { DrumTroll } from '../sprites/enemies/DrumTroll.js';
 import { DissonantNote } from '../sprites/enemies/DissonantNote.js';
 import { BrokenInstrument } from '../sprites/enemies/BrokenInstrument.js';
 import { ParticleManager } from '../utils/ParticleManager.js';
+import { setupPause } from '../utils/PauseHelper.js';
 
 export class Level3Scene extends Phaser.Scene {
   constructor() {
@@ -13,6 +14,7 @@ export class Level3Scene extends Phaser.Scene {
   }
 
   create() {
+    setupPause(this);
     this.bossDefeated = false;
     this.particles = new ParticleManager(this);
 

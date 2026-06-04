@@ -4,6 +4,7 @@ import { Mozart } from '../sprites/Mozart.js';
 import { Singer } from '../sprites/enemies/Singer.js';
 import { DissonantNote } from '../sprites/enemies/DissonantNote.js';
 import { ParticleManager } from '../utils/ParticleManager.js';
+import { setupPause } from '../utils/PauseHelper.js';
 
 export class Level1Scene extends Phaser.Scene {
   constructor() {
@@ -11,6 +12,7 @@ export class Level1Scene extends Phaser.Scene {
   }
 
   create() {
+    setupPause(this);
     this.particles = new ParticleManager(this);
 
     // Parallax background layers

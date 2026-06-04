@@ -5,6 +5,7 @@ import { DrumTroll } from '../sprites/enemies/DrumTroll.js';
 import { BrokenInstrument } from '../sprites/enemies/BrokenInstrument.js';
 import { DissonantNote } from '../sprites/enemies/DissonantNote.js';
 import { ParticleManager } from '../utils/ParticleManager.js';
+import { setupPause } from '../utils/PauseHelper.js';
 
 export class Level2Scene extends Phaser.Scene {
   constructor() {
@@ -12,6 +13,7 @@ export class Level2Scene extends Phaser.Scene {
   }
 
   create() {
+    setupPause(this);
     this.particles = new ParticleManager(this);
 
     // Parallax background layers
