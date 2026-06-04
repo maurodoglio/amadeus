@@ -204,6 +204,11 @@ export class Level5Scene extends Phaser.Scene {
     this.physics.add.overlap(this.mozart, this.collectibles, this.collectNote, null, this);
     this.physics.add.overlap(this.mozart, this.instrument, this.collectInstrument, null, this);
 
+    // Set up musical combat projectile collisions
+    if (this.mozart.combat) {
+      this.mozart.combat.setupCollision(this.enemies);
+    }
+
     // Camera
     this.cameras.main.setBounds(0, 0, GAME_WIDTH * 3.3, GAME_HEIGHT);
     this.cameras.main.startFollow(this.mozart, true, 0.1, 0.1);
@@ -220,7 +225,7 @@ export class Level5Scene extends Phaser.Scene {
   }
 
   update(time, delta) {
-    if (this.mozart) this.mozart.update();
+    if (this.mozart) this.mozart.update(time);
     this.enemyList.forEach(e => {
       if (e.active) e.update(time, delta);
     });
@@ -345,6 +350,12 @@ export class Level5Scene extends Phaser.Scene {
 
   collectNote(player, note) {
     note.destroy();
+
+    // Refill energy on collectible pickup
+    if (player.combat) {
+      player.combat.addEnergy(10);
+    }
+
     const score = this.registry.get('score') + 50;
     this.registry.set('score', score);
     this.combo.registerAction();

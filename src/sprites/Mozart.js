@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { PLAYER } from '../config/constants.js';
 import { ParticleManager } from '../utils/ParticleManager.js';
+import { MusicalCombat } from '../mechanics/MusicalCombat.js';
 
 export class Mozart extends Phaser.Physics.Arcade.Sprite {
   constructor(scene, x, y) {
@@ -46,11 +47,14 @@ export class Mozart extends Phaser.Physics.Arcade.Sprite {
     this.cursors = scene.input.keyboard.createCursorKeys();
     this.spaceKey = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
 
+    // Musical combat system
+    this.combat = new MusicalCombat(scene, this);
+
     // Reference to touch controls scene (if running)
     this.touchControls = null;
   }
 
-  update() {
+  update(time) {
     if (this.isDead) return;
 
     // Lazily acquire touch controls reference
@@ -93,6 +97,11 @@ export class Mozart extends Phaser.Physics.Arcade.Sprite {
     // In-air animation
     if (!onGround) {
       this.play('mozart_jump', true);
+    }
+
+    // Musical combat update
+    if (this.combat) {
+      this.combat.update(time || this.scene.time.now);
     }
   }
 
