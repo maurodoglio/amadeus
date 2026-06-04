@@ -19,6 +19,11 @@ export class AudioGenerator {
     this.generateDeathSound();
     this.generateLevelComplete();
     this.generateMenuMusic();
+    this.generateViennaMusic();
+    this.generateForestMusic();
+    this.generatePalaceMusic();
+    this.generateBossMusic();
+    this.generateConcertMusic();
   }
 
   createBuffer(duration, generator) {
@@ -194,5 +199,242 @@ export class AudioGenerator {
       }
     });
     this.addSoundToScene('music_menu', buffer);
+  }
+
+  generateViennaMusic() {
+    // Light classical waltz in 3/4 time, inspired by Viennese style
+    const buffer = this.createBuffer(8.0, (data, sampleRate, length) => {
+      const bpm = 140;
+      const beatDur = 60 / bpm;
+      // Waltz melody in G major
+      const melody = [
+        392, 440, 494, 587, 494, 440,  // G4 A4 B4 D5 B4 A4
+        392, 494, 587, 659, 587, 494,  // G4 B4 D5 E5 D5 B4
+        523, 587, 659, 784, 659, 587,  // C5 D5 E5 G5 E5 D5
+        494, 440, 392, 494, 440, 392,  // B4 A4 G4 B4 A4 G4
+      ];
+      const bass = [196, 247, 294, 196, 247, 294, 262, 330, 294, 196, 247, 294];
+      const noteDur = beatDur * 0.8;
+
+      for (let i = 0; i < length; i++) {
+        const t = i / sampleRate;
+        const beatPos = t / beatDur;
+        const melodyIdx = Math.floor(beatPos) % melody.length;
+        const bassIdx = Math.floor(beatPos / 2) % bass.length;
+        const notePhase = (beatPos % 1);
+
+        // Melody: bright square-ish wave with envelope
+        const mFreq = melody[melodyIdx];
+        const mEnv = notePhase < 0.05 ? notePhase / 0.05 : Math.max(0, 1 - (notePhase - 0.05) / 0.75);
+        const mWave = Math.sin(2 * Math.PI * mFreq * t) * 0.6 +
+                      Math.sin(4 * Math.PI * mFreq * t) * 0.25 +
+                      Math.sin(6 * Math.PI * mFreq * t) * 0.15;
+
+        // Bass: waltz oom-pah-pah pattern
+        const bFreq = bass[bassIdx];
+        const waltzBeat = Math.floor(beatPos) % 3;
+        const bEnv = waltzBeat === 0 ? mEnv * 1.0 : mEnv * 0.6;
+        const bWave = Math.sin(2 * Math.PI * bFreq * t);
+
+        data[i] = (mWave * mEnv * 0.15 + bWave * bEnv * 0.08);
+      }
+    });
+    this.addSoundToScene('music_vienna', buffer);
+  }
+
+  generateForestMusic() {
+    // Mysterious, whimsical melody with minor key and arpeggios
+    const buffer = this.createBuffer(8.0, (data, sampleRate, length) => {
+      const bpm = 100;
+      const beatDur = 60 / bpm;
+      // E minor mysterious melody
+      const melody = [
+        330, 370, 415, 494, 415, 370,  // E4 F#4 G#4 B4 G#4 F#4
+        330, 294, 262, 294, 330, 370,  // E4 D4 C4 D4 E4 F#4
+        415, 494, 554, 494, 415, 370,  // G#4 B4 C#5 B4 G#4 F#4
+        330, 262, 247, 262, 294, 330,  // E4 C4 B3 C4 D4 E4
+      ];
+      // Arpeggiated bass pattern
+      const arp = [165, 208, 247, 330, 247, 208, 165, 208, 247, 330, 294, 247];
+
+      for (let i = 0; i < length; i++) {
+        const t = i / sampleRate;
+        const beatPos = t / beatDur;
+        const melodyIdx = Math.floor(beatPos * 0.75) % melody.length;
+        const arpIdx = Math.floor(beatPos * 2) % arp.length;
+        const notePhase = (beatPos % 1);
+
+        // Melody: soft triangle-like wave
+        const mFreq = melody[melodyIdx];
+        const mEnv = notePhase < 0.03 ? notePhase / 0.03 : Math.max(0, 1 - (notePhase - 0.03) / 0.9);
+        const mWave = Math.sin(2 * Math.PI * mFreq * t) * 0.8 +
+                      Math.sin(3 * Math.PI * mFreq * t) * 0.15 +
+                      Math.sin(5 * Math.PI * mFreq * t) * 0.05;
+
+        // Arpeggio: plucky short notes
+        const aFreq = arp[arpIdx];
+        const arpPhase = (beatPos * 2) % 1;
+        const aEnv = arpPhase < 0.02 ? arpPhase / 0.02 : Math.max(0, 1 - arpPhase / 0.3);
+        const aWave = Math.sin(2 * Math.PI * aFreq * t);
+
+        // Add subtle vibrato to melody
+        const vibrato = Math.sin(2 * Math.PI * 5 * t) * 0.002;
+        const mWaveVib = Math.sin(2 * Math.PI * (mFreq + mFreq * vibrato) * t) * 0.8;
+
+        data[i] = (mWaveVib * mEnv * 0.12 + aWave * aEnv * 0.08);
+      }
+    });
+    this.addSoundToScene('music_forest', buffer);
+  }
+
+  generatePalaceMusic() {
+    // Dramatic, building intensity with staccato and fanfare elements
+    const buffer = this.createBuffer(8.0, (data, sampleRate, length) => {
+      const bpm = 120;
+      const beatDur = 60 / bpm;
+      // D minor dramatic melody
+      const melody = [
+        294, 349, 440, 523, 440, 349,  // D4 F4 A4 C5 A4 F4
+        294, 330, 392, 494, 440, 392,  // D4 E4 G4 B4 A4 G4
+        349, 440, 523, 587, 523, 440,  // F4 A4 C5 D5 C5 A4
+        587, 523, 440, 349, 330, 294,  // D5 C5 A4 F4 E4 D4
+      ];
+      const bass = [147, 175, 220, 147, 165, 196, 175, 220, 262, 147, 165, 147];
+
+      for (let i = 0; i < length; i++) {
+        const t = i / sampleRate;
+        const beatPos = t / beatDur;
+        const melodyIdx = Math.floor(beatPos) % melody.length;
+        const bassIdx = Math.floor(beatPos / 1.5) % bass.length;
+        const notePhase = (beatPos % 1);
+
+        // Melody: rich harmonics, staccato
+        const mFreq = melody[melodyIdx];
+        const mEnv = notePhase < 0.02 ? notePhase / 0.02 :
+                     notePhase < 0.5 ? 1.0 : Math.max(0, 1 - (notePhase - 0.5) / 0.3);
+        const mWave = Math.sin(2 * Math.PI * mFreq * t) * 0.5 +
+                      Math.sin(4 * Math.PI * mFreq * t) * 0.3 +
+                      Math.sin(6 * Math.PI * mFreq * t) * 0.15 +
+                      Math.sin(8 * Math.PI * mFreq * t) * 0.05;
+
+        // Bass: strong octave hits
+        const bFreq = bass[bassIdx];
+        const bPhase = (beatPos / 1.5) % 1;
+        const bEnv = bPhase < 0.02 ? bPhase / 0.02 : Math.max(0, 1 - bPhase / 0.6);
+        const bWave = Math.sin(2 * Math.PI * bFreq * t) * 0.7 +
+                      Math.sin(2 * Math.PI * bFreq * 2 * t) * 0.3;
+
+        // Build intensity over time
+        const intensity = 0.7 + 0.3 * (i / length);
+
+        data[i] = (mWave * mEnv * 0.13 + bWave * bEnv * 0.09) * intensity;
+      }
+    });
+    this.addSoundToScene('music_palace', buffer);
+  }
+
+  generateBossMusic() {
+    // Fast-paced, tense, driving rhythm
+    const buffer = this.createBuffer(6.0, (data, sampleRate, length) => {
+      const bpm = 170;
+      const beatDur = 60 / bpm;
+      // A minor aggressive pattern
+      const melody = [
+        440, 523, 659, 523, 440, 392,  // A4 C5 E5 C5 A4 G4
+        440, 494, 587, 659, 587, 494,  // A4 B4 D5 E5 D5 B4
+        523, 659, 784, 659, 523, 440,  // C5 E5 G5 E5 C5 A4
+        392, 440, 523, 587, 523, 440,  // G4 A4 C5 D5 C5 A4
+      ];
+      const bass = [110, 131, 165, 110, 147, 165, 131, 165, 196, 110, 131, 110];
+
+      for (let i = 0; i < length; i++) {
+        const t = i / sampleRate;
+        const beatPos = t / beatDur;
+        const melodyIdx = Math.floor(beatPos * 1.5) % melody.length;
+        const bassIdx = Math.floor(beatPos) % bass.length;
+        const notePhase = (beatPos * 1.5) % 1;
+
+        // Melody: aggressive saw-like wave
+        const mFreq = melody[melodyIdx];
+        const mEnv = notePhase < 0.01 ? notePhase / 0.01 : Math.max(0, 1 - notePhase / 0.6);
+        let mWave = 0;
+        for (let h = 1; h <= 6; h++) {
+          mWave += Math.sin(2 * Math.PI * mFreq * h * t) / h;
+        }
+
+        // Driving bass with fast pulse
+        const bFreq = bass[bassIdx];
+        const bPhase = (beatPos) % 1;
+        const bEnv = bPhase < 0.01 ? bPhase / 0.01 : Math.max(0, 1 - bPhase / 0.4);
+        const bWave = Math.sin(2 * Math.PI * bFreq * t) * 0.6 +
+                      Math.sin(4 * Math.PI * bFreq * t) * 0.4;
+
+        // Percussion: kick-like thump on every beat
+        const percPhase = beatPos % 1;
+        const percEnv = percPhase < 0.05 ? 1 - percPhase / 0.05 : 0;
+        const percFreq = 80 - 60 * percPhase;
+        const perc = Math.sin(2 * Math.PI * percFreq * t) * percEnv;
+
+        data[i] = (mWave * mEnv * 0.1 + bWave * bEnv * 0.1 + perc * 0.08);
+      }
+    });
+    this.addSoundToScene('music_boss', buffer);
+  }
+
+  generateConcertMusic() {
+    // Full triumphant arrangement, major key, celebratory
+    const buffer = this.createBuffer(10.0, (data, sampleRate, length) => {
+      const bpm = 130;
+      const beatDur = 60 / bpm;
+      // C major triumphant fanfare
+      const melody = [
+        523, 587, 659, 784, 659, 784,  // C5 D5 E5 G5 E5 G5
+        880, 784, 659, 587, 523, 587,  // A5 G5 E5 D5 C5 D5
+        659, 784, 880, 1047, 880, 784, // E5 G5 A5 C6 A5 G5
+        784, 659, 587, 523, 587, 659,  // G5 E5 D5 C5 D5 E5
+      ];
+      const harmony = [
+        262, 330, 392, 262, 330, 392,  // C4 E4 G4
+        349, 440, 523, 349, 440, 523,  // F4 A4 C5
+        392, 494, 587, 392, 494, 587,  // G4 B4 D5
+        262, 330, 392, 262, 330, 392,  // C4 E4 G4
+      ];
+      const bass = [131, 131, 175, 175, 196, 196, 131, 131, 165, 165, 196, 131];
+
+      for (let i = 0; i < length; i++) {
+        const t = i / sampleRate;
+        const beatPos = t / beatDur;
+        const melodyIdx = Math.floor(beatPos) % melody.length;
+        const harmIdx = Math.floor(beatPos) % harmony.length;
+        const bassIdx = Math.floor(beatPos / 2) % bass.length;
+        const notePhase = beatPos % 1;
+
+        // Melody: bright, full sound
+        const mFreq = melody[melodyIdx];
+        const mEnv = notePhase < 0.02 ? notePhase / 0.02 :
+                     notePhase < 0.7 ? 1.0 : Math.max(0, 1 - (notePhase - 0.7) / 0.3);
+        const mWave = Math.sin(2 * Math.PI * mFreq * t) * 0.5 +
+                      Math.sin(4 * Math.PI * mFreq * t) * 0.3 +
+                      Math.sin(6 * Math.PI * mFreq * t) * 0.2;
+
+        // Harmony: sustained chords
+        const hFreq = harmony[harmIdx];
+        const hEnv = mEnv * 0.7;
+        const hWave = Math.sin(2 * Math.PI * hFreq * t) * 0.7 +
+                      Math.sin(3 * Math.PI * hFreq * t) * 0.3;
+
+        // Bass: strong root notes
+        const bFreq = bass[bassIdx];
+        const bPhase = (beatPos / 2) % 1;
+        const bEnv = bPhase < 0.02 ? bPhase / 0.02 : Math.max(0, 1 - bPhase / 0.8);
+        const bWave = Math.sin(2 * Math.PI * bFreq * t);
+
+        // Gradual crescendo
+        const crescendo = 0.6 + 0.4 * (i / length);
+
+        data[i] = (mWave * mEnv * 0.1 + hWave * hEnv * 0.06 + bWave * bEnv * 0.07) * crescendo;
+      }
+    });
+    this.addSoundToScene('music_concert', buffer);
   }
 }

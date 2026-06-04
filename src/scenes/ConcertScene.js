@@ -98,11 +98,18 @@ export class ConcertScene extends Phaser.Scene {
     // Restart
     this.time.delayedCall(4000, () => {
       this.input.keyboard.once('keydown-SPACE', () => {
+        this.sound.stopAll();
         this.scene.start('MenuScene');
       });
       this.input.keyboard.once('keydown-ENTER', () => {
+        this.sound.stopAll();
         this.scene.start('MenuScene');
       });
     });
+
+    // Triumphant concert music
+    if (this.sound.get('music_concert')) {
+      this.sound.play('music_concert', { loop: true, volume: 0.3 });
+    }
   }
 }

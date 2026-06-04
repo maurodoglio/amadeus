@@ -277,6 +277,11 @@ export class Level1Scene extends Phaser.Scene {
     // World bounds for players
     this.mozart.setCollideWorldBounds(true);
     if (this.nannerl) this.nannerl.setCollideWorldBounds(true);
+
+    // Background music
+    if (this.sound.get('music_vienna')) {
+      this.sound.play('music_vienna', { loop: true, volume: 0.25 });
+    }
   }
 
   update(time, delta) {
@@ -371,6 +376,9 @@ export class Level1Scene extends Phaser.Scene {
     if (this.instrumentSparkle) this.instrumentSparkle.destroy();
     instrument.destroy();
     player.collectInstrument('violin');
+
+    // Stop background music
+    this.sound.stopAll();
 
     // Mark level as completed
     const completedLevels = this.registry.get('completedLevels') || [];

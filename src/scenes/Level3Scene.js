@@ -250,6 +250,11 @@ export class Level3Scene extends Phaser.Scene {
 
     this.mozart.setCollideWorldBounds(true);
     if (this.nannerl) this.nannerl.setCollideWorldBounds(true);
+
+    // Background music - starts with palace theme
+    if (this.sound.get('music_palace')) {
+      this.sound.play('music_palace', { loop: true, volume: 0.25 });
+    }
   }
 
   createBoss() {
@@ -313,6 +318,12 @@ export class Level3Scene extends Phaser.Scene {
         this.bossHealthBg.setVisible(true).setPosition(GAME_WIDTH / 2, 60);
         this.bossHealthBar.setVisible(true).setPosition(GAME_WIDTH / 2, 60);
         this.bossLabel.setVisible(true).setPosition(GAME_WIDTH / 2, 40);
+
+        // Switch to boss music
+        this.sound.stopAll();
+        if (this.sound.get('music_boss')) {
+          this.sound.play('music_boss', { loop: true, volume: 0.3 });
+        }
       }
     }
 
@@ -495,6 +506,9 @@ export class Level3Scene extends Phaser.Scene {
     if (this.instrumentSparkle) this.instrumentSparkle.destroy();
     instrument.destroy();
     player.collectInstrument('piano');
+
+    // Stop background music
+    this.sound.stopAll();
 
     // Mark level as completed
     const completedLevels = this.registry.get('completedLevels') || [];
