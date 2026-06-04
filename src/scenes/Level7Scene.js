@@ -4,6 +4,9 @@ import { Mozart } from '../sprites/Mozart.js';
 import { Singer } from '../sprites/enemies/Singer.js';
 import { DissonantNote } from '../sprites/enemies/DissonantNote.js';
 import { BrokenInstrument } from '../sprites/enemies/BrokenInstrument.js';
+import { NPC } from '../sprites/NPC.js';
+import { DialogueBox } from '../ui/DialogueBox.js';
+import { NPC_DIALOGUES } from '../config/npcDialogues.js';
 
 export class Level7Scene extends Phaser.Scene {
   constructor() {
@@ -161,13 +164,44 @@ export class Level7Scene extends Phaser.Scene {
     this.cameras.main.startFollow(this.mozart, true, 0.1, 0.1);
     this.physics.world.setBounds(0, 0, GAME_WIDTH * 3.2, GAME_HEIGHT);
     this.mozart.setCollideWorldBounds(true);
+
+    // NPC - Young Beethoven (secret encounter, hidden high up)
+    const beethovenData = NPC_DIALOGUES.beethoven;
+    this.beethoven = new NPC(this, 920, 100, beethovenData.texture, {
+      name: beethovenData.name,
+      dialogues: beethovenData.firstMeeting,
+      repeatDialogues: beethovenData.repeat,
+      interactionRadius: 70
+    });
+
+    // Dialogue system
+    this.dialogueBox = new DialogueBox(this);
+    this.interactKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
   }
 
   update(time, delta) {
+    // If dialogue is active, only handle dialogue input
+    if (this.dialogueBox && this.dialogueBox.isActive) {
+      if (Phaser.Input.Keyboard.JustDown(this.mozart.spaceKey) ||
+          Phaser.Input.Keyboard.JustDown(this.input.keyboard.addKey('ENTER'))) {
+        this.dialogueBox.advance();
+      }
+      return;
+    }
+
     if (this.mozart) this.mozart.update();
     this.enemyList.forEach(e => {
       if (e.active) e.update(time, delta);
     });
+
+    // NPC updates and interaction
+    if (this.beethoven) {
+      this.beethoven.update(this.mozart, this.dialogueBox);
+      if (Phaser.Input.Keyboard.JustDown(this.interactKey) ||
+          Phaser.Input.Keyboard.JustDown(this.mozart.cursors.up)) {
+        this.beethoven.interact(this.dialogueBox);
+      }
+    }
 
     // Fall death (fall off bottom of sky)
     if (this.mozart && this.mozart.y > GAME_HEIGHT + 50) {

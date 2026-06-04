@@ -3,6 +3,9 @@ import { GAME_WIDTH, GAME_HEIGHT, TILE_SIZE } from '../config/constants.js';
 import { Mozart } from '../sprites/Mozart.js';
 import { Singer } from '../sprites/enemies/Singer.js';
 import { DissonantNote } from '../sprites/enemies/DissonantNote.js';
+import { NPC } from '../sprites/NPC.js';
+import { DialogueBox } from '../ui/DialogueBox.js';
+import { NPC_DIALOGUES } from '../config/npcDialogues.js';
 
 export class Level4Scene extends Phaser.Scene {
   constructor() {
@@ -181,13 +184,44 @@ export class Level4Scene extends Phaser.Scene {
     this.cameras.main.startFollow(this.mozart, true, 0.1, 0.1);
     this.physics.world.setBounds(0, 0, GAME_WIDTH * 3, GAME_HEIGHT);
     this.mozart.setCollideWorldBounds(true);
+
+    // NPC - Nannerl (Mozart's sister, gives power-up hints)
+    const nannerlData = NPC_DIALOGUES.nannerlNPC;
+    this.nannerlNPC = new NPC(this, 200, GAME_HEIGHT - 80, nannerlData.texture, {
+      name: nannerlData.name,
+      dialogues: nannerlData.firstMeeting,
+      repeatDialogues: nannerlData.repeat,
+      interactionRadius: 70
+    });
+
+    // Dialogue system
+    this.dialogueBox = new DialogueBox(this);
+    this.interactKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
   }
 
   update(time, delta) {
+    // If dialogue is active, only handle dialogue input
+    if (this.dialogueBox && this.dialogueBox.isActive) {
+      if (Phaser.Input.Keyboard.JustDown(this.mozart.spaceKey) ||
+          Phaser.Input.Keyboard.JustDown(this.input.keyboard.addKey('ENTER'))) {
+        this.dialogueBox.advance();
+      }
+      return;
+    }
+
     if (this.mozart) this.mozart.update();
     this.enemyList.forEach(e => {
       if (e.active) e.update(time, delta);
     });
+
+    // NPC updates and interaction
+    if (this.nannerlNPC) {
+      this.nannerlNPC.update(this.mozart, this.dialogueBox);
+      if (Phaser.Input.Keyboard.JustDown(this.interactKey) ||
+          Phaser.Input.Keyboard.JustDown(this.mozart.cursors.up)) {
+        this.nannerlNPC.interact(this.dialogueBox);
+      }
+    }
 
     // Rhythm mechanic: platforms toggle on/off every 1.2 seconds
     this.rhythmTimer += delta;

@@ -10,6 +10,9 @@ import { ParticleManager } from '../utils/ParticleManager.js';
 import { setupPause } from '../utils/PauseHelper.js';
 import { ComboSystem } from '../utils/ComboSystem.js';
 import { ScoreManager } from '../utils/ScoreManager.js';
+import { NPC } from '../sprites/NPC.js';
+import { DialogueBox } from '../ui/DialogueBox.js';
+import { NPC_DIALOGUES } from '../config/npcDialogues.js';
 
 export class Level3Scene extends Phaser.Scene {
   constructor() {
@@ -260,6 +263,19 @@ export class Level3Scene extends Phaser.Scene {
     if (this.sound.get('music_palace')) {
       this.sound.play('music_palace', { loop: true, volume: 0.25 });
     }
+
+    // NPC - Salieri (rival who becomes ally)
+    const salieriData = NPC_DIALOGUES.salieri;
+    this.salieri = new NPC(this, 500, GAME_HEIGHT - 80, salieriData.texture, {
+      name: salieriData.name,
+      dialogues: salieriData.firstMeeting,
+      repeatDialogues: salieriData.repeat,
+      interactionRadius: 70
+    });
+
+    // Dialogue system
+    this.dialogueBox = new DialogueBox(this);
+    this.interactKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
   }
 
   createBoss() {
@@ -288,12 +304,30 @@ export class Level3Scene extends Phaser.Scene {
   }
 
   update(time, delta) {
+    // If dialogue is active, only handle dialogue input
+    if (this.dialogueBox && this.dialogueBox.isActive) {
+      if (Phaser.Input.Keyboard.JustDown(this.mozart.spaceKey) ||
+          Phaser.Input.Keyboard.JustDown(this.input.keyboard.addKey('ENTER'))) {
+        this.dialogueBox.advance();
+      }
+      return;
+    }
+
     if (this.mozart && !this.mozart.isDead) this.mozart.update();
     if (this.nannerl && !this.nannerl.isDead) this.nannerl.update();
 
     this.enemyList.forEach(e => {
       if (e.active) e.update(time, delta);
     });
+
+    // NPC updates and interaction
+    if (this.salieri) {
+      this.salieri.update(this.mozart, this.dialogueBox);
+      if (Phaser.Input.Keyboard.JustDown(this.interactKey) ||
+          Phaser.Input.Keyboard.JustDown(this.mozart.cursors.up)) {
+        this.salieri.interact(this.dialogueBox);
+      }
+    }
 
     // Camera follows midpoint in co-op
     if (this.coopMode && this.cameraTarget) {
