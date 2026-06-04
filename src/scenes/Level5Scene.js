@@ -6,6 +6,8 @@ import { DissonantNote } from '../sprites/enemies/DissonantNote.js';
 import { AdaptiveMusicManager } from '../utils/AdaptiveMusicManager.js';
 import { ParticleManager } from '../utils/ParticleManager.js';
 import { setupBoss, updateBossAI, getBossTarget } from '../utils/BossFight.js';
+import { ComboSystem } from '../utils/ComboSystem.js';
+import { getAchievementManager } from '../utils/AchievementManager.js';
 
 export class Level5Scene extends Phaser.Scene {
   constructor() {
@@ -17,6 +19,13 @@ export class Level5Scene extends Phaser.Scene {
     this.windTimer = 0;
     this.windDirection = 1;
     this.windStrength = 0;
+    this.combo = new ComboSystem(this);
+    this.levelStartTime = this.time.now;
+    this.levelStartScore = this.registry.get('score') || 0;
+
+    // Achievement tracking
+    const achievements = getAchievementManager();
+    if (achievements) achievements.onLevelStart(5);
 
     // Background
     if (this.textures.exists('bgMountain')) {
@@ -281,6 +290,17 @@ export class Level5Scene extends Phaser.Scene {
       player.setVelocityY(-200);
       const score = this.registry.get('score') + 100;
       this.registry.set('score', score);
+      this.combo.registerAction();
+      this.registry.set('comboMultiplier', this.combo.getMultiplier());
+      this.registry.set('comboCount', this.combo.getComboCount());
+
+      // Achievement tracking
+      const achievements = getAchievementManager();
+      if (achievements) {
+        achievements.onEnemyDefeated();
+        achievements.onComboUpdate(this.combo.getComboCount());
+      }
+
       if (this.sound.get('sfx_coin')) this.sound.play('sfx_coin', { volume: 0.2 });
 
       // Victory fanfare
@@ -288,6 +308,10 @@ export class Level5Scene extends Phaser.Scene {
     } else {
       player.hit();
       if (this.adaptiveMusic) this.adaptiveMusic.playDamageStinger();
+
+      // Achievement tracking - damage taken
+      const achievements = getAchievementManager();
+      if (achievements) achievements.onDamageTaken();
     }
   }
 
@@ -295,6 +319,14 @@ export class Level5Scene extends Phaser.Scene {
     note.destroy();
     const score = this.registry.get('score') + 50;
     this.registry.set('score', score);
+    this.combo.registerAction();
+    this.registry.set('comboMultiplier', this.combo.getMultiplier());
+    this.registry.set('comboCount', this.combo.getComboCount());
+
+    // Achievement tracking - combo
+    const achievements = getAchievementManager();
+    if (achievements) achievements.onComboUpdate(this.combo.getComboCount());
+
     if (this.sound.get('sfx_coin')) this.sound.play('sfx_coin', { volume: 0.3 });
   }
 
@@ -302,11 +334,18 @@ export class Level5Scene extends Phaser.Scene {
     instrument.destroy();
     player.collectInstrument('trumpet');
 
+    const elapsedSeconds = Math.floor((this.time.now - this.levelStartTime) / 1000);
+    this.combo.destroy();
+
     const completedLevels = this.registry.get('completedLevels') || [];
     if (!completedLevels.includes(5)) {
       completedLevels.push(5);
       this.registry.set('completedLevels', completedLevels);
     }
+
+    // Achievement tracking
+    const achievements = getAchievementManager();
+    if (achievements) achievements.onLevelComplete(5, elapsedSeconds);
 
     this.cameras.main.fade(1000, 0, 0, 0, false, (cam, progress) => {
       if (progress === 1) {

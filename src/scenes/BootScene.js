@@ -63,6 +63,7 @@ export class BootScene extends Phaser.Scene {
     // Small delay to let audio decode
     this.time.delayedCall(500, () => {
       this.scene.start('MenuScene');
+      this.scene.launch('AchievementPopup');
     });
   }
 }

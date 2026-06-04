@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT } from '../config/constants.js';
+import { getAchievementManager } from '../utils/AchievementManager.js';
 
 const LEVEL_DATA = [
   { id: 1, name: 'Vienna Streets', scene: 'Level1Scene', instrument: 'violin', x: 80, y: 380, cutscene: 'intro' },
@@ -275,6 +276,15 @@ export class MapScene extends Phaser.Scene {
       font: '14px monospace',
       fill: '#87CEEB'
     }).setOrigin(0.5);
+
+    // Achievement progress
+    const manager = getAchievementManager();
+    if (manager) {
+      this.add.text(20, GAME_HEIGHT - 25, `🏆 ${manager.getProgressPercent()}%`, {
+        font: '12px monospace',
+        fill: '#FFD700'
+      });
+    }
   }
 
   startLevel(level) {

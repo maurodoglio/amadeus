@@ -14,6 +14,7 @@ import { NPC } from '../sprites/NPC.js';
 import { DialogueBox } from '../ui/DialogueBox.js';
 import { NPC_DIALOGUES } from '../config/npcDialogues.js';
 import { AdaptiveMusicManager } from '../utils/AdaptiveMusicManager.js';
+import { getAchievementManager } from '../utils/AchievementManager.js';
 
 export class Level3Scene extends Phaser.Scene {
   constructor() {
@@ -29,6 +30,10 @@ export class Level3Scene extends Phaser.Scene {
     this.combo = new ComboSystem(this);
     this.levelStartTime = this.time.now;
     this.levelStartScore = this.registry.get('score') || 0;
+
+    // Achievement tracking
+    const achievements = getAchievementManager();
+    if (achievements) achievements.onLevelStart(3);
 
     // Parallax background layers
     this.bgFar = this.add.tileSprite(0, 0, GAME_WIDTH, GAME_HEIGHT, 'parallaxPalace_far')
@@ -471,6 +476,10 @@ export class Level3Scene extends Phaser.Scene {
       }
     } else {
       player.hit();
+
+      // Achievement tracking - damage taken
+      const achievements = getAchievementManager();
+      if (achievements) achievements.onDamageTaken();
     }
   }
 
@@ -545,6 +554,13 @@ export class Level3Scene extends Phaser.Scene {
       this.registry.set('comboMultiplier', this.combo.getMultiplier());
       this.registry.set('comboCount', this.combo.getComboCount());
 
+      // Achievement tracking
+      const achievements = getAchievementManager();
+      if (achievements) {
+        achievements.onEnemyDefeated();
+        achievements.onComboUpdate(this.combo.getComboCount());
+      }
+
       if (this.sound.get('sfx_coin')) this.sound.play('sfx_coin', { volume: 0.2 });
 
       // Victory fanfare on enemy defeat streak
@@ -562,6 +578,10 @@ export class Level3Scene extends Phaser.Scene {
           this.adaptiveMusic.playDamageStinger();
         }
       }
+
+      // Achievement tracking - damage taken
+      const achievements = getAchievementManager();
+      if (achievements) achievements.onDamageTaken();
     }
   }
 
@@ -575,6 +595,10 @@ export class Level3Scene extends Phaser.Scene {
     this.registry.set('score', score);
     this.registry.set('comboMultiplier', this.combo.getMultiplier());
     this.registry.set('comboCount', this.combo.getComboCount());
+
+    // Achievement tracking - combo
+    const achievements = getAchievementManager();
+    if (achievements) achievements.onComboUpdate(this.combo.getComboCount());
 
     if (this.sound.get('sfx_coin')) this.sound.play('sfx_coin', { volume: 0.3 });
   }
@@ -604,6 +628,10 @@ export class Level3Scene extends Phaser.Scene {
       completedLevels.push(3);
       this.registry.set('completedLevels', completedLevels);
     }
+
+    // Achievement tracking
+    const achievements = getAchievementManager();
+    if (achievements) achievements.onLevelComplete(3, elapsedSeconds);
 
     this.cameras.main.fade(1500, 0, 0, 0, false, (cam, progress) => {
       if (progress === 1) {
@@ -642,6 +670,12 @@ export class Level3Scene extends Phaser.Scene {
     localStorage.setItem('sheetMusicCollected', JSON.stringify(savedSheetMusic));
 
     this.registry.set('sheetMusicCurrentLevel', { found: this.sheetMusicCollected, total: 3 });
+
+    // Check if all sheet music collected for this level
+    if (this.sheetMusicCollected >= 3) {
+      const achievements = getAchievementManager();
+      if (achievements) achievements.onAllSheetMusicCollected();
+    }
 
     const score = this.registry.get('score') + 200;
     this.registry.set('score', score);
