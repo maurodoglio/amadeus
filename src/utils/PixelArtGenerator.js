@@ -13,6 +13,7 @@ export class PixelArtGenerator {
     this.generateMozart();
     this.generateNannerl();
     this.generateEnemies();
+    this.generateNPCs();
     this.generateTiles();
     this.generateItems();
     this.generateCheckpointAndUI();
@@ -373,6 +374,146 @@ export class PixelArtGenerator {
       [_,_,_,K,K,_,_,_,K,K,_,_,_,_],
     ];
     this.createTexture('brokenInstrument', brokenInstrument);
+  }
+
+  generateNPCs() {
+    const _ = null;
+    const S = '#FFE4B5'; // skin
+    const B = '#1a1a1a'; // black (eyes/shoes)
+
+    // Haydn - older mentor, grey wig, green coat (16x24)
+    const W = '#C0C0C0'; // grey wig
+    const C = '#2E8B57'; // green coat
+    const P = '#2F4F4F'; // dark pants
+    const G = '#FFD700'; // gold trim
+
+    const haydn = [
+      [_,_,_,_,_,W,W,W,W,W,W,_,_,_,_,_],
+      [_,_,_,_,W,W,W,W,W,W,W,W,_,_,_,_],
+      [_,_,_,W,W,W,W,W,W,W,W,W,W,_,_,_],
+      [_,_,_,W,W,W,W,W,W,W,W,W,W,_,_,_],
+      [_,_,_,S,S,S,S,S,S,S,S,S,S,_,_,_],
+      [_,_,_,S,B,S,S,S,S,S,B,S,S,_,_,_],
+      [_,_,_,S,S,S,S,S,S,S,S,S,S,_,_,_],
+      [_,_,_,S,S,S,S,S,S,S,S,S,S,_,_,_],
+      [_,_,_,_,S,S,S,S,S,S,S,S,_,_,_,_],
+      [_,_,_,_,_,G,G,G,G,G,_,_,_,_,_,_],
+      [_,_,_,C,C,C,C,C,C,C,C,C,_,_,_,_],
+      [_,_,C,C,C,C,C,C,C,C,C,C,C,_,_,_],
+      [_,_,C,C,C,C,C,C,C,C,C,C,C,_,_,_],
+      [_,S,C,C,C,C,C,C,C,C,C,C,C,S,_,_],
+      [_,S,C,C,C,G,G,G,G,C,C,C,C,S,_,_],
+      [_,S,C,C,C,C,C,C,C,C,C,C,C,S,_,_],
+      [_,_,C,C,C,C,C,C,C,C,C,C,C,_,_,_],
+      [_,_,C,C,C,C,C,C,C,C,C,C,C,_,_,_],
+      [_,_,_,P,P,P,P,P,P,P,P,P,_,_,_,_],
+      [_,_,_,P,P,P,P,P,P,P,P,P,_,_,_,_],
+      [_,_,_,P,P,P,_,_,P,P,P,P,_,_,_,_],
+      [_,_,_,P,P,P,_,_,P,P,P,P,_,_,_,_],
+      [_,_,_,B,B,B,_,_,B,B,B,B,_,_,_,_],
+      [_,_,_,B,B,B,_,_,B,B,B,B,_,_,_,_],
+    ];
+    this.createTexture('npc_haydn', haydn);
+
+    // Salieri - dark, dramatic look, black coat with red trim (16x24)
+    const Sc = '#1a1a1a'; // black coat
+    const R = '#8B0000'; // dark red trim
+    const Sw = '#4a4a4a'; // dark grey wig
+
+    const salieri = [
+      [_,_,_,_,_,Sw,Sw,Sw,Sw,Sw,Sw,_,_,_,_,_],
+      [_,_,_,_,Sw,Sw,Sw,Sw,Sw,Sw,Sw,Sw,_,_,_,_],
+      [_,_,_,Sw,Sw,Sw,Sw,Sw,Sw,Sw,Sw,Sw,Sw,_,_,_],
+      [_,_,_,Sw,Sw,Sw,Sw,Sw,Sw,Sw,Sw,Sw,Sw,_,_,_],
+      [_,_,_,S,S,S,S,S,S,S,S,S,S,_,_,_],
+      [_,_,_,S,B,S,S,S,S,S,B,S,S,_,_,_],
+      [_,_,_,S,S,S,S,S,S,S,S,S,S,_,_,_],
+      [_,_,_,S,S,S,S,S,S,S,S,S,S,_,_,_],
+      [_,_,_,_,S,S,S,S,S,S,S,S,_,_,_,_],
+      [_,_,_,_,_,R,R,R,R,R,_,_,_,_,_,_],
+      [_,_,_,Sc,Sc,Sc,Sc,Sc,Sc,Sc,Sc,Sc,_,_,_,_],
+      [_,_,Sc,Sc,Sc,Sc,Sc,Sc,Sc,Sc,Sc,Sc,Sc,_,_,_],
+      [_,_,Sc,Sc,Sc,Sc,Sc,Sc,Sc,Sc,Sc,Sc,Sc,_,_,_],
+      [_,S,Sc,Sc,Sc,Sc,Sc,Sc,Sc,Sc,Sc,Sc,Sc,S,_,_],
+      [_,S,Sc,Sc,Sc,R,R,R,R,Sc,Sc,Sc,Sc,S,_,_],
+      [_,S,Sc,Sc,Sc,Sc,Sc,Sc,Sc,Sc,Sc,Sc,Sc,S,_,_],
+      [_,_,Sc,Sc,Sc,Sc,Sc,Sc,Sc,Sc,Sc,Sc,Sc,_,_,_],
+      [_,_,Sc,Sc,Sc,Sc,Sc,Sc,Sc,Sc,Sc,Sc,Sc,_,_,_],
+      [_,_,_,P,P,P,P,P,P,P,P,P,_,_,_,_],
+      [_,_,_,P,P,P,P,P,P,P,P,P,_,_,_,_],
+      [_,_,_,P,P,P,_,_,P,P,P,P,_,_,_,_],
+      [_,_,_,P,P,P,_,_,P,P,P,P,_,_,_,_],
+      [_,_,_,B,B,B,_,_,B,B,B,B,_,_,_,_],
+      [_,_,_,B,B,B,_,_,B,B,B,B,_,_,_,_],
+    ];
+    this.createTexture('npc_salieri', salieri);
+
+    // Nannerl NPC - similar to playable Nannerl but with different pose/detail (16x24)
+    const D = '#FF69B4'; // pink dress
+    const K = '#DB7093'; // darker pink
+    const Rn = '#FF1493'; // ribbon
+    const Wn = '#F5F5DC'; // wig
+
+    const nannerlNPC = [
+      [_,_,_,_,_,Wn,Wn,Wn,Wn,Wn,Wn,_,_,_,_,_],
+      [_,_,_,_,Wn,Wn,Wn,Wn,Wn,Wn,Wn,Wn,_,_,_,_],
+      [_,_,_,Wn,Wn,Wn,Wn,Wn,Wn,Wn,Wn,Wn,Wn,_,_,_],
+      [_,_,_,Wn,Wn,Rn,Wn,Wn,Wn,Rn,Wn,Wn,Wn,_,_,_],
+      [_,_,_,S,S,S,S,S,S,S,S,S,S,_,_,_],
+      [_,_,_,S,B,S,S,S,S,S,B,S,S,_,_,_],
+      [_,_,_,S,S,S,S,S,S,S,S,S,S,_,_,_],
+      [_,_,_,S,S,S,S,B,S,S,S,S,S,_,_,_],
+      [_,_,_,_,S,S,S,S,S,S,S,S,_,_,_,_],
+      [_,_,_,_,_,G,G,G,G,G,_,_,_,_,_,_],
+      [_,_,_,D,D,D,D,D,D,D,D,D,_,_,_,_],
+      [_,_,D,D,D,D,D,D,D,D,D,D,D,_,_,_],
+      [_,_,D,D,D,D,D,D,D,D,D,D,D,_,_,_],
+      [_,S,D,D,D,D,D,D,D,D,D,D,D,S,_,_],
+      [_,S,D,D,D,G,G,G,G,D,D,D,D,S,_,_],
+      [_,S,D,D,D,D,D,D,D,D,D,D,D,S,_,_],
+      [_,_,D,D,D,D,D,D,D,D,D,D,D,_,_,_],
+      [_,_,K,K,D,D,D,D,D,D,D,K,K,_,_,_],
+      [_,_,K,K,K,D,D,D,D,D,K,K,K,_,_,_],
+      [_,K,K,K,K,D,D,D,D,D,K,K,K,K,_,_],
+      [_,K,K,K,K,K,_,_,K,K,K,K,K,K,_,_],
+      [_,_,K,K,K,K,_,_,K,K,K,K,K,_,_,_],
+      [_,_,_,B,B,B,_,_,B,B,B,B,_,_,_,_],
+      [_,_,_,B,B,B,_,_,B,B,B,B,_,_,_,_],
+    ];
+    this.createTexture('npc_nannerl', nannerlNPC);
+
+    // Young Beethoven - wild brown hair, brown coat, intense look (16x24)
+    const H = '#8B4513'; // brown hair
+    const Bc = '#654321'; // brown coat
+    const Y = '#DAA520'; // goldenrod vest
+
+    const beethoven = [
+      [_,_,_,_,H,H,H,H,H,H,H,H,_,_,_,_],
+      [_,_,_,H,H,H,H,H,H,H,H,H,H,_,_,_],
+      [_,_,H,H,H,H,H,H,H,H,H,H,H,H,_,_],
+      [_,_,H,H,H,H,H,H,H,H,H,H,H,H,_,_],
+      [_,_,_,S,S,S,S,S,S,S,S,S,S,_,_,_],
+      [_,_,_,S,B,S,S,S,S,S,B,S,S,_,_,_],
+      [_,_,_,S,S,S,S,S,S,S,S,S,S,_,_,_],
+      [_,_,_,S,S,S,S,B,S,S,S,S,S,_,_,_],
+      [_,_,_,_,S,S,S,S,S,S,S,S,_,_,_,_],
+      [_,_,_,_,_,Y,Y,Y,Y,Y,_,_,_,_,_,_],
+      [_,_,_,Bc,Bc,Bc,Bc,Bc,Bc,Bc,Bc,Bc,_,_,_,_],
+      [_,_,Bc,Bc,Bc,Bc,Bc,Bc,Bc,Bc,Bc,Bc,Bc,_,_,_],
+      [_,_,Bc,Bc,Bc,Bc,Bc,Bc,Bc,Bc,Bc,Bc,Bc,_,_,_],
+      [_,S,Bc,Bc,Bc,Bc,Bc,Bc,Bc,Bc,Bc,Bc,Bc,S,_,_],
+      [_,S,Bc,Bc,Bc,Y,Y,Y,Y,Bc,Bc,Bc,Bc,S,_,_],
+      [_,S,Bc,Bc,Bc,Bc,Bc,Bc,Bc,Bc,Bc,Bc,Bc,S,_,_],
+      [_,_,Bc,Bc,Bc,Bc,Bc,Bc,Bc,Bc,Bc,Bc,Bc,_,_,_],
+      [_,_,Bc,Bc,Bc,Bc,Bc,Bc,Bc,Bc,Bc,Bc,Bc,_,_,_],
+      [_,_,_,P,P,P,P,P,P,P,P,P,_,_,_,_],
+      [_,_,_,P,P,P,P,P,P,P,P,P,_,_,_,_],
+      [_,_,_,P,P,P,_,_,P,P,P,P,_,_,_,_],
+      [_,_,_,P,P,P,_,_,P,P,P,P,_,_,_,_],
+      [_,_,_,B,B,B,_,_,B,B,B,B,_,_,_,_],
+      [_,_,_,B,B,B,_,_,B,B,B,B,_,_,_,_],
+    ];
+    this.createTexture('npc_beethoven', beethoven);
   }
 
   generateTiles() {

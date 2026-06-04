@@ -8,6 +8,9 @@ import { ParticleManager } from '../utils/ParticleManager.js';
 import { setupPause } from '../utils/PauseHelper.js';
 import { ComboSystem } from '../utils/ComboSystem.js';
 import { ScoreManager } from '../utils/ScoreManager.js';
+import { NPC } from '../sprites/NPC.js';
+import { DialogueBox } from '../ui/DialogueBox.js';
+import { NPC_DIALOGUES } from '../config/npcDialogues.js';
 
 export class Level1Scene extends Phaser.Scene {
   constructor() {
@@ -267,6 +270,19 @@ export class Level1Scene extends Phaser.Scene {
 
     this.physics.add.overlap(this.mozart, this.checkpoints, this.activateCheckpoint, null, this);
 
+    // NPC - Haydn (teaches basic mechanics)
+    const haydnData = NPC_DIALOGUES.haydn;
+    this.haydn = new NPC(this, 300, GAME_HEIGHT - 80, haydnData.texture, {
+      name: haydnData.name,
+      dialogues: haydnData.firstMeeting,
+      repeatDialogues: haydnData.repeat,
+      interactionRadius: 70
+    });
+
+    // Dialogue system
+    this.dialogueBox = new DialogueBox(this);
+    this.interactKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
+
     // Camera
     this.cameras.main.setBounds(0, 0, GAME_WIDTH * 3, GAME_HEIGHT);
     this.physics.world.setBounds(0, 0, GAME_WIDTH * 3, GAME_HEIGHT);
@@ -290,11 +306,29 @@ export class Level1Scene extends Phaser.Scene {
   }
 
   update(time, delta) {
+    // If dialogue is active, only handle dialogue input
+    if (this.dialogueBox && this.dialogueBox.isActive) {
+      if (Phaser.Input.Keyboard.JustDown(this.mozart.spaceKey) ||
+          Phaser.Input.Keyboard.JustDown(this.input.keyboard.addKey('ENTER'))) {
+        this.dialogueBox.advance();
+      }
+      return;
+    }
+
     if (this.mozart && !this.mozart.isDead) this.mozart.update();
     if (this.nannerl && !this.nannerl.isDead) this.nannerl.update();
 
     this.singers.forEach(s => s.update());
     this.notes.forEach(n => n.update(time, delta));
+
+    // NPC updates and interaction
+    if (this.haydn) {
+      this.haydn.update(this.mozart, this.dialogueBox);
+      if (Phaser.Input.Keyboard.JustDown(this.interactKey) ||
+          Phaser.Input.Keyboard.JustDown(this.mozart.cursors.up)) {
+        this.haydn.interact(this.dialogueBox);
+      }
+    }
 
     // Camera follows midpoint in co-op
     if (this.coopMode && this.cameraTarget) {
