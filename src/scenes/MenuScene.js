@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT } from '../config/constants.js';
+import { ScoreManager } from '../utils/ScoreManager.js';
 
 export class MenuScene extends Phaser.Scene {
   constructor() {
@@ -11,7 +12,7 @@ export class MenuScene extends Phaser.Scene {
     this.cameras.main.setBackgroundColor('#1a1a2e');
 
     // Title
-    this.add.text(GAME_WIDTH / 2, 100, 'AMADEUS', {
+    this.add.text(GAME_WIDTH / 2, 60, 'AMADEUS', {
       font: '64px monospace',
       fill: '#FFD700',
       stroke: '#8B4513',
@@ -19,19 +20,52 @@ export class MenuScene extends Phaser.Scene {
     }).setOrigin(0.5);
 
     // Subtitle
-    this.add.text(GAME_WIDTH / 2, 160, "Mozart's Musical Quest", {
+    this.add.text(GAME_WIDTH / 2, 115, "Mozart's Musical Quest", {
       font: '24px monospace',
       fill: '#FFFFFF'
     }).setOrigin(0.5);
 
     // Mozart sprite
     if (this.textures.exists('mozart')) {
-      this.add.image(GAME_WIDTH / 2 - 30, 280, 'mozart').setScale(3);
+      this.add.image(GAME_WIDTH / 2 - 30, 190, 'mozart').setScale(2.5);
     }
 
     // Nannerl sprite
     if (this.textures.exists('nannerl')) {
-      this.add.image(GAME_WIDTH / 2 + 30, 280, 'nannerl').setScale(3);
+      this.add.image(GAME_WIDTH / 2 + 30, 190, 'nannerl').setScale(2.5);
+    }
+
+    // High Scores section
+    this.add.text(GAME_WIDTH / 2, 250, '— HIGH SCORES —', {
+      font: '14px monospace',
+      fill: '#FFD700'
+    }).setOrigin(0.5);
+
+    const levelNames = ['Vienna Streets', 'Enchanted Forest', 'Royal Palace'];
+    let yPos = 275;
+
+    for (let level = 1; level <= 3; level++) {
+      const scores = ScoreManager.getHighScores(level);
+      const bestScore = scores.length > 0 ? scores[0].score : '---';
+      const grade = scores.length > 0 ? ScoreManager.getGrade(level, scores[0].score) : '-';
+      const gradeColor = scores.length > 0 ? ScoreManager.getGradeColor(grade) : '#808080';
+
+      this.add.text(GAME_WIDTH / 2 - 160, yPos, `${level}. ${levelNames[level - 1]}`, {
+        font: '12px monospace',
+        fill: '#AAAAAA'
+      });
+
+      this.add.text(GAME_WIDTH / 2 + 80, yPos, `${bestScore}`, {
+        font: '12px monospace',
+        fill: '#FFFFFF'
+      });
+
+      this.add.text(GAME_WIDTH / 2 + 150, yPos, `[${grade}]`, {
+        font: '12px monospace',
+        fill: gradeColor
+      });
+
+      yPos += 22;
     }
 
     // Menu options
@@ -111,6 +145,8 @@ export class MenuScene extends Phaser.Scene {
     this.registry.set('instruments', []);
     this.registry.set('currentLevel', 1);
     this.registry.set('coopMode', coopMode);
+    this.registry.set('comboMultiplier', 1);
+    this.registry.set('comboCount', 0);
     if (!this.registry.get('completedLevels')) {
       this.registry.set('completedLevels', []);
     }

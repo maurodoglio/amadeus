@@ -38,11 +38,23 @@ export class UIScene extends Phaser.Scene {
       });
     }
 
+    // Combo display
+    this.comboContainer = this.add.container(GAME_WIDTH - 16, 44);
+    this.comboText = this.add.text(0, 0, '', {
+      font: 'bold 20px monospace',
+      fill: '#FF6600',
+      stroke: '#000000',
+      strokeThickness: 2
+    }).setOrigin(1, 0);
+    this.comboContainer.add(this.comboText);
+    this.comboContainer.setAlpha(0);
+
     // Listen for registry changes
     this.registry.events.on('changedata-lives', this.updateLives, this);
     this.registry.events.on('changedata-score', this.updateScore, this);
     this.registry.events.on('changedata-instruments', this.updateInstruments, this);
     this.registry.events.on('changedata-sheetMusicCurrentLevel', this.updateSheetMusic, this);
+    this.registry.events.on('changedata-comboMultiplier', this.updateCombo, this);
 
     this.updateScore(null, this.registry.get('score'));
     this.updateInstruments(null, this.registry.get('instruments'));
@@ -86,10 +98,41 @@ export class UIScene extends Phaser.Scene {
     }
   }
 
+  updateCombo(_, value) {
+    if (value > 1) {
+      const comboCount = this.registry.get('comboCount') || 0;
+      this.comboText.setText(`x${value} COMBO! (${comboCount})`);
+
+      // Color based on multiplier
+      const colors = { 2: '#FF6600', 3: '#FF00FF', 4: '#00FFFF' };
+      this.comboText.setFill(colors[value] || '#FF6600');
+
+      this.comboContainer.setAlpha(1);
+
+      // Pop animation
+      this.tweens.killTweensOf(this.comboText);
+      this.comboText.setScale(1.3);
+      this.tweens.add({
+        targets: this.comboText,
+        scale: 1,
+        duration: 200,
+        ease: 'Back.easeOut'
+      });
+    } else {
+      // Fade out combo display
+      this.tweens.add({
+        targets: this.comboContainer,
+        alpha: 0,
+        duration: 300
+      });
+    }
+  }
+
   shutdown() {
     this.registry.events.off('changedata-lives', this.updateLives, this);
     this.registry.events.off('changedata-score', this.updateScore, this);
     this.registry.events.off('changedata-instruments', this.updateInstruments, this);
     this.registry.events.off('changedata-sheetMusicCurrentLevel', this.updateSheetMusic, this);
+    this.registry.events.off('changedata-comboMultiplier', this.updateCombo, this);
   }
 }

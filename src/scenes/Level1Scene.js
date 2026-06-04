@@ -6,6 +6,8 @@ import { Singer } from '../sprites/enemies/Singer.js';
 import { DissonantNote } from '../sprites/enemies/DissonantNote.js';
 import { ParticleManager } from '../utils/ParticleManager.js';
 import { setupPause } from '../utils/PauseHelper.js';
+import { ComboSystem } from '../utils/ComboSystem.js';
+import { ScoreManager } from '../utils/ScoreManager.js';
 
 export class Level1Scene extends Phaser.Scene {
   constructor() {
@@ -17,6 +19,9 @@ export class Level1Scene extends Phaser.Scene {
     this.particles = new ParticleManager(this);
     this.coopMode = this.registry.get('coopMode') || false;
     this.lastCheckpoint = null;
+    this.combo = new ComboSystem(this);
+    this.levelStartTime = this.time.now;
+    this.levelStartScore = this.registry.get('score') || 0;
 
     // Parallax background layers
     const worldWidth = GAME_WIDTH * 3;
@@ -349,8 +354,12 @@ export class Level1Scene extends Phaser.Scene {
       this.notes = this.notes.filter(n => n !== enemy);
       player.setVelocityY(-200);
 
-      const score = this.registry.get('score') + 100;
+      const multiplier = this.combo.registerAction();
+      const points = 100 * multiplier;
+      const score = this.registry.get('score') + points;
       this.registry.set('score', score);
+      this.registry.set('comboMultiplier', this.combo.getMultiplier());
+      this.registry.set('comboCount', this.combo.getComboCount());
 
       if (this.sound.get('sfx_coin')) {
         this.sound.play('sfx_coin', { volume: 0.2 });
@@ -363,8 +372,13 @@ export class Level1Scene extends Phaser.Scene {
   collectNote(player, note) {
     this.particles.emitNoteCollect(note.x, note.y);
     note.destroy();
-    const score = this.registry.get('score') + 50;
+
+    const multiplier = this.combo.registerAction();
+    const points = 50 * multiplier;
+    const score = this.registry.get('score') + points;
     this.registry.set('score', score);
+    this.registry.set('comboMultiplier', this.combo.getMultiplier());
+    this.registry.set('comboCount', this.combo.getComboCount());
 
     if (this.sound.get('sfx_coin')) {
       this.sound.play('sfx_coin', { volume: 0.3 });
@@ -380,6 +394,15 @@ export class Level1Scene extends Phaser.Scene {
     // Stop background music
     this.sound.stopAll();
 
+    // Calculate level score and time bonus
+    const elapsedSeconds = Math.floor((this.time.now - this.levelStartTime) / 1000);
+    const levelScore = this.registry.get('score') - this.levelStartScore;
+    const timeBonus = ScoreManager.calculateTimeBonus(1, elapsedSeconds);
+
+    // Add time bonus to total score
+    this.registry.set('score', this.registry.get('score') + timeBonus);
+    this.combo.destroy();
+
     // Mark level as completed
     const completedLevels = this.registry.get('completedLevels') || [];
     if (!completedLevels.includes(1)) {
@@ -387,12 +410,18 @@ export class Level1Scene extends Phaser.Scene {
       this.registry.set('completedLevels', completedLevels);
     }
 
-    // Transition to world map
+    // Level complete - show results then transition
     this.cameras.main.fade(1000, 0, 0, 0, false, (cam, progress) => {
       if (progress === 1) {
         this.registry.set('currentLevel', 2);
         this.scene.stop('UIScene');
-        this.scene.start('MapScene', { completedLevel: 1 });
+        this.scene.start('LevelCompleteScene', {
+          level: 1,
+          levelScore,
+          timeBonus,
+          nextScene: 'MapScene',
+          nextSceneData: { completedLevel: 1 }
+        });
       }
     });
   }
