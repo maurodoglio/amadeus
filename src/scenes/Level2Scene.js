@@ -40,12 +40,17 @@ export class Level2Scene extends Phaser.Scene {
       .setOrigin(0, 0).setScrollFactor(0).setDepth(-8);
 
     // Level title
-    const title = this.add.text(GAME_WIDTH / 2, 60, 'The Enchanted Forest', {
+    const title = this.add.text(GAME_WIDTH / 2, 50, 'The Grand Tour', {
       font: '24px monospace',
       fill: '#90EE90',
       stroke: '#000000',
       strokeThickness: 3
     }).setOrigin(0.5).setScrollFactor(0);
+
+    this.add.text(GAME_WIDTH / 2, 78, '1763–1766', {
+      font: '14px monospace',
+      fill: '#c8a96e'
+    }).setOrigin(0.5).setScrollFactor(0).setAlpha(0.8);
 
     this.tweens.add({
       targets: title,

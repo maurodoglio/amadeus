@@ -32,12 +32,17 @@ export class Level6Scene extends Phaser.Scene {
     }
 
     // Level title
-    const title = this.add.text(GAME_WIDTH / 2, 60, 'The Underground Caves', {
+    const title = this.add.text(GAME_WIDTH / 2, 50, 'The Requiem Mystery', {
       font: '24px monospace',
       fill: '#9370DB',
       stroke: '#000000',
       strokeThickness: 3
     }).setOrigin(0.5).setScrollFactor(0);
+
+    this.add.text(GAME_WIDTH / 2, 78, '1791', {
+      font: '14px monospace',
+      fill: '#c8a96e'
+    }).setOrigin(0.5).setScrollFactor(0).setAlpha(0.8);
 
     this.tweens.add({
       targets: title,

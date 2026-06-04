@@ -38,12 +38,17 @@ export class Level4Scene extends Phaser.Scene {
     }
 
     // Level title
-    const title = this.add.text(GAME_WIDTH / 2, 60, 'The Opera House', {
+    const title = this.add.text(GAME_WIDTH / 2, 50, 'Vienna Opera', {
       font: '24px monospace',
       fill: '#FF6347',
       stroke: '#000000',
       strokeThickness: 3
     }).setOrigin(0.5).setScrollFactor(0);
+
+    this.add.text(GAME_WIDTH / 2, 78, '1781', {
+      font: '14px monospace',
+      fill: '#c8a96e'
+    }).setOrigin(0.5).setScrollFactor(0).setAlpha(0.8);
 
     this.tweens.add({
       targets: title,
