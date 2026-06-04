@@ -140,6 +140,47 @@ export class Level3Scene extends Phaser.Scene {
     this.instrument.setVisible(false);
     this.instrument.body.enable = false;
 
+    // Sheet music pages (hidden secrets in hard-to-reach spots)
+    this.sheetMusicPages = this.physics.add.group();
+    this.sheetMusicCollected = 0;
+    const levelKey = 'level3';
+    const savedSheetMusic = this.registry.get('sheetMusic') || {};
+    this.levelSheetMusicKey = levelKey;
+
+    const sheetMusicPositions = [
+      // Page 1: Very high, above the initial platforms, requires wall-jumping skill
+      { x: 380, y: 100 },
+      // Page 2: Above boss arena, only reachable from the highest platform
+      { x: 2250, y: 80 },
+      // Page 3: Behind the starting area, requires backtracking up high
+      { x: 50, y: 140 },
+    ];
+
+    sheetMusicPositions.forEach((pos, index) => {
+      const pageKey = `${levelKey}_page${index}`;
+      if (savedSheetMusic[pageKey]) {
+        this.sheetMusicCollected++;
+        return;
+      }
+      const page = this.sheetMusicPages.create(pos.x, pos.y, 'sheetMusic');
+      page.body.setAllowGravity(false);
+      page.setDisplaySize(24, 32);
+      page.setAlpha(0.8);
+      page.setData('pageKey', pageKey);
+      page.setData('pageIndex', index);
+
+      this.tweens.add({
+        targets: page,
+        y: pos.y - 5,
+        duration: 1500,
+        yoyo: true,
+        repeat: -1,
+        ease: 'Sine.easeInOut'
+      });
+    });
+
+    this.registry.set('sheetMusicCurrentLevel', { found: this.sheetMusicCollected, total: 3 });
+
     // Collisions
     this.physics.add.collider(this.mozart, this.platforms);
     this.physics.add.collider(this.enemies, this.platforms);
@@ -147,6 +188,7 @@ export class Level3Scene extends Phaser.Scene {
     this.physics.add.overlap(this.mozart, this.enemies, this.hitEnemy, null, this);
     this.physics.add.overlap(this.mozart, this.collectibles, this.collectNote, null, this);
     this.physics.add.overlap(this.mozart, this.instrument, this.collectInstrument, null, this);
+    this.physics.add.overlap(this.mozart, this.sheetMusicPages, this.collectSheetMusic, null, this);
 
     // Camera
     this.cameras.main.setBounds(0, 0, GAME_WIDTH * 3.5, GAME_HEIGHT);
@@ -347,5 +389,40 @@ export class Level3Scene extends Phaser.Scene {
         this.scene.start('ConcertScene');
       }
     });
+  }
+
+  collectSheetMusic(player, page) {
+    const pageKey = page.getData('pageKey');
+
+    // Spin + sparkle collection animation
+    this.tweens.add({
+      targets: page,
+      angle: 720,
+      scaleX: 0,
+      scaleY: 0,
+      alpha: 0,
+      duration: 600,
+      ease: 'Power2',
+      onComplete: () => page.destroy()
+    });
+    this.particles.emitSheetMusicCollect(page.x, page.y);
+
+    // Update collection state
+    this.sheetMusicCollected++;
+    const savedSheetMusic = this.registry.get('sheetMusic') || {};
+    savedSheetMusic[pageKey] = true;
+    this.registry.set('sheetMusic', savedSheetMusic);
+    localStorage.setItem('sheetMusicCollected', JSON.stringify(savedSheetMusic));
+
+    this.registry.set('sheetMusicCurrentLevel', { found: this.sheetMusicCollected, total: 3 });
+
+    const score = this.registry.get('score') + 200;
+    this.registry.set('score', score);
+
+    if (this.sound.get('sfx_coin')) {
+      this.sound.play('sfx_coin', { volume: 0.4 });
+    }
+
+    page.body.enable = false;
   }
 }

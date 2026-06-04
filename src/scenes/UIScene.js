@@ -25,14 +25,22 @@ export class UIScene extends Phaser.Scene {
       fill: '#87CEEB'
     }).setOrigin(0.5, 0);
 
+    // Sheet music pages counter
+    this.sheetMusicText = this.add.text(GAME_WIDTH - 16, 36, '', {
+      font: '12px monospace',
+      fill: '#F5DEB3'
+    }).setOrigin(1, 0);
+
     // Listen for registry changes
     this.registry.events.on('changedata-lives', this.updateLives, this);
     this.registry.events.on('changedata-score', this.updateScore, this);
     this.registry.events.on('changedata-instruments', this.updateInstruments, this);
+    this.registry.events.on('changedata-sheetMusicCurrentLevel', this.updateSheetMusic, this);
 
     this.updateLives(null, this.registry.get('lives'));
     this.updateScore(null, this.registry.get('score'));
     this.updateInstruments(null, this.registry.get('instruments'));
+    this.updateSheetMusic(null, this.registry.get('sheetMusicCurrentLevel'));
   }
 
   updateLives(_, value) {
@@ -55,9 +63,16 @@ export class UIScene extends Phaser.Scene {
     }
   }
 
+  updateSheetMusic(_, value) {
+    if (value) {
+      this.sheetMusicText.setText(`📜 ${value.found}/${value.total}`);
+    }
+  }
+
   shutdown() {
     this.registry.events.off('changedata-lives', this.updateLives, this);
     this.registry.events.off('changedata-score', this.updateScore, this);
     this.registry.events.off('changedata-instruments', this.updateInstruments, this);
+    this.registry.events.off('changedata-sheetMusicCurrentLevel', this.updateSheetMusic, this);
   }
 }
