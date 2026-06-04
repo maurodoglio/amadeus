@@ -53,6 +53,7 @@ export class BootScene extends Phaser.Scene {
     this.registry.set('score', 0);
     this.registry.set('instruments', []);
     this.registry.set('currentLevel', 1);
+    this.registry.set('coopMode', false);
 
     // Initialize sheet music collection state
     const savedSheetMusic = JSON.parse(localStorage.getItem('sheetMusicCollected') || '{}');

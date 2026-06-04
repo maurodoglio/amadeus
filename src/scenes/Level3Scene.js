@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT, TILE_SIZE } from '../config/constants.js';
 import { Mozart } from '../sprites/Mozart.js';
+import { Nannerl } from '../sprites/Nannerl.js';
 import { Singer } from '../sprites/enemies/Singer.js';
 import { DrumTroll } from '../sprites/enemies/DrumTroll.js';
 import { DissonantNote } from '../sprites/enemies/DissonantNote.js';
@@ -17,6 +18,7 @@ export class Level3Scene extends Phaser.Scene {
     setupPause(this);
     this.bossDefeated = false;
     this.particles = new ParticleManager(this);
+    this.coopMode = this.registry.get('coopMode') || false;
 
     // Parallax background layers
     this.bgFar = this.add.tileSprite(0, 0, GAME_WIDTH, GAME_HEIGHT, 'parallaxPalace_far')
@@ -78,33 +80,47 @@ export class Level3Scene extends Phaser.Scene {
       }
     });
 
-    // Player
+    // Player 1
     this.mozart = new Mozart(this, 100, GAME_HEIGHT - 100);
+
+    // Player 2 (co-op)
+    this.nannerl = null;
+    if (this.coopMode) {
+      this.nannerl = new Nannerl(this, 140, GAME_HEIGHT - 100);
+    }
 
     // Regular enemies before boss
     this.enemies = this.physics.add.group();
     this.enemyList = [];
 
     // Mix of all enemy types
-    [300, 800, 1200].forEach(x => {
+    const singerPositions = [300, 800, 1200];
+    if (this.coopMode) singerPositions.push(500, 1000);
+    singerPositions.forEach(x => {
       const singer = new Singer(this, x, GAME_HEIGHT - 80);
       this.enemies.add(singer);
       this.enemyList.push(singer);
     });
 
-    [600, 1000, 1600].forEach(x => {
+    const trollPositions = [600, 1000, 1600];
+    if (this.coopMode) trollPositions.push(1400);
+    trollPositions.forEach(x => {
       const troll = new DrumTroll(this, x, GAME_HEIGHT - 80);
       this.enemies.add(troll);
       this.enemyList.push(troll);
     });
 
-    [{ x: 450, y: 180 }, { x: 1100, y: 160 }, { x: 1700, y: 170 }].forEach(pos => {
+    const noteEnemyPositions = [{ x: 450, y: 180 }, { x: 1100, y: 160 }, { x: 1700, y: 170 }];
+    if (this.coopMode) noteEnemyPositions.push({ x: 800, y: 150 });
+    noteEnemyPositions.forEach(pos => {
       const note = new DissonantNote(this, pos.x, pos.y);
       this.enemies.add(note);
       this.enemyList.push(note);
     });
 
-    [900, 1400].forEach(x => {
+    const biPositions = [900, 1400];
+    if (this.coopMode) biPositions.push(1800);
+    biPositions.forEach(x => {
       const bi = new BrokenInstrument(this, x, GAME_HEIGHT - 80);
       this.enemies.add(bi);
       this.enemyList.push(bi);
@@ -192,11 +208,30 @@ export class Level3Scene extends Phaser.Scene {
     this.physics.add.overlap(this.mozart, this.instrument, this.collectInstrument, null, this);
     this.physics.add.overlap(this.mozart, this.sheetMusicPages, this.collectSheetMusic, null, this);
 
+    if (this.coopMode && this.nannerl) {
+      this.physics.add.collider(this.nannerl, this.platforms);
+      this.physics.add.overlap(this.nannerl, this.enemies, this.hitEnemy, null, this);
+      this.physics.add.overlap(this.nannerl, this.collectibles, this.collectNote, null, this);
+      this.physics.add.overlap(this.nannerl, this.instrument, this.collectInstrument, null, this);
+      this.physics.add.overlap(this.nannerl, this.boss, this.hitBoss, null, this);
+
+      // Player bounce
+      this.physics.add.collider(this.mozart, this.nannerl, this.playerBounce, null, this);
+    }
+
     // Camera
     this.cameras.main.setBounds(0, 0, GAME_WIDTH * 3.5, GAME_HEIGHT);
-    this.cameras.main.startFollow(this.mozart, true, 0.1, 0.1);
     this.physics.world.setBounds(0, 0, GAME_WIDTH * 3.5, GAME_HEIGHT);
+
+    if (this.coopMode && this.nannerl) {
+      this.cameraTarget = this.add.zone(0, 0, 1, 1);
+      this.cameras.main.startFollow(this.cameraTarget, true, 0.1, 0.1);
+    } else {
+      this.cameras.main.startFollow(this.mozart, true, 0.1, 0.1);
+    }
+
     this.mozart.setCollideWorldBounds(true);
+    if (this.nannerl) this.nannerl.setCollideWorldBounds(true);
   }
 
   createBoss() {
@@ -205,7 +240,9 @@ export class Level3Scene extends Phaser.Scene {
     this.boss.setScale(2.5);
     this.boss.body.setAllowGravity(true);
     this.boss.setCollideWorldBounds(true);
-    this.boss.health = 5;
+    // More health in co-op for balance
+    this.boss.health = this.coopMode ? 7 : 5;
+    this.boss.maxHealth = this.boss.health;
     this.boss.isActive = false;
     this.boss.attackTimer = 0;
     this.boss.direction = 1;
@@ -223,10 +260,25 @@ export class Level3Scene extends Phaser.Scene {
   }
 
   update(time, delta) {
-    if (this.mozart) this.mozart.update();
+    if (this.mozart && !this.mozart.isDead) this.mozart.update();
+    if (this.nannerl && !this.nannerl.isDead) this.nannerl.update();
+
     this.enemyList.forEach(e => {
       if (e.active) e.update(time, delta);
     });
+
+    // Camera follows midpoint in co-op
+    if (this.coopMode && this.cameraTarget) {
+      const p1 = this.mozart;
+      const p2 = this.nannerl;
+      if (p1 && p2 && !p1.isDead && !p2.isDead) {
+        this.cameraTarget.setPosition((p1.x + p2.x) / 2, (p1.y + p2.y) / 2);
+      } else if (p1 && !p1.isDead) {
+        this.cameraTarget.setPosition(p1.x, p1.y);
+      } else if (p2 && !p2.isDead) {
+        this.cameraTarget.setPosition(p2.x, p2.y);
+      }
+    }
 
     // Parallax scrolling
     const camX = this.cameras.main.scrollX;
@@ -234,12 +286,16 @@ export class Level3Scene extends Phaser.Scene {
     this.bgMid.tilePositionX = camX * 0.3;
     this.bgNear.tilePositionX = camX * 0.5;
 
-    // Activate boss when player gets close
-    if (this.boss && this.boss.active && !this.boss.isActive && this.mozart.x > 2100) {
-      this.boss.isActive = true;
-      this.bossHealthBg.setVisible(true).setPosition(GAME_WIDTH / 2, 60);
-      this.bossHealthBar.setVisible(true).setPosition(GAME_WIDTH / 2, 60);
-      this.bossLabel.setVisible(true).setPosition(GAME_WIDTH / 2, 40);
+    // Activate boss when any player gets close
+    if (this.boss && this.boss.active && !this.boss.isActive) {
+      const anyPlayerClose = (this.mozart && !this.mozart.isDead && this.mozart.x > 2100) ||
+        (this.nannerl && !this.nannerl.isDead && this.nannerl.x > 2100);
+      if (anyPlayerClose) {
+        this.boss.isActive = true;
+        this.bossHealthBg.setVisible(true).setPosition(GAME_WIDTH / 2, 60);
+        this.bossHealthBar.setVisible(true).setPosition(GAME_WIDTH / 2, 60);
+        this.bossLabel.setVisible(true).setPosition(GAME_WIDTH / 2, 40);
+      }
     }
 
     // Boss AI
@@ -247,19 +303,48 @@ export class Level3Scene extends Phaser.Scene {
       this.updateBoss(time);
     }
 
-    if (this.mozart && this.mozart.y > GAME_HEIGHT + 50) {
+    // Fall death
+    if (this.mozart && !this.mozart.isDead && this.mozart.y > GAME_HEIGHT + 50) {
       this.mozart.die();
+    }
+    if (this.nannerl && !this.nannerl.isDead && this.nannerl.y > GAME_HEIGHT + 50) {
+      this.nannerl.die();
+    }
+
+    // Check game over in co-op
+    if (this.coopMode) {
+      const bothDead = (this.mozart.isDead) && (this.nannerl && this.nannerl.isDead);
+      const noLives = this.registry.get('lives') <= 0;
+      if (bothDead || noLives) {
+        this.time.delayedCall(1500, () => {
+          this.scene.stop('UIScene');
+          this.scene.start('MenuScene');
+        });
+      }
     }
   }
 
   updateBoss(time) {
     const boss = this.boss;
 
-    // Move toward player
-    if (this.mozart.x > boss.x + 30) {
+    // In co-op, target the nearest living player
+    let target = this.mozart;
+    if (this.coopMode && this.nannerl && !this.nannerl.isDead) {
+      if (this.mozart.isDead) {
+        target = this.nannerl;
+      } else {
+        // Target closest player
+        const d1 = Math.abs(this.mozart.x - boss.x);
+        const d2 = Math.abs(this.nannerl.x - boss.x);
+        target = d1 < d2 ? this.mozart : this.nannerl;
+      }
+    }
+
+    // Move toward target player
+    if (target.x > boss.x + 30) {
       boss.setVelocityX(100);
       boss.setFlipX(false);
-    } else if (this.mozart.x < boss.x - 30) {
+    } else if (target.x < boss.x - 30) {
       boss.setVelocityX(-100);
       boss.setFlipX(true);
     } else {
@@ -269,7 +354,7 @@ export class Level3Scene extends Phaser.Scene {
     // Periodic jump attack
     if (time > boss.attackTimer && (boss.body.blocked.down || boss.body.touching.down)) {
       boss.setVelocityY(-350);
-      boss.attackTimer = time + 2500;
+      boss.attackTimer = time + (this.coopMode ? 2000 : 2500);
     }
   }
 
@@ -286,7 +371,7 @@ export class Level3Scene extends Phaser.Scene {
       this.particles.emitStomp(boss.x, boss.y - 20);
 
       // Update health bar
-      const healthPercent = boss.health / 5;
+      const healthPercent = boss.health / boss.maxHealth;
       this.bossHealthBar.setSize(196 * healthPercent, 16);
 
       if (this.sound.get('sfx_hit')) this.sound.play('sfx_hit', { volume: 0.3 });
@@ -354,6 +439,14 @@ export class Level3Scene extends Phaser.Scene {
 
     if (this.sound.get('sfx_levelComplete')) {
       this.sound.play('sfx_levelComplete', { volume: 0.5 });
+    }
+  }
+
+  playerBounce(player1, player2) {
+    if (player1.body.velocity.y > 0 && player1.y < player2.y - 20) {
+      player1.setVelocityY(-500);
+    } else if (player2.body.velocity.y > 0 && player2.y < player1.y - 20) {
+      player2.setVelocityY(-500);
     }
   }
 

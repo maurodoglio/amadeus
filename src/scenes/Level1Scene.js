@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT, TILE_SIZE } from '../config/constants.js';
 import { Mozart } from '../sprites/Mozart.js';
+import { Nannerl } from '../sprites/Nannerl.js';
 import { Singer } from '../sprites/enemies/Singer.js';
 import { DissonantNote } from '../sprites/enemies/DissonantNote.js';
 import { ParticleManager } from '../utils/ParticleManager.js';
@@ -14,6 +15,7 @@ export class Level1Scene extends Phaser.Scene {
   create() {
     setupPause(this);
     this.particles = new ParticleManager(this);
+    this.coopMode = this.registry.get('coopMode') || false;
 
     // Parallax background layers
     const worldWidth = GAME_WIDTH * 3;
@@ -83,8 +85,14 @@ export class Level1Scene extends Phaser.Scene {
       }
     }
 
-    // Player
+    // Player 1
     this.mozart = new Mozart(this, 100, GAME_HEIGHT - 100);
+
+    // Player 2 (co-op)
+    this.nannerl = null;
+    if (this.coopMode) {
+      this.nannerl = new Nannerl(this, 140, GAME_HEIGHT - 100);
+    }
 
     // Enemies
     this.enemies = this.physics.add.group();
@@ -95,6 +103,12 @@ export class Level1Scene extends Phaser.Scene {
       { x: 1100, y: GAME_HEIGHT - 80 },
       { x: 1500, y: GAME_HEIGHT - 80 },
     ];
+
+    // Add extra enemies for co-op balance
+    if (this.coopMode) {
+      singerPositions.push({ x: 900, y: GAME_HEIGHT - 80 });
+      singerPositions.push({ x: 1800, y: GAME_HEIGHT - 80 });
+    }
 
     this.singers = [];
     singerPositions.forEach(pos => {
@@ -109,6 +123,10 @@ export class Level1Scene extends Phaser.Scene {
       { x: 1300, y: 220 },
       { x: 1800, y: 180 },
     ];
+
+    if (this.coopMode) {
+      notePositions.push({ x: 1600, y: 200 });
+    }
 
     this.notes = [];
     notePositions.forEach(pos => {
@@ -217,20 +235,52 @@ export class Level1Scene extends Phaser.Scene {
     this.physics.add.overlap(this.mozart, this.instrument, this.collectInstrument, null, this);
     this.physics.add.overlap(this.mozart, this.sheetMusicPages, this.collectSheetMusic, null, this);
 
+    if (this.coopMode && this.nannerl) {
+      this.physics.add.collider(this.nannerl, this.platforms);
+      this.physics.add.overlap(this.nannerl, this.enemies, this.hitEnemy, null, this);
+      this.physics.add.overlap(this.nannerl, this.collectibles, this.collectNote, null, this);
+      this.physics.add.overlap(this.nannerl, this.instrument, this.collectInstrument, null, this);
+
+      // Player bounce: players can bounce off each other's heads
+      this.physics.add.collider(this.mozart, this.nannerl, this.playerBounce, null, this);
+    }
+
     // Camera
     this.cameras.main.setBounds(0, 0, GAME_WIDTH * 3, GAME_HEIGHT);
-    this.cameras.main.startFollow(this.mozart, true, 0.1, 0.1);
     this.physics.world.setBounds(0, 0, GAME_WIDTH * 3, GAME_HEIGHT);
 
-    // World bounds for player
+    if (this.coopMode && this.nannerl) {
+      // Camera follows midpoint between both players
+      this.cameraTarget = this.add.zone(0, 0, 1, 1);
+      this.cameras.main.startFollow(this.cameraTarget, true, 0.1, 0.1);
+    } else {
+      this.cameras.main.startFollow(this.mozart, true, 0.1, 0.1);
+    }
+
+    // World bounds for players
     this.mozart.setCollideWorldBounds(true);
+    if (this.nannerl) this.nannerl.setCollideWorldBounds(true);
   }
 
   update(time, delta) {
-    if (this.mozart) this.mozart.update();
+    if (this.mozart && !this.mozart.isDead) this.mozart.update();
+    if (this.nannerl && !this.nannerl.isDead) this.nannerl.update();
 
     this.singers.forEach(s => s.update());
     this.notes.forEach(n => n.update(time, delta));
+
+    // Camera follows midpoint in co-op
+    if (this.coopMode && this.cameraTarget) {
+      const p1 = this.mozart;
+      const p2 = this.nannerl;
+      if (p1 && p2 && !p1.isDead && !p2.isDead) {
+        this.cameraTarget.setPosition((p1.x + p2.x) / 2, (p1.y + p2.y) / 2);
+      } else if (p1 && !p1.isDead) {
+        this.cameraTarget.setPosition(p1.x, p1.y);
+      } else if (p2 && !p2.isDead) {
+        this.cameraTarget.setPosition(p2.x, p2.y);
+      }
+    }
 
     // Parallax scrolling
     const camX = this.cameras.main.scrollX;
@@ -239,8 +289,32 @@ export class Level1Scene extends Phaser.Scene {
     this.bgNear.tilePositionX = camX * 0.5;
 
     // Fall death
-    if (this.mozart && this.mozart.y > GAME_HEIGHT + 50) {
+    if (this.mozart && !this.mozart.isDead && this.mozart.y > GAME_HEIGHT + 50) {
       this.mozart.die();
+    }
+    if (this.nannerl && !this.nannerl.isDead && this.nannerl.y > GAME_HEIGHT + 50) {
+      this.nannerl.die();
+    }
+
+    // Check game over in co-op (both dead or no lives)
+    if (this.coopMode) {
+      const bothDead = (this.mozart.isDead) && (this.nannerl && this.nannerl.isDead);
+      const noLives = this.registry.get('lives') <= 0;
+      if (bothDead || noLives) {
+        this.time.delayedCall(1500, () => {
+          this.scene.stop('UIScene');
+          this.scene.start('MenuScene');
+        });
+      }
+    }
+  }
+
+  playerBounce(player1, player2) {
+    // If one player is above the other and falling, bounce them up
+    if (player1.body.velocity.y > 0 && player1.y < player2.y - 20) {
+      player1.setVelocityY(-500); // Extra height bounce
+    } else if (player2.body.velocity.y > 0 && player2.y < player1.y - 20) {
+      player2.setVelocityY(-500); // Extra height bounce
     }
   }
 

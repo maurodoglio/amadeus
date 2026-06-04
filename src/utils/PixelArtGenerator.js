@@ -11,6 +11,7 @@ export class PixelArtGenerator {
 
   generateAll() {
     this.generateMozart();
+    this.generateNannerl();
     this.generateEnemies();
     this.generateTiles();
     this.generateItems();
@@ -160,6 +161,103 @@ export class PixelArtGenerator {
     ];
 
     this.createSpriteSheet('mozart', [frame1, frame2, frame1, frame3]);
+  }
+
+  generateNannerl() {
+    const _ = null;
+    const W = '#F5F5DC'; // wig (same style as Mozart)
+    const S = '#FFE4B5'; // skin
+    const D = '#FF69B4'; // pink dress
+    const K = '#DB7093'; // darker pink (dress detail)
+    const B = '#1a1a1a'; // black (shoes/eyes)
+    const G = '#FFD700'; // gold trim
+    const R = '#FF1493'; // ribbon in hair
+
+    // Nannerl standing frame (16x24 pixels)
+    const frame1 = [
+      [_,_,_,_,_,W,W,W,W,W,W,_,_,_,_,_],
+      [_,_,_,_,W,W,W,W,W,W,W,W,_,_,_,_],
+      [_,_,_,W,W,W,W,W,W,W,W,W,W,_,_,_],
+      [_,_,_,W,W,R,W,W,W,R,W,W,W,_,_,_],
+      [_,_,_,S,S,S,S,S,S,S,S,S,S,_,_,_],
+      [_,_,_,S,B,S,S,S,S,S,B,S,S,_,_,_],
+      [_,_,_,S,S,S,S,S,S,S,S,S,S,_,_,_],
+      [_,_,_,S,S,S,S,B,S,S,S,S,S,_,_,_],
+      [_,_,_,_,S,S,S,S,S,S,S,S,_,_,_,_],
+      [_,_,_,_,_,G,G,G,G,G,_,_,_,_,_,_],
+      [_,_,_,D,D,D,D,D,D,D,D,D,_,_,_,_],
+      [_,_,D,D,D,D,D,D,D,D,D,D,D,_,_,_],
+      [_,_,D,D,D,D,D,D,D,D,D,D,D,_,_,_],
+      [_,S,D,D,D,D,D,D,D,D,D,D,D,S,_,_],
+      [_,S,D,D,D,G,G,G,G,D,D,D,D,S,_,_],
+      [_,S,D,D,D,D,D,D,D,D,D,D,D,S,_,_],
+      [_,_,D,D,D,D,D,D,D,D,D,D,D,_,_,_],
+      [_,_,K,K,D,D,D,D,D,D,D,K,K,_,_,_],
+      [_,_,K,K,K,D,D,D,D,D,K,K,K,_,_,_],
+      [_,K,K,K,K,D,D,D,D,D,K,K,K,K,_,_],
+      [_,K,K,K,K,K,_,_,K,K,K,K,K,K,_,_],
+      [_,_,K,K,K,K,_,_,K,K,K,K,K,_,_,_],
+      [_,_,_,B,B,B,_,_,B,B,B,B,_,_,_,_],
+      [_,_,_,B,B,B,_,_,B,B,B,B,_,_,_,_],
+    ];
+
+    // Nannerl walking frame
+    const frame2 = [
+      [_,_,_,_,_,W,W,W,W,W,W,_,_,_,_,_],
+      [_,_,_,_,W,W,W,W,W,W,W,W,_,_,_,_],
+      [_,_,_,W,W,W,W,W,W,W,W,W,W,_,_,_],
+      [_,_,_,W,W,R,W,W,W,R,W,W,W,_,_,_],
+      [_,_,_,S,S,S,S,S,S,S,S,S,S,_,_,_],
+      [_,_,_,S,B,S,S,S,S,S,B,S,S,_,_,_],
+      [_,_,_,S,S,S,S,S,S,S,S,S,S,_,_,_],
+      [_,_,_,S,S,S,S,B,S,S,S,S,S,_,_,_],
+      [_,_,_,_,S,S,S,S,S,S,S,S,_,_,_,_],
+      [_,_,_,_,_,G,G,G,G,G,_,_,_,_,_,_],
+      [_,_,_,D,D,D,D,D,D,D,D,D,_,_,_,_],
+      [_,_,D,D,D,D,D,D,D,D,D,D,D,_,_,_],
+      [_,S,D,D,D,D,D,D,D,D,D,D,D,_,_,_],
+      [_,S,D,D,D,D,D,D,D,D,D,D,D,S,_,_],
+      [_,_,D,D,D,G,G,G,G,D,D,D,D,S,_,_],
+      [_,_,D,D,D,D,D,D,D,D,D,D,D,_,_,_],
+      [_,_,D,D,D,D,D,D,D,D,D,D,D,_,_,_],
+      [_,_,K,K,D,D,D,D,D,D,D,K,K,_,_,_],
+      [_,_,K,K,K,D,D,D,D,D,K,K,K,_,_,_],
+      [_,K,K,K,K,D,D,D,D,D,K,K,K,K,_,_],
+      [_,K,K,K,_,_,_,_,_,K,K,K,K,_,_,_],
+      [_,_,K,K,K,_,_,_,_,_,K,K,K,_,_,_],
+      [_,B,B,B,_,_,_,_,_,_,_,B,B,B,_,_],
+      [_,B,B,B,_,_,_,_,_,_,_,B,B,B,_,_],
+    ];
+
+    // Nannerl jumping frame
+    const frame3 = [
+      [_,_,_,_,_,W,W,W,W,W,W,_,_,_,_,_],
+      [_,_,_,_,W,W,W,W,W,W,W,W,_,_,_,_],
+      [_,_,_,W,W,W,W,W,W,W,W,W,W,_,_,_],
+      [_,_,_,W,W,R,W,W,W,R,W,W,W,_,_,_],
+      [_,_,_,S,S,S,S,S,S,S,S,S,S,_,_,_],
+      [_,_,_,S,B,S,S,S,S,S,B,S,S,_,_,_],
+      [_,_,_,S,S,S,S,S,S,S,S,S,S,_,_,_],
+      [_,_,_,S,S,S,S,B,S,S,S,S,S,_,_,_],
+      [_,_,_,_,S,S,S,S,S,S,S,S,_,_,_,_],
+      [_,_,_,_,_,G,G,G,G,G,_,_,_,_,_,_],
+      [_,S,_,D,D,D,D,D,D,D,D,D,_,S,_,_],
+      [_,S,D,D,D,D,D,D,D,D,D,D,D,S,_,_],
+      [_,S,D,D,D,D,D,D,D,D,D,D,D,S,_,_],
+      [_,_,D,D,D,D,D,D,D,D,D,D,D,_,_,_],
+      [_,_,D,D,D,G,G,G,G,D,D,D,D,_,_,_],
+      [_,_,D,D,D,D,D,D,D,D,D,D,D,_,_,_],
+      [_,_,D,D,D,D,D,D,D,D,D,D,D,_,_,_],
+      [_,_,K,K,D,D,D,D,D,D,D,K,K,_,_,_],
+      [_,_,K,K,K,D,D,D,D,D,K,K,K,_,_,_],
+      [_,K,K,K,K,D,D,D,D,D,K,K,K,K,_,_],
+      [_,_,_,_,K,K,K,_,K,K,K,_,_,_,_,_],
+      [_,_,_,_,K,K,_,_,_,K,K,_,_,_,_,_],
+      [_,_,_,_,B,B,_,_,_,B,B,_,_,_,_,_],
+      [_,_,_,_,B,B,_,_,_,B,B,_,_,_,_,_],
+    ];
+
+    this.createSpriteSheet('nannerl', [frame1, frame2, frame1, frame3]);
   }
 
   generateEnemies() {
