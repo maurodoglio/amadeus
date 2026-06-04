@@ -4,6 +4,7 @@ import { Mozart } from '../sprites/Mozart.js';
 import { DrumTroll } from '../sprites/enemies/DrumTroll.js';
 import { BrokenInstrument } from '../sprites/enemies/BrokenInstrument.js';
 import { DissonantNote } from '../sprites/enemies/DissonantNote.js';
+import { SaveManager } from '../utils/SaveManager.js';
 
 export class Level2Scene extends Phaser.Scene {
   constructor() {
@@ -223,9 +224,16 @@ export class Level2Scene extends Phaser.Scene {
     instrument.destroy();
     player.collectInstrument('flute');
 
+    // Auto-save progress
+    this.registry.set('currentLevel', 3);
+    SaveManager.save({
+      currentLevel: 3,
+      instruments: this.registry.get('instruments'),
+      score: this.registry.get('score')
+    });
+
     this.cameras.main.fade(1000, 0, 0, 0, false, (cam, progress) => {
       if (progress === 1) {
-        this.registry.set('currentLevel', 3);
         this.scene.start('Level3Scene');
       }
     });

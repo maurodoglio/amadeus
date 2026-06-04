@@ -5,6 +5,7 @@ import { Singer } from '../sprites/enemies/Singer.js';
 import { DrumTroll } from '../sprites/enemies/DrumTroll.js';
 import { DissonantNote } from '../sprites/enemies/DissonantNote.js';
 import { BrokenInstrument } from '../sprites/enemies/BrokenInstrument.js';
+import { SaveManager } from '../utils/SaveManager.js';
 
 export class Level3Scene extends Phaser.Scene {
   constructor() {
@@ -314,6 +315,9 @@ export class Level3Scene extends Phaser.Scene {
   collectInstrument(player, instrument) {
     instrument.destroy();
     player.collectInstrument('piano');
+
+    // Game complete - save high score
+    SaveManager.updateHighScore(this.registry.get('score'));
 
     this.cameras.main.fade(1500, 0, 0, 0, false, (cam, progress) => {
       if (progress === 1) {

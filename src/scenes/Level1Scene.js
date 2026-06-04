@@ -3,6 +3,7 @@ import { GAME_WIDTH, GAME_HEIGHT, TILE_SIZE } from '../config/constants.js';
 import { Mozart } from '../sprites/Mozart.js';
 import { Singer } from '../sprites/enemies/Singer.js';
 import { DissonantNote } from '../sprites/enemies/DissonantNote.js';
+import { SaveManager } from '../utils/SaveManager.js';
 
 export class Level1Scene extends Phaser.Scene {
   constructor() {
@@ -218,10 +219,17 @@ export class Level1Scene extends Phaser.Scene {
     instrument.destroy();
     player.collectInstrument('violin');
 
+    // Auto-save progress
+    this.registry.set('currentLevel', 2);
+    SaveManager.save({
+      currentLevel: 2,
+      instruments: this.registry.get('instruments'),
+      score: this.registry.get('score')
+    });
+
     // Level complete - transition
     this.cameras.main.fade(1000, 0, 0, 0, false, (cam, progress) => {
       if (progress === 1) {
-        this.registry.set('currentLevel', 2);
         this.scene.start('Level2Scene');
       }
     });
