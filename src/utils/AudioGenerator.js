@@ -25,6 +25,8 @@ export class AudioGenerator {
     this.generateBossMusic();
     this.generateConcertMusic();
     this.generateRhythmMusic();
+    this.generateCompositionNotes();
+    this.generateDissonanceSound();
   }
 
   createBuffer(duration, generator) {
@@ -490,5 +492,45 @@ export class AudioGenerator {
       }
     });
     this.addSoundToScene('music_rhythm', buffer);
+  }
+
+  generateCompositionNotes() {
+    // Generate individual note sounds for MIDI notes used in melodies
+    // Covers range from MIDI 58 (Bb3) to MIDI 74 (D5)
+    for (let midi = 58; midi <= 74; midi++) {
+      const freq = 440 * Math.pow(2, (midi - 69) / 12);
+      const buffer = this.createBuffer(0.4, (data, sampleRate, length) => {
+        for (let i = 0; i < length; i++) {
+          const t = i / sampleRate;
+          // Bell-like envelope: quick attack, slow decay
+          const attack = Math.min(1, i / (sampleRate * 0.01));
+          const decay = Math.max(0, 1 - i / (length * 0.7));
+          const envelope = attack * decay;
+          // Rich tone with harmonics (piano-like)
+          const wave = Math.sin(2 * Math.PI * freq * t) * 0.6 +
+                       Math.sin(4 * Math.PI * freq * t) * 0.25 +
+                       Math.sin(6 * Math.PI * freq * t) * 0.1 +
+                       Math.sin(8 * Math.PI * freq * t) * 0.05;
+          data[i] = wave * envelope * 0.3;
+        }
+      });
+      this.addSoundToScene(`composition_note_${midi}`, buffer);
+    }
+  }
+
+  generateDissonanceSound() {
+    const buffer = this.createBuffer(0.5, (data, sampleRate, length) => {
+      for (let i = 0; i < length; i++) {
+        const t = i / sampleRate;
+        const envelope = Math.max(0, 1 - i / length);
+        // Clashing frequencies for dissonant sound
+        const wave = Math.sin(2 * Math.PI * 277 * t) * 0.3 +
+                     Math.sin(2 * Math.PI * 293 * t) * 0.3 +
+                     Math.sin(2 * Math.PI * 311 * t) * 0.2 +
+                     (Math.random() * 0.2 - 0.1);
+        data[i] = wave * envelope * 0.25;
+      }
+    });
+    this.addSoundToScene('sfx_dissonance', buffer);
   }
 }

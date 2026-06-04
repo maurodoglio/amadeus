@@ -8,6 +8,7 @@ import { ParticleManager } from '../utils/ParticleManager.js';
 import { setupBoss, updateBossAI, getBossTarget } from '../utils/BossFight.js';
 import { ComboSystem } from '../utils/ComboSystem.js';
 import { getAchievementManager } from '../utils/AchievementManager.js';
+import { CompositionCollector } from '../mechanics/CompositionCollector.js';
 
 export class Level6Scene extends Phaser.Scene {
   constructor() {
@@ -156,6 +157,20 @@ export class Level6Scene extends Phaser.Scene {
 
     // Glow light around player
     this.glowRadius = 120;
+
+    // Composition melody collectibles (Lacrimosa - hidden in darkness)
+    this.compositionCollector = new CompositionCollector(this, 6);
+    const compositionNotePositions = [
+      { x: 350, y: 120 },
+      { x: 600, y: 100 },
+      { x: 850, y: 130 },
+      { x: 1100, y: 90 },
+      { x: 1350, y: 110 },
+      { x: 1600, y: 100 },
+      { x: 1850, y: 120 }
+    ];
+    this.compositionCollector.create(compositionNotePositions);
+    this.compositionCollector.setupOverlap(this.mozart);
 
     // Collisions
     this.physics.add.collider(this.mozart, this.platforms);

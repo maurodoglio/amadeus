@@ -11,6 +11,7 @@ import { ParticleManager } from '../utils/ParticleManager.js';
 import { setupBoss, updateBossAI, getBossTarget } from '../utils/BossFight.js';
 import { ComboSystem } from '../utils/ComboSystem.js';
 import { getAchievementManager } from '../utils/AchievementManager.js';
+import { CompositionCollector } from '../mechanics/CompositionCollector.js';
 
 export class Level4Scene extends Phaser.Scene {
   constructor() {
@@ -190,6 +191,20 @@ export class Level4Scene extends Phaser.Scene {
     this.beatText = this.add.text(GAME_WIDTH / 2, 30, '♪', {
       font: '16px serif', fill: '#FFD700'
     }).setOrigin(0.5).setScrollFactor(0);
+
+    // Composition melody collectibles (Non più andrai - backstage areas)
+    this.compositionCollector = new CompositionCollector(this, 4);
+    const compositionNotePositions = [
+      { x: 250, y: 130 },
+      { x: 500, y: 110 },
+      { x: 750, y: 140 },
+      { x: 1000, y: 100 },
+      { x: 1250, y: 120 },
+      { x: 1500, y: 130 },
+      { x: 1750, y: 110 }
+    ];
+    this.compositionCollector.create(compositionNotePositions);
+    this.compositionCollector.setupOverlap(this.mozart);
 
     // Collisions
     this.physics.add.collider(this.mozart, this.platforms);

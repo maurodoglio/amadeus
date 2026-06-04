@@ -22,6 +22,7 @@ export class PixelArtGenerator {
     this.generateParticles();
     this.generateParallaxLayers();
     this.generateRhythmSprites();
+    this.generateCompositionNotes();
   }
 
   createTexture(key, pixelData, scale = 2) {
@@ -1593,5 +1594,44 @@ export class PixelArtGenerator {
       [W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W],
     ];
     this.createTexture('practiceStage', practiceStage, 2);
+  }
+
+  generateCompositionNotes() {
+    const _ = null;
+
+    // Eighth note shape (10x12) - colored per pitch class
+    const pitchColors = {
+      'C': '#FF4444',
+      'C#': '#FF8800',
+      'D': '#FFCC00',
+      'Eb': '#88FF00',
+      'E': '#00FF44',
+      'F': '#00FFCC',
+      'F#': '#0088FF',
+      'G': '#4400FF',
+      'G#': '#8800FF',
+      'A': '#CC00FF',
+      'Bb': '#FF00CC',
+      'B': '#FF0088'
+    };
+
+    Object.entries(pitchColors).forEach(([pitch, color]) => {
+      const C = color;
+      const notePixels = [
+        [_,_,_,_,_,_,C,C,C,_],
+        [_,_,_,_,_,_,C,_,C,_],
+        [_,_,_,_,_,_,C,_,_,_],
+        [_,_,_,_,_,_,C,_,_,_],
+        [_,_,_,_,_,_,C,_,_,_],
+        [_,_,_,_,_,_,C,_,_,_],
+        [_,_,_,_,_,C,C,_,_,_],
+        [_,_,_,_,C,C,C,_,_,_],
+        [_,_,_,C,C,C,C,C,_,_],
+        [_,_,C,C,C,C,C,C,_,_],
+        [_,_,C,C,C,C,C,_,_,_],
+        [_,_,_,C,C,C,_,_,_,_],
+      ];
+      this.createTexture(`compositionNote_${pitch}`, notePixels);
+    });
   }
 }
