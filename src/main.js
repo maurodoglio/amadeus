@@ -14,6 +14,7 @@ import { Level6Scene } from './scenes/Level6Scene.js';
 import { Level7Scene } from './scenes/Level7Scene.js';
 import { ConcertScene } from './scenes/ConcertScene.js';
 import { LevelCompleteScene } from './scenes/LevelCompleteScene.js';
+import { InstrumentLessonScene } from './scenes/InstrumentLessonScene.js';
 import { UIScene } from './scenes/UIScene.js';
 import { TouchControls } from './ui/TouchControls.js';
 import { PauseScene } from './scenes/PauseScene.js';
@@ -45,7 +46,7 @@ const config = {
       debug: false
     }
   },
-  scene: [BootScene, MenuScene, MapScene, CutsceneScene, TransitionScene, Level1Scene, Level2Scene, Level3Scene, Level4Scene, Level5Scene, Level6Scene, Level7Scene, LevelCompleteScene, ConcertScene, UIScene, TouchControls, PauseScene, AccessibilityScene, RhythmScene, AchievementsScene, AchievementPopup]
+  scene: [BootScene, MenuScene, MapScene, CutsceneScene, TransitionScene, Level1Scene, Level2Scene, Level3Scene, Level4Scene, Level5Scene, Level6Scene, Level7Scene, LevelCompleteScene, InstrumentLessonScene, ConcertScene, UIScene, TouchControls, PauseScene, AccessibilityScene, RhythmScene, AchievementsScene, AchievementPopup]
 };
 
 const game = new Phaser.Game(config);

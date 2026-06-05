@@ -2,6 +2,16 @@ import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT } from '../config/constants.js';
 import { ScoreManager } from '../utils/ScoreManager.js';
 
+const LEVEL_INSTRUMENTS = {
+  1: 'violin',
+  2: 'flute',
+  3: 'piano',
+  4: 'harpsichord',
+  5: 'trumpet',
+  6: 'drums',
+  7: 'harp'
+};
+
 export class LevelCompleteScene extends Phaser.Scene {
   constructor() {
     super({ key: 'LevelCompleteScene' });
@@ -129,7 +139,17 @@ export class LevelCompleteScene extends Phaser.Scene {
   }
 
   proceed() {
-    if (this.cutscene) {
+    const instrument = LEVEL_INSTRUMENTS[this.levelNumber];
+    if (instrument) {
+      // Route through the instrument lesson tutorial before continuing
+      this.scene.start('InstrumentLessonScene', {
+        instrument: instrument,
+        level: this.levelNumber,
+        nextScene: this.nextScene,
+        nextSceneData: this.nextSceneData,
+        cutscene: this.cutscene
+      });
+    } else if (this.cutscene) {
       this.scene.start('CutsceneScene', { cutscene: this.cutscene, nextScene: this.nextScene });
     } else {
       this.scene.start(this.nextScene, this.nextSceneData);
