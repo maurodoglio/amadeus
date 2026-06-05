@@ -15,6 +15,7 @@ import { setupBoss, updateBossAI, getBossTarget, showBossDialogue } from '../uti
 import { ComboSystem } from '../utils/ComboSystem.js';
 import { getAchievementManager } from '../utils/AchievementManager.js';
 import { CompositionCollector } from '../mechanics/CompositionCollector.js';
+import { PitchPuzzle } from '../mechanics/PitchPuzzle.js';
 import { setupCamera, updateCameraLookAhead } from '../utils/CameraManager.js';
 
 export class Level7Scene extends Phaser.Scene {
@@ -210,6 +211,11 @@ export class Level7Scene extends Phaser.Scene {
     ];
     this.compositionCollector.create(compositionNotePositions);
     this.compositionCollector.setupOverlap(this.mozart);
+
+    // Pitch Puzzle
+    this.pitchPuzzle = new PitchPuzzle(this, 7, { x: 1300, y: GAME_HEIGHT - 130 });
+    this.pitchPuzzle.create();
+    this.pitchPuzzle.setupOverlap(this.mozart);
 
     // Collisions
     this.physics.add.collider(this.mozart, this.platforms);
