@@ -3,6 +3,7 @@ import { PixelArtGenerator } from '../utils/PixelArtGenerator.js';
 import { AudioGenerator } from '../utils/AudioGenerator.js';
 import { drawParchmentBackground, COLORS } from '../ui/UITheme.js';
 import { SFXGenerator } from '../utils/SFXGenerator.js';
+import { AnimationManager } from '../utils/AnimationManager.js';
 
 export class BootScene extends Phaser.Scene {
   constructor() {
@@ -115,6 +116,10 @@ export class BootScene extends Phaser.Scene {
     const pixelArt = new PixelArtGenerator(this);
     pixelArt.generateAll();
 
+    // Register all animations globally
+    const animManager = new AnimationManager(this);
+    animManager.registerAll();
+
     // Generate audio
     const audio = new AudioGenerator(this);
     audio.generateAll();
@@ -142,4 +147,5 @@ export class BootScene extends Phaser.Scene {
     });
   }
 }
+
 

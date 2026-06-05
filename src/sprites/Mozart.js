@@ -3,6 +3,7 @@ import { PLAYER } from '../config/constants.js';
 import { ParticleManager } from '../utils/ParticleManager.js';
 import { MusicalCombat } from '../mechanics/MusicalCombat.js';
 import { SFXGenerator } from '../utils/SFXGenerator.js';
+import { AnimationManager } from '../utils/AnimationManager.js';
 
 export class Mozart extends Phaser.Physics.Arcade.Sprite {
   constructor(scene, x, y) {
@@ -19,6 +20,7 @@ export class Mozart extends Phaser.Physics.Arcade.Sprite {
     this.isDead = false;
     this.canAttack = false;
     this.wasInAir = false;
+    this.isAttacking = false;
 
     // Gameplay feel state
     this.coyoteTimer = 0;
@@ -26,33 +28,15 @@ export class Mozart extends Phaser.Physics.Arcade.Sprite {
     this.isJumpHeld = false;
     this.currentVelocityX = 0;
 
+    // Idle animation state
+    this.idleTime = 0;
+    this.idleSpecialPlayed = false;
+
     this.particles = new ParticleManager(scene);
 
-    // Animations
-    if (!scene.anims.exists('mozart_idle')) {
-      scene.anims.create({
-        key: 'mozart_idle',
-        frames: [{ key: 'mozart', frame: 0 }],
-        frameRate: 1
-      });
-    }
-
-    if (!scene.anims.exists('mozart_walk')) {
-      scene.anims.create({
-        key: 'mozart_walk',
-        frames: scene.anims.generateFrameNumbers('mozart', { start: 0, end: 2 }),
-        frameRate: 8,
-        repeat: -1
-      });
-    }
-
-    if (!scene.anims.exists('mozart_jump')) {
-      scene.anims.create({
-        key: 'mozart_jump',
-        frames: [{ key: 'mozart', frame: 3 }],
-        frameRate: 1
-      });
-    }
+    // Register animations via centralized manager
+    const animManager = new AnimationManager(scene);
+    animManager.registerMozartAnimations();
 
     this.play('mozart_idle');
 
@@ -69,6 +53,7 @@ export class Mozart extends Phaser.Physics.Arcade.Sprite {
 
   update(time, delta) {
     if (this.isDead) return;
+    if (this.isAttacking) return;
 
     const dt = delta || 16;
 
@@ -146,11 +131,19 @@ export class Mozart extends Phaser.Physics.Arcade.Sprite {
 
     this.setVelocityX(this.currentVelocityX);
 
-    // Animations for ground movement
+    // --- Animations ---
     if (onGround) {
       if (Math.abs(this.currentVelocityX) > 10) {
-        this.play('mozart_walk', true);
+        this.idleTime = 0;
+        this.idleSpecialPlayed = false;
+        if (Math.abs(this.currentVelocityX) > PLAYER.SPEED * 0.7) {
+          this.play('mozart_run', true);
+        } else {
+          this.play('mozart_walk', true);
+        }
       } else {
+        // Idle with occasional special animations
+        this.idleTime += dt;
         this.play('mozart_idle', true);
       }
     }
@@ -164,13 +157,16 @@ export class Mozart extends Phaser.Physics.Arcade.Sprite {
 
     // --- Variable jump height ---
     if (!onGround && this.body.velocity.y < 0 && !jumpHeld) {
-      // Player released jump early — apply extra gravity for a shorter hop
       this.body.velocity.y += PLAYER.GRAVITY * PLAYER.VARIABLE_JUMP_GRAVITY_MULT * (dt / 1000);
     }
 
-    // In-air animation
+    // In-air animations: ascent vs descent
     if (!onGround) {
-      this.play('mozart_jump', true);
+      if (this.body.velocity.y < 0) {
+        this.play('mozart_jump_up', true);
+      } else {
+        this.play('mozart_jump_down', true);
+      }
     }
 
     // Musical combat update
@@ -181,7 +177,7 @@ export class Mozart extends Phaser.Physics.Arcade.Sprite {
 
   executeJump() {
     this.setVelocityY(PLAYER.JUMP_VELOCITY);
-    this.play('mozart_jump', true);
+    this.play('mozart_jump_up', true);
     // Jump stretch
     this.setScale(0.85, 1.15);
     this.scene.tweens.add({
@@ -192,6 +188,25 @@ export class Mozart extends Phaser.Physics.Arcade.Sprite {
       ease: 'Quad.easeOut'
     });
     SFXGenerator.play(this.scene, 'sfx_jump', 0.3);
+  }
+
+  /**
+   * Play the attack animation (dramatic conductor pose).
+   */
+  playAttack(onComplete) {
+    this.isAttacking = true;
+    this.play('mozart_attack');
+    this.once('animationcomplete-mozart_attack', () => {
+      this.isAttacking = false;
+      if (onComplete) onComplete();
+    });
+  }
+
+  /**
+   * Play victory bow animation.
+   */
+  playVictory() {
+    this.play('mozart_victory');
   }
 
   hit(damageSource) {
@@ -219,6 +234,10 @@ export class Mozart extends Phaser.Physics.Arcade.Sprite {
     }
 
     this.isInvincible = true;
+
+    // Play damage animation (wig askew, stagger)
+    this.play('mozart_damage');
+
     const lives = this.scene.registry.get('lives') - 1;
     this.scene.registry.set('lives', lives);
 
@@ -359,3 +378,4 @@ export class Mozart extends Phaser.Physics.Arcade.Sprite {
     }
   }
 }
+

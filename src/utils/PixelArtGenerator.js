@@ -82,9 +82,12 @@ export class PixelArtGenerator {
     const P = '#2E2E5C'; // pants
     const B = '#1a1a1a'; // black (shoes/eyes)
     const G = '#FFD700'; // gold trim
+    const K = '#3A5FCD'; // cape highlight
+    const Wd = '#E8E0C8'; // wig displaced
 
-    // Mozart standing frame (16x24 pixels)
-    const frame1 = [
+    // --- IDLE FRAMES (0-2): gentle sway + wig adjust ---
+    // Frame 0: standing neutral
+    const idle1 = [
       [_,_,_,_,_,W,W,W,W,W,W,_,_,_,_,_],
       [_,_,_,_,W,W,W,W,W,W,W,W,_,_,_,_],
       [_,_,_,W,W,W,W,W,W,W,W,W,W,_,_,_],
@@ -111,8 +114,65 @@ export class PixelArtGenerator {
       [_,_,_,B,B,B,_,_,B,B,B,B,_,_,_,_],
     ];
 
-    // Mozart walking frame
-    const frame2 = [
+    // Frame 1: slight lean right (sway)
+    const idle2 = [
+      [_,_,_,_,_,_,W,W,W,W,W,W,_,_,_,_],
+      [_,_,_,_,_,W,W,W,W,W,W,W,W,_,_,_],
+      [_,_,_,_,W,W,W,W,W,W,W,W,W,_,_,_],
+      [_,_,_,_,W,W,W,W,W,W,W,W,W,_,_,_],
+      [_,_,_,_,S,S,S,S,S,S,S,S,S,_,_,_],
+      [_,_,_,_,S,B,S,S,S,S,B,S,S,_,_,_],
+      [_,_,_,_,S,S,S,S,S,S,S,S,S,_,_,_],
+      [_,_,_,_,S,S,S,S,B,S,S,S,S,_,_,_],
+      [_,_,_,_,_,S,S,S,S,S,S,S,_,_,_,_],
+      [_,_,_,_,_,_,G,G,G,G,G,_,_,_,_,_],
+      [_,_,_,_,C,C,C,C,C,C,C,C,C,_,_,_],
+      [_,_,_,C,C,C,C,C,C,C,C,C,C,_,_,_],
+      [_,_,_,C,C,C,C,C,C,C,C,C,C,_,_,_],
+      [_,_,S,C,C,C,C,C,C,C,C,C,C,S,_,_],
+      [_,_,S,C,C,C,G,G,G,G,C,C,C,S,_,_],
+      [_,_,S,C,C,C,C,C,C,C,C,C,C,S,_,_],
+      [_,_,_,C,C,C,C,C,C,C,C,C,C,_,_,_],
+      [_,_,_,C,C,C,C,C,C,C,C,C,C,_,_,_],
+      [_,_,_,_,P,P,P,P,P,P,P,P,_,_,_,_],
+      [_,_,_,_,P,P,P,P,P,P,P,P,_,_,_,_],
+      [_,_,_,_,P,P,P,_,_,P,P,P,_,_,_,_],
+      [_,_,_,_,P,P,P,_,_,P,P,P,_,_,_,_],
+      [_,_,_,_,B,B,B,_,_,B,B,B,_,_,_,_],
+      [_,_,_,_,B,B,B,_,_,B,B,B,_,_,_,_],
+    ];
+
+    // Frame 2: wig adjust (hand touching wig)
+    const idle3 = [
+      [_,_,_,_,_,W,W,W,W,W,W,_,_,_,_,_],
+      [_,_,_,_,W,W,W,W,W,W,W,W,_,_,_,_],
+      [_,_,_,W,W,W,W,W,W,W,W,W,W,_,_,_],
+      [_,_,S,W,W,W,W,W,W,W,W,W,W,_,_,_],
+      [_,_,S,S,S,S,S,S,S,S,S,S,S,_,_,_],
+      [_,_,_,S,B,S,S,S,S,S,B,S,S,_,_,_],
+      [_,_,_,S,S,S,S,S,S,S,S,S,S,_,_,_],
+      [_,_,_,S,S,S,S,B,S,S,S,S,S,_,_,_],
+      [_,_,_,_,S,S,S,S,S,S,S,S,_,_,_,_],
+      [_,_,_,_,_,G,G,G,G,G,_,_,_,_,_,_],
+      [_,_,_,C,C,C,C,C,C,C,C,C,_,_,_,_],
+      [_,_,C,C,C,C,C,C,C,C,C,C,C,_,_,_],
+      [_,_,C,C,C,C,C,C,C,C,C,C,C,_,_,_],
+      [_,_,C,C,C,C,C,C,C,C,C,C,C,S,_,_],
+      [_,_,C,C,C,G,G,G,G,C,C,C,C,S,_,_],
+      [_,_,C,C,C,C,C,C,C,C,C,C,C,S,_,_],
+      [_,_,C,C,C,C,C,C,C,C,C,C,C,_,_,_],
+      [_,_,C,C,C,C,C,C,C,C,C,C,C,_,_,_],
+      [_,_,_,P,P,P,P,P,P,P,P,P,_,_,_,_],
+      [_,_,_,P,P,P,P,P,P,P,P,P,_,_,_,_],
+      [_,_,_,P,P,P,_,_,P,P,P,P,_,_,_,_],
+      [_,_,_,P,P,P,_,_,P,P,P,P,_,_,_,_],
+      [_,_,_,B,B,B,_,_,B,B,B,B,_,_,_,_],
+      [_,_,_,B,B,B,_,_,B,B,B,B,_,_,_,_],
+    ];
+
+    // --- RUN FRAMES (3-8): cape flowing, smooth multi-frame ---
+    // Frame 3: run contact (left foot forward)
+    const run1 = [
       [_,_,_,_,_,W,W,W,W,W,W,_,_,_,_,_],
       [_,_,_,_,W,W,W,W,W,W,W,W,_,_,_,_],
       [_,_,_,W,W,W,W,W,W,W,W,W,W,_,_,_],
@@ -123,8 +183,8 @@ export class PixelArtGenerator {
       [_,_,_,S,S,S,S,B,S,S,S,S,S,_,_,_],
       [_,_,_,_,S,S,S,S,S,S,S,S,_,_,_,_],
       [_,_,_,_,_,G,G,G,G,G,_,_,_,_,_,_],
-      [_,_,_,C,C,C,C,C,C,C,C,C,_,_,_,_],
-      [_,_,C,C,C,C,C,C,C,C,C,C,C,_,_,_],
+      [_,_,_,C,C,C,C,C,C,C,C,C,_,K,_,_],
+      [_,_,C,C,C,C,C,C,C,C,C,C,C,K,_,_],
       [_,S,C,C,C,C,C,C,C,C,C,C,C,_,_,_],
       [_,S,C,C,C,C,C,C,C,C,C,C,C,S,_,_],
       [_,_,C,C,C,G,G,G,G,C,C,C,C,S,_,_],
@@ -139,8 +199,8 @@ export class PixelArtGenerator {
       [_,B,B,B,_,_,_,_,_,_,_,B,B,B,_,_],
     ];
 
-    // Mozart jumping frame
-    const frame3 = [
+    // Frame 4: run passing (feet together)
+    const run2 = [
       [_,_,_,_,_,W,W,W,W,W,W,_,_,_,_,_],
       [_,_,_,_,W,W,W,W,W,W,W,W,_,_,_,_],
       [_,_,_,W,W,W,W,W,W,W,W,W,W,_,_,_],
@@ -151,9 +211,70 @@ export class PixelArtGenerator {
       [_,_,_,S,S,S,S,B,S,S,S,S,S,_,_,_],
       [_,_,_,_,S,S,S,S,S,S,S,S,_,_,_,_],
       [_,_,_,_,_,G,G,G,G,G,_,_,_,_,_,_],
-      [_,S,_,C,C,C,C,C,C,C,C,C,_,S,_,_],
+      [_,_,_,C,C,C,C,C,C,C,C,C,_,_,K,_],
+      [_,_,C,C,C,C,C,C,C,C,C,C,C,_,K,_],
+      [_,S,C,C,C,C,C,C,C,C,C,C,C,_,_,_],
       [_,S,C,C,C,C,C,C,C,C,C,C,C,S,_,_],
+      [_,_,C,C,C,G,G,G,G,C,C,C,C,S,_,_],
+      [_,_,C,C,C,C,C,C,C,C,C,C,C,_,_,_],
+      [_,_,C,C,C,C,C,C,C,C,C,C,C,_,_,_],
+      [_,_,_,C,C,C,C,C,C,C,C,C,_,_,_,_],
+      [_,_,_,P,P,P,P,P,P,P,P,P,_,_,_,_],
+      [_,_,_,P,P,P,P,P,P,P,P,P,_,_,_,_],
+      [_,_,_,P,P,P,P,P,P,P,P,_,_,_,_,_],
+      [_,_,_,_,P,P,P,P,P,P,_,_,_,_,_,_],
+      [_,_,_,_,B,B,B,B,B,B,_,_,_,_,_,_],
+      [_,_,_,_,B,B,B,_,B,B,B,_,_,_,_,_],
+    ];
+
+    // Frame 5: run push-off (right foot forward)
+    const run3 = [
+      [_,_,_,_,_,W,W,W,W,W,W,_,_,_,_,_],
+      [_,_,_,_,W,W,W,W,W,W,W,W,_,_,_,_],
+      [_,_,_,W,W,W,W,W,W,W,W,W,W,_,_,_],
+      [_,_,_,W,W,W,W,W,W,W,W,W,W,_,_,_],
+      [_,_,_,S,S,S,S,S,S,S,S,S,S,_,_,_],
+      [_,_,_,S,B,S,S,S,S,S,B,S,S,_,_,_],
+      [_,_,_,S,S,S,S,S,S,S,S,S,S,_,_,_],
+      [_,_,_,S,S,S,S,B,S,S,S,S,S,_,_,_],
+      [_,_,_,_,S,S,S,S,S,S,S,S,_,_,_,_],
+      [_,_,_,_,_,G,G,G,G,G,_,_,_,_,_,_],
+      [_,_,_,C,C,C,C,C,C,C,C,C,_,K,_,_],
+      [_,_,C,C,C,C,C,C,C,C,C,C,C,K,_,_],
+      [_,_,C,C,C,C,C,C,C,C,C,C,C,S,_,_],
       [_,S,C,C,C,C,C,C,C,C,C,C,C,S,_,_],
+      [_,S,C,C,C,G,G,G,G,C,C,C,C,_,_,_],
+      [_,_,C,C,C,C,C,C,C,C,C,C,C,_,_,_],
+      [_,_,C,C,C,C,C,C,C,C,C,C,C,_,_,_],
+      [_,_,_,C,C,C,C,C,C,C,C,C,_,_,_,_],
+      [_,_,_,P,P,P,P,P,P,P,P,P,_,_,_,_],
+      [_,_,_,P,P,P,P,P,P,P,P,P,_,_,_,_],
+      [_,_,_,_,P,P,P,_,_,_,P,P,P,_,_,_],
+      [_,_,_,P,P,P,_,_,_,_,_,P,P,P,_,_],
+      [_,_,B,B,B,_,_,_,_,_,_,_,B,B,B,_],
+      [_,_,B,B,B,_,_,_,_,_,_,_,B,B,B,_],
+    ];
+
+    // Frames 6-8: mirror of 3-5 for opposite leg
+    const run4 = run1; // re-use contact frame
+    const run5 = run2; // re-use passing frame
+    const run6 = run3; // re-use push-off frame
+
+    // --- JUMP ASCENT FRAMES (9-10): arms up ---
+    const jumpUp1 = [
+      [_,_,_,_,_,W,W,W,W,W,W,_,_,_,_,_],
+      [_,_,_,_,W,W,W,W,W,W,W,W,_,_,_,_],
+      [_,_,_,W,W,W,W,W,W,W,W,W,W,_,_,_],
+      [_,_,_,W,W,W,W,W,W,W,W,W,W,_,_,_],
+      [_,_,_,S,S,S,S,S,S,S,S,S,S,_,_,_],
+      [_,_,_,S,B,S,S,S,S,S,B,S,S,_,_,_],
+      [_,_,_,S,S,S,S,S,S,S,S,S,S,_,_,_],
+      [_,_,_,S,S,S,S,B,S,S,S,S,S,_,_,_],
+      [_,S,_,_,S,S,S,S,S,S,S,S,_,_,S,_],
+      [_,S,_,_,_,G,G,G,G,G,_,_,_,_,S,_],
+      [_,S,_,C,C,C,C,C,C,C,C,C,_,_,S,_],
+      [_,_,C,C,C,C,C,C,C,C,C,C,C,_,_,_],
+      [_,_,C,C,C,C,C,C,C,C,C,C,C,_,_,_],
       [_,_,C,C,C,C,C,C,C,C,C,C,C,_,_,_],
       [_,_,C,C,C,G,G,G,G,C,C,C,C,_,_,_],
       [_,_,C,C,C,C,C,C,C,C,C,C,C,_,_,_],
@@ -167,7 +288,273 @@ export class PixelArtGenerator {
       [_,_,_,_,B,B,_,_,_,B,B,_,_,_,_,_],
     ];
 
-    this.createSpriteSheet('mozart', [frame1, frame2, frame1, frame3]);
+    const jumpUp2 = [
+      [_,_,_,_,_,W,W,W,W,W,W,_,_,_,_,_],
+      [_,_,_,_,W,W,W,W,W,W,W,W,_,_,_,_],
+      [_,_,_,W,W,W,W,W,W,W,W,W,W,_,_,_],
+      [_,S,_,W,W,W,W,W,W,W,W,W,W,_,S,_],
+      [_,S,_,S,S,S,S,S,S,S,S,S,S,_,S,_],
+      [_,S,_,S,B,S,S,S,S,S,B,S,S,_,S,_],
+      [_,_,_,S,S,S,S,S,S,S,S,S,S,_,_,_],
+      [_,_,_,S,S,S,S,B,S,S,S,S,S,_,_,_],
+      [_,_,_,_,S,S,S,S,S,S,S,S,_,_,_,_],
+      [_,_,_,_,_,G,G,G,G,G,_,_,_,_,_,_],
+      [_,_,_,C,C,C,C,C,C,C,C,C,_,_,_,_],
+      [_,_,C,C,C,C,C,C,C,C,C,C,C,_,_,_],
+      [_,_,C,C,C,C,C,C,C,C,C,C,C,_,_,_],
+      [_,_,C,C,C,C,C,C,C,C,C,C,C,_,_,_],
+      [_,_,C,C,C,G,G,G,G,C,C,C,C,_,_,_],
+      [_,_,C,C,C,C,C,C,C,C,C,C,C,_,_,_],
+      [_,_,C,C,C,C,C,C,C,C,C,C,C,_,_,_],
+      [_,_,_,C,C,C,C,C,C,C,C,C,_,_,_,_],
+      [_,_,_,P,P,P,P,P,P,P,P,P,_,_,_,_],
+      [_,_,_,P,P,P,P,P,P,P,P,P,_,_,_,_],
+      [_,_,_,_,P,P,P,_,P,P,P,_,_,_,_,_],
+      [_,_,_,_,P,P,_,_,_,P,P,_,_,_,_,_],
+      [_,_,_,_,B,B,_,_,_,B,B,_,_,_,_,_],
+      [_,_,_,_,B,B,_,_,_,B,B,_,_,_,_,_],
+    ];
+
+    // --- JUMP DESCENT FRAMES (11-12): tuck ---
+    const jumpDown1 = [
+      [_,_,_,_,_,W,W,W,W,W,W,_,_,_,_,_],
+      [_,_,_,_,W,W,W,W,W,W,W,W,_,_,_,_],
+      [_,_,_,W,W,W,W,W,W,W,W,W,W,_,_,_],
+      [_,_,_,W,W,W,W,W,W,W,W,W,W,_,_,_],
+      [_,_,_,S,S,S,S,S,S,S,S,S,S,_,_,_],
+      [_,_,_,S,B,S,S,S,S,S,B,S,S,_,_,_],
+      [_,_,_,S,S,S,S,S,S,S,S,S,S,_,_,_],
+      [_,_,_,S,S,S,S,B,S,S,S,S,S,_,_,_],
+      [_,_,_,_,S,S,S,S,S,S,S,S,_,_,_,_],
+      [_,_,_,_,_,G,G,G,G,G,_,_,_,_,_,_],
+      [_,_,_,C,C,C,C,C,C,C,C,C,_,_,_,_],
+      [_,_,C,C,C,C,C,C,C,C,C,C,C,_,_,_],
+      [_,_,C,C,C,C,C,C,C,C,C,C,C,_,_,_],
+      [_,_,C,C,C,C,C,C,C,C,C,C,C,_,_,_],
+      [_,_,C,C,C,G,G,G,G,C,C,C,C,_,_,_],
+      [_,S,C,C,C,C,C,C,C,C,C,C,C,S,_,_],
+      [_,S,C,C,C,C,C,C,C,C,C,C,C,S,_,_],
+      [_,_,_,C,C,C,C,C,C,C,C,C,_,_,_,_],
+      [_,_,_,P,P,P,P,P,P,P,P,P,_,_,_,_],
+      [_,_,_,P,P,P,P,P,P,P,P,P,_,_,_,_],
+      [_,_,_,P,P,P,P,P,P,P,P,P,_,_,_,_],
+      [_,_,_,_,P,P,P,P,P,P,P,_,_,_,_,_],
+      [_,_,_,_,B,B,B,_,B,B,B,_,_,_,_,_],
+      [_,_,_,_,B,B,B,_,B,B,B,_,_,_,_,_],
+    ];
+
+    const jumpDown2 = [
+      [_,_,_,_,_,W,W,W,W,W,W,_,_,_,_,_],
+      [_,_,_,_,W,W,W,W,W,W,W,W,_,_,_,_],
+      [_,_,_,W,W,W,W,W,W,W,W,W,W,_,_,_],
+      [_,_,_,W,W,W,W,W,W,W,W,W,W,_,_,_],
+      [_,_,_,S,S,S,S,S,S,S,S,S,S,_,_,_],
+      [_,_,_,S,B,S,S,S,S,S,B,S,S,_,_,_],
+      [_,_,_,S,S,S,S,S,S,S,S,S,S,_,_,_],
+      [_,_,_,S,S,S,S,B,S,S,S,S,S,_,_,_],
+      [_,_,_,_,S,S,S,S,S,S,S,S,_,_,_,_],
+      [_,_,_,_,_,G,G,G,G,G,_,_,_,_,_,_],
+      [_,_,_,C,C,C,C,C,C,C,C,C,_,_,_,_],
+      [_,_,C,C,C,C,C,C,C,C,C,C,C,_,_,_],
+      [_,S,C,C,C,C,C,C,C,C,C,C,C,S,_,_],
+      [_,S,C,C,C,C,C,C,C,C,C,C,C,S,_,_],
+      [_,_,C,C,C,G,G,G,G,C,C,C,C,_,_,_],
+      [_,_,C,C,C,C,C,C,C,C,C,C,C,_,_,_],
+      [_,_,C,C,C,C,C,C,C,C,C,C,C,_,_,_],
+      [_,_,_,C,C,C,C,C,C,C,C,C,_,_,_,_],
+      [_,_,_,P,P,P,P,P,P,P,P,P,_,_,_,_],
+      [_,_,_,P,P,P,P,P,P,P,P,P,_,_,_,_],
+      [_,_,_,P,P,P,P,P,P,P,P,P,_,_,_,_],
+      [_,_,_,_,P,P,P,P,P,P,P,_,_,_,_,_],
+      [_,_,_,_,_,B,B,B,B,B,_,_,_,_,_,_],
+      [_,_,_,_,_,B,B,B,B,B,_,_,_,_,_,_],
+    ];
+
+    // --- ATTACK FRAMES (13-16): dramatic conductor pose ---
+    const attack1 = [
+      [_,_,_,_,_,W,W,W,W,W,W,_,_,_,_,_],
+      [_,_,_,_,W,W,W,W,W,W,W,W,_,_,_,_],
+      [_,_,_,W,W,W,W,W,W,W,W,W,W,_,_,_],
+      [_,_,_,W,W,W,W,W,W,W,W,W,W,_,_,_],
+      [_,_,_,S,S,S,S,S,S,S,S,S,S,_,_,_],
+      [_,_,_,S,B,S,S,S,S,S,B,S,S,_,_,_],
+      [_,_,_,S,S,S,S,S,S,S,S,S,S,_,_,_],
+      [_,_,_,S,S,S,S,B,S,S,S,S,S,_,_,_],
+      [_,_,_,_,S,S,S,S,S,S,S,S,_,_,_,_],
+      [_,_,_,_,_,G,G,G,G,G,_,_,_,_,_,_],
+      [_,_,_,C,C,C,C,C,C,C,C,C,_,_,_,_],
+      [_,_,C,C,C,C,C,C,C,C,C,C,C,_,_,_],
+      [_,_,C,C,C,C,C,C,C,C,C,C,C,_,_,_],
+      [_,_,C,C,C,C,C,C,C,C,C,C,C,_,_,S],
+      [_,_,C,C,C,G,G,G,G,C,C,C,C,_,S,S],
+      [_,_,C,C,C,C,C,C,C,C,C,C,C,S,S,_],
+      [_,_,C,C,C,C,C,C,C,C,C,C,C,_,_,_],
+      [_,_,C,C,C,C,C,C,C,C,C,C,C,_,_,_],
+      [_,_,_,P,P,P,P,P,P,P,P,P,_,_,_,_],
+      [_,_,_,P,P,P,P,P,P,P,P,P,_,_,_,_],
+      [_,_,_,P,P,P,_,_,P,P,P,P,_,_,_,_],
+      [_,_,_,P,P,P,_,_,P,P,P,P,_,_,_,_],
+      [_,_,_,B,B,B,_,_,B,B,B,B,_,_,_,_],
+      [_,_,_,B,B,B,_,_,B,B,B,B,_,_,_,_],
+    ];
+
+    const attack2 = [
+      [_,_,_,_,_,W,W,W,W,W,W,_,_,_,_,_],
+      [_,_,_,_,W,W,W,W,W,W,W,W,_,_,_,_],
+      [_,_,_,W,W,W,W,W,W,W,W,W,W,_,_,_],
+      [_,_,_,W,W,W,W,W,W,W,W,W,W,_,_,_],
+      [_,_,_,S,S,S,S,S,S,S,S,S,S,_,_,_],
+      [_,_,_,S,B,S,S,S,S,S,B,S,S,_,_,_],
+      [_,_,_,S,S,S,S,S,S,S,S,S,S,_,_,_],
+      [_,_,_,S,S,S,S,B,S,S,S,S,S,_,_,_],
+      [_,_,_,_,S,S,S,S,S,S,S,S,_,_,_,_],
+      [_,_,_,_,_,G,G,G,G,G,_,_,_,_,_,_],
+      [_,_,_,C,C,C,C,C,C,C,C,C,_,_,_,_],
+      [_,_,C,C,C,C,C,C,C,C,C,C,C,_,_,_],
+      [_,_,C,C,C,C,C,C,C,C,C,C,C,_,_,_],
+      [_,_,C,C,C,C,C,C,C,C,C,C,C,_,_,_],
+      [_,_,C,C,C,G,G,G,G,C,C,C,C,_,_,_],
+      [_,_,C,C,C,C,C,C,C,C,C,C,C,_,S,S],
+      [_,_,C,C,C,C,C,C,C,C,C,C,C,S,S,_],
+      [_,_,C,C,C,C,C,C,C,C,C,C,S,S,_,_],
+      [_,_,_,P,P,P,P,P,P,P,P,P,_,_,_,_],
+      [_,_,_,P,P,P,P,P,P,P,P,P,_,_,_,_],
+      [_,_,_,P,P,P,_,_,P,P,P,P,_,_,_,_],
+      [_,_,_,P,P,P,_,_,P,P,P,P,_,_,_,_],
+      [_,_,_,B,B,B,_,_,B,B,B,B,_,_,_,_],
+      [_,_,_,B,B,B,_,_,B,B,B,B,_,_,_,_],
+    ];
+
+    // Attack frames 3 & 4 reuse with arm sweep finish
+    const attack3 = attack2;
+    const attack4 = attack1;
+
+    // --- DAMAGE FRAMES (17-19): wig askew, stagger ---
+    const damage1 = [
+      [_,_,_,_,_,_,W,W,W,W,W,W,W,_,_,_],
+      [_,_,_,_,_,W,W,W,W,W,W,W,W,_,_,_],
+      [_,_,_,_,W,W,W,W,W,W,W,W,_,_,_,_],
+      [_,_,_,Wd,Wd,W,W,W,W,W,W,_,_,_,_,_],
+      [_,_,_,S,S,S,S,S,S,S,S,S,S,_,_,_],
+      [_,_,_,S,B,S,S,S,S,S,B,S,S,_,_,_],
+      [_,_,_,S,S,S,S,S,S,S,S,S,S,_,_,_],
+      [_,_,_,S,S,S,S,S,S,S,S,S,S,_,_,_],
+      [_,_,_,_,S,S,S,S,S,S,S,S,_,_,_,_],
+      [_,_,_,_,_,G,G,G,G,G,_,_,_,_,_,_],
+      [_,_,_,C,C,C,C,C,C,C,C,C,_,_,_,_],
+      [_,_,C,C,C,C,C,C,C,C,C,C,C,_,_,_],
+      [_,_,C,C,C,C,C,C,C,C,C,C,C,_,_,_],
+      [_,S,C,C,C,C,C,C,C,C,C,C,C,S,_,_],
+      [_,S,C,C,C,G,G,G,G,C,C,C,C,S,_,_],
+      [_,S,C,C,C,C,C,C,C,C,C,C,C,S,_,_],
+      [_,_,C,C,C,C,C,C,C,C,C,C,C,_,_,_],
+      [_,_,C,C,C,C,C,C,C,C,C,C,C,_,_,_],
+      [_,_,_,P,P,P,P,P,P,P,P,P,_,_,_,_],
+      [_,_,_,P,P,P,P,P,P,P,P,P,_,_,_,_],
+      [_,_,P,P,P,_,_,_,P,P,P,_,_,_,_,_],
+      [_,_,P,P,P,_,_,_,_,P,P,P,_,_,_,_],
+      [_,B,B,B,_,_,_,_,_,B,B,B,_,_,_,_],
+      [_,B,B,B,_,_,_,_,_,_,B,B,B,_,_,_],
+    ];
+
+    const damage2 = [
+      [_,_,_,_,_,_,_,W,W,W,W,W,W,W,_,_],
+      [_,_,_,_,_,_,W,W,W,W,W,W,W,_,_,_],
+      [_,_,_,_,_,W,W,W,W,W,W,W,_,_,_,_],
+      [_,_,_,_,Wd,Wd,W,W,W,W,W,_,_,_,_,_],
+      [_,_,_,_,S,S,S,S,S,S,S,S,S,_,_,_],
+      [_,_,_,_,S,B,S,S,S,S,B,S,S,_,_,_],
+      [_,_,_,_,S,S,S,S,S,S,S,S,S,_,_,_],
+      [_,_,_,_,S,S,S,S,S,S,S,S,S,_,_,_],
+      [_,_,_,_,_,S,S,S,S,S,S,S,_,_,_,_],
+      [_,_,_,_,_,_,G,G,G,G,G,_,_,_,_,_],
+      [_,_,_,_,C,C,C,C,C,C,C,C,C,_,_,_],
+      [_,_,_,C,C,C,C,C,C,C,C,C,C,_,_,_],
+      [_,_,_,C,C,C,C,C,C,C,C,C,C,_,_,_],
+      [_,_,S,C,C,C,C,C,C,C,C,C,C,S,_,_],
+      [_,_,S,C,C,C,G,G,G,G,C,C,C,S,_,_],
+      [_,_,S,C,C,C,C,C,C,C,C,C,C,S,_,_],
+      [_,_,_,C,C,C,C,C,C,C,C,C,C,_,_,_],
+      [_,_,_,C,C,C,C,C,C,C,C,C,C,_,_,_],
+      [_,_,_,_,P,P,P,P,P,P,P,P,_,_,_,_],
+      [_,_,_,_,P,P,P,P,P,P,P,P,_,_,_,_],
+      [_,_,_,P,P,P,_,_,_,P,P,P,_,_,_,_],
+      [_,_,P,P,P,_,_,_,_,_,P,P,P,_,_,_],
+      [_,B,B,B,_,_,_,_,_,_,_,B,B,B,_,_],
+      [_,B,B,B,_,_,_,_,_,_,_,B,B,B,_,_],
+    ];
+
+    const damage3 = damage1;
+
+    // --- VICTORY FRAMES (20-23): theatrical bow ---
+    const victory1 = idle1; // Start standing
+    const victory2 = [
+      [_,_,_,_,_,W,W,W,W,W,W,_,_,_,_,_],
+      [_,_,_,_,W,W,W,W,W,W,W,W,_,_,_,_],
+      [_,_,_,W,W,W,W,W,W,W,W,W,W,_,_,_],
+      [_,_,_,W,W,W,W,W,W,W,W,W,W,_,_,_],
+      [_,_,_,S,S,S,S,S,S,S,S,S,S,_,_,_],
+      [_,_,_,S,B,S,S,S,S,S,B,S,S,_,_,_],
+      [_,_,_,S,S,S,S,S,S,S,S,S,S,_,_,_],
+      [_,_,_,S,S,S,S,B,S,S,S,S,S,_,_,_],
+      [_,_,_,_,S,S,S,S,S,S,S,S,_,_,_,_],
+      [_,_,_,_,_,G,G,G,G,G,_,_,_,_,_,_],
+      [_,_,_,C,C,C,C,C,C,C,C,C,_,_,_,_],
+      [_,_,C,C,C,C,C,C,C,C,C,C,C,_,_,_],
+      [_,_,C,C,C,C,C,C,C,C,C,C,C,_,_,_],
+      [S,S,C,C,C,C,C,C,C,C,C,C,C,S,S,_],
+      [_,S,C,C,C,G,G,G,G,C,C,C,C,S,_,_],
+      [_,_,C,C,C,C,C,C,C,C,C,C,C,_,_,_],
+      [_,_,C,C,C,C,C,C,C,C,C,C,C,_,_,_],
+      [_,_,C,C,C,C,C,C,C,C,C,C,C,_,_,_],
+      [_,_,_,P,P,P,P,P,P,P,P,P,_,_,_,_],
+      [_,_,_,P,P,P,P,P,P,P,P,P,_,_,_,_],
+      [_,_,_,P,P,P,_,_,P,P,P,P,_,_,_,_],
+      [_,_,_,P,P,P,_,_,P,P,P,P,_,_,_,_],
+      [_,_,_,B,B,B,_,_,B,B,B,B,_,_,_,_],
+      [_,_,_,B,B,B,_,_,B,B,B,B,_,_,_,_],
+    ];
+
+    // Victory bow (leaning forward)
+    const victory3 = [
+      [_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_],
+      [_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_],
+      [_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_],
+      [_,_,_,_,_,_,_,W,W,W,W,W,W,_,_,_],
+      [_,_,_,_,_,_,W,W,W,W,W,W,W,W,_,_],
+      [_,_,_,_,_,W,W,W,W,W,W,W,W,W,_,_],
+      [_,_,_,_,_,S,S,S,S,S,S,S,S,_,_,_],
+      [_,_,_,_,_,S,B,S,S,S,B,S,S,_,_,_],
+      [_,_,_,_,_,S,S,S,S,S,S,S,S,_,_,_],
+      [_,_,_,_,_,_,S,S,S,S,S,S,_,_,_,_],
+      [_,_,_,_,G,G,G,G,G,G,G,_,_,_,_,_],
+      [_,_,C,C,C,C,C,C,C,C,C,C,_,_,_,_],
+      [_,C,C,C,C,C,C,C,C,C,C,C,C,_,_,_],
+      [S,C,C,C,C,C,C,C,C,C,C,C,C,S,_,_],
+      [_,C,C,C,G,G,G,G,G,C,C,C,C,_,_,_],
+      [_,_,C,C,C,C,C,C,C,C,C,C,_,_,_,_],
+      [_,_,_,C,C,C,C,C,C,C,C,_,_,_,_,_],
+      [_,_,_,_,P,P,P,P,P,P,P,_,_,_,_,_],
+      [_,_,_,_,P,P,P,P,P,P,P,_,_,_,_,_],
+      [_,_,_,_,P,P,P,P,P,P,P,P,_,_,_,_],
+      [_,_,_,_,P,P,P,_,_,P,P,P,_,_,_,_],
+      [_,_,_,_,P,P,P,_,_,P,P,P,_,_,_,_],
+      [_,_,_,_,B,B,B,_,_,B,B,B,_,_,_,_],
+      [_,_,_,_,B,B,B,_,_,B,B,B,_,_,_,_],
+    ];
+
+    const victory4 = victory2; // Return to arms spread
+
+    // 24-frame sprite sheet
+    this.createSpriteSheet('mozart', [
+      idle1, idle2, idle3,                         // 0-2: idle
+      run1, run2, run3, run4, run5, run6,          // 3-8: run
+      jumpUp1, jumpUp2,                            // 9-10: jump ascent
+      jumpDown1, jumpDown2,                        // 11-12: jump descent
+      attack1, attack2, attack3, attack4,          // 13-16: attack
+      damage1, damage2, damage3,                   // 17-19: damage
+      victory1, victory2, victory3, victory4       // 20-23: victory
+    ]);
   }
 
   generateNannerl() {
@@ -327,11 +714,16 @@ export class PixelArtGenerator {
     ];
     this.createTexture('drumTroll', drumTroll);
 
-    // Dissonant Note (12x16) - floating music note
+    // Dissonant Note (12x16) - floating music note with pulse frames
     const N = '#8B008B'; // purple note
     const X = '#FF00FF'; // magenta glow
+    const Na = '#9B009B'; // slightly lighter purple (pulse)
+    const Xa = '#FF66FF'; // brighter magenta (pulse)
+    const Nr = '#FF0044'; // red-shifted (aggro)
+    const Xr = '#FF4466'; // red glow (aggro)
 
-    const dissonantNote = [
+    // Frame 0: normal
+    const noteFrame1 = [
       [_,_,_,_,_,_,_,N,N,_,_,_],
       [_,_,_,_,_,_,_,N,N,_,_,_],
       [_,_,_,_,_,_,_,N,N,_,_,_],
@@ -349,7 +741,96 @@ export class PixelArtGenerator {
       [_,_,_,X,N,N,N,N,N,X,_,_],
       [_,_,_,_,X,X,X,X,X,_,_,_],
     ];
-    this.createTexture('dissonantNote', dissonantNote);
+
+    // Frame 1: pulse expanded
+    const noteFrame2 = [
+      [_,_,_,_,_,_,_,Na,Na,_,_,_],
+      [_,_,_,_,_,_,_,Na,Na,_,_,_],
+      [_,_,_,_,_,_,_,Na,Na,_,_,_],
+      [_,_,_,_,_,_,_,Na,Na,_,_,_],
+      [_,_,_,_,_,_,_,Na,Na,_,_,_],
+      [_,_,_,_,_,_,_,Na,Na,_,_,_],
+      [_,_,_,_,_,_,Na,Na,Na,_,_,_],
+      [_,_,_,_,_,Na,Na,Na,Na,_,_,_],
+      [_,_,_,_,Na,Na,Na,Na,Na,_,_,_],
+      [_,_,_,Xa,Na,Na,Na,Na,Na,Xa,_,_],
+      [_,_,Xa,Na,Na,Na,Na,Na,Na,Na,Xa,_],
+      [_,Xa,Na,Na,Na,Na,Na,Na,Na,Na,Na,Xa],
+      [_,Xa,Na,Na,Na,Na,Na,Na,Na,Na,Na,Xa],
+      [_,Xa,Na,Na,Na,Na,Na,Na,Na,Na,Na,Xa],
+      [_,_,Xa,Na,Na,Na,Na,Na,Na,Na,Xa,_],
+      [_,_,_,Xa,Xa,Xa,Xa,Xa,Xa,Xa,_,_],
+    ];
+
+    // Frame 2: pulse contracted
+    const noteFrame3 = [
+      [_,_,_,_,_,_,_,N,N,_,_,_],
+      [_,_,_,_,_,_,_,N,N,_,_,_],
+      [_,_,_,_,_,_,_,N,N,_,_,_],
+      [_,_,_,_,_,_,_,N,N,_,_,_],
+      [_,_,_,_,_,_,_,N,N,_,_,_],
+      [_,_,_,_,_,_,_,N,N,_,_,_],
+      [_,_,_,_,_,_,_,N,N,_,_,_],
+      [_,_,_,_,_,_,N,N,N,_,_,_],
+      [_,_,_,_,_,N,N,N,N,_,_,_],
+      [_,_,_,_,N,N,N,N,N,_,_,_],
+      [_,_,_,_,N,N,N,N,N,_,_,_],
+      [_,_,_,N,N,N,N,N,N,N,_,_],
+      [_,_,_,N,N,N,N,N,N,N,_,_],
+      [_,_,_,N,N,N,N,N,N,N,_,_],
+      [_,_,_,_,N,N,N,N,N,_,_,_],
+      [_,_,_,_,_,X,X,X,_,_,_,_],
+    ];
+
+    // Frame 3: return to normal (same as frame 0)
+    const noteFrame4 = noteFrame1;
+
+    // Frame 4-7: aggro color-shift frames
+    const noteAggro1 = [
+      [_,_,_,_,_,_,_,Nr,Nr,_,_,_],
+      [_,_,_,_,_,_,_,Nr,Nr,_,_,_],
+      [_,_,_,_,_,_,_,Nr,Nr,_,_,_],
+      [_,_,_,_,_,_,_,Nr,Nr,_,_,_],
+      [_,_,_,_,_,_,_,Nr,Nr,_,_,_],
+      [_,_,_,_,_,_,_,Nr,Nr,_,_,_],
+      [_,_,_,_,_,_,_,Nr,Nr,_,_,_],
+      [_,_,_,_,_,_,Nr,Nr,Nr,_,_,_],
+      [_,_,_,_,_,Nr,Nr,Nr,Nr,_,_,_],
+      [_,_,_,_,Nr,Nr,Nr,Nr,Nr,_,_,_],
+      [_,_,_,Xr,Nr,Nr,Nr,Nr,Nr,Xr,_,_],
+      [_,_,Xr,Nr,Nr,Nr,Nr,Nr,Nr,Nr,Xr,_],
+      [_,_,Xr,Nr,Nr,Nr,Nr,Nr,Nr,Nr,Xr,_],
+      [_,_,Xr,Nr,Nr,Nr,Nr,Nr,Nr,Nr,Xr,_],
+      [_,_,_,Xr,Nr,Nr,Nr,Nr,Nr,Xr,_,_],
+      [_,_,_,_,Xr,Xr,Xr,Xr,Xr,_,_,_],
+    ];
+
+    const noteAggro2 = [
+      [_,_,_,_,_,_,_,N,N,_,_,_],
+      [_,_,_,_,_,_,_,N,N,_,_,_],
+      [_,_,_,_,_,_,_,N,N,_,_,_],
+      [_,_,_,_,_,_,_,N,N,_,_,_],
+      [_,_,_,_,_,_,_,N,N,_,_,_],
+      [_,_,_,_,_,_,_,N,N,_,_,_],
+      [_,_,_,_,_,_,_,N,N,_,_,_],
+      [_,_,_,_,_,_,N,N,N,_,_,_],
+      [_,_,_,_,_,N,N,N,N,_,_,_],
+      [_,_,_,_,N,N,N,N,N,_,_,_],
+      [_,_,_,X,N,N,N,N,N,X,_,_],
+      [_,_,X,N,N,N,N,N,N,N,X,_],
+      [_,_,X,N,N,N,N,N,N,N,X,_],
+      [_,_,X,N,N,N,N,N,N,N,X,_],
+      [_,_,_,X,N,N,N,N,N,X,_,_],
+      [_,_,_,_,X,X,X,X,X,_,_,_],
+    ];
+
+    const noteAggro3 = noteAggro1;
+    const noteAggro4 = noteAggro2;
+
+    this.createSpriteSheet('dissonantNote', [
+      noteFrame1, noteFrame2, noteFrame3, noteFrame4,   // 0-3: idle pulse
+      noteAggro1, noteAggro2, noteAggro3, noteAggro4    // 4-7: aggro
+    ]);
 
     // Broken Instrument - walking cello (14x20)
     const L = '#D2691E'; // wood color
@@ -386,6 +867,36 @@ export class PixelArtGenerator {
     const S = '#FFE4B5'; // skin
     const B = '#1a1a1a'; // black (eyes/shoes)
 
+    // Helper: create sway variants from a base frame (shifts pixels slightly)
+    const createSwayFrames = (baseFrame) => {
+      const h = baseFrame.length;
+      const w = baseFrame[0].length;
+
+      // Frame 1: slight shift right (top half)
+      const sway1 = baseFrame.map((row, y) => {
+        if (y < h / 2) {
+          return [null, ...row.slice(0, w - 1)];
+        }
+        return [...row];
+      });
+
+      // Frame 2: back to center (same as base)
+      const sway2 = baseFrame.map(row => [...row]);
+
+      // Frame 3: slight shift left (top half)
+      const sway3 = baseFrame.map((row, y) => {
+        if (y < h / 2) {
+          return [...row.slice(1), null];
+        }
+        return [...row];
+      });
+
+      // Frame 4: flipped version for facing direction
+      const facing = baseFrame.map(row => [...row].reverse());
+
+      return [baseFrame, sway1, sway2, sway3, facing];
+    };
+
     // Haydn - older mentor, grey wig, green coat (16x24)
     const W = '#C0C0C0'; // grey wig
     const C = '#2E8B57'; // green coat
@@ -418,7 +929,7 @@ export class PixelArtGenerator {
       [_,_,_,B,B,B,_,_,B,B,B,B,_,_,_,_],
       [_,_,_,B,B,B,_,_,B,B,B,B,_,_,_,_],
     ];
-    this.createTexture('npc_haydn', haydn);
+    this.createSpriteSheet('npc_haydn', createSwayFrames(haydn));
 
     // Salieri - dark, dramatic look, black coat with red trim (16x24)
     const Sc = '#1a1a1a'; // black coat
@@ -451,7 +962,7 @@ export class PixelArtGenerator {
       [_,_,_,B,B,B,_,_,B,B,B,B,_,_,_,_],
       [_,_,_,B,B,B,_,_,B,B,B,B,_,_,_,_],
     ];
-    this.createTexture('npc_salieri', salieri);
+    this.createSpriteSheet('npc_salieri', createSwayFrames(salieri));
 
     // Nannerl NPC - similar to playable Nannerl but with different pose/detail (16x24)
     const D = '#FF69B4'; // pink dress
@@ -485,7 +996,7 @@ export class PixelArtGenerator {
       [_,_,_,B,B,B,_,_,B,B,B,B,_,_,_,_],
       [_,_,_,B,B,B,_,_,B,B,B,B,_,_,_,_],
     ];
-    this.createTexture('npc_nannerl', nannerlNPC);
+    this.createSpriteSheet('npc_nannerl', createSwayFrames(nannerlNPC));
 
     // Young Beethoven - wild brown hair, brown coat, intense look (16x24)
     const H = '#8B4513'; // brown hair
@@ -518,7 +1029,7 @@ export class PixelArtGenerator {
       [_,_,_,B,B,B,_,_,B,B,B,B,_,_,_,_],
       [_,_,_,B,B,B,_,_,B,B,B,B,_,_,_,_],
     ];
-    this.createTexture('npc_beethoven', beethoven);
+    this.createSpriteSheet('npc_beethoven', createSwayFrames(beethoven));
   }
 
   generateBosses() {
