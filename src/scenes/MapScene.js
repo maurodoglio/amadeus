@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT } from '../config/constants.js';
 import { getAchievementManager } from '../utils/AchievementManager.js';
+import { drawParchmentBackground, drawStaffDivider, drawTrebleClef, COLORS } from '../ui/UITheme.js';
 
 const LEVEL_DATA = [
   { id: 1, name: 'Salzburg Beginnings', year: '1762', scene: 'Level1Scene', instrument: 'violin', x: 80, y: 380, cutscene: 'intro' },
@@ -22,7 +23,8 @@ export class MapScene extends Phaser.Scene {
   }
 
   create() {
-    this.cameras.main.setBackgroundColor('#1a2a1a');
+    // Parchment-textured background for map
+    drawParchmentBackground(this, GAME_WIDTH, GAME_HEIGHT);
 
     // Initialize progress tracking
     const completedLevels = this.registry.get('completedLevels') || [];
@@ -35,41 +37,33 @@ export class MapScene extends Phaser.Scene {
     this.createTitle();
 
     // Fade in
-    this.cameras.main.fadeIn(500, 0, 0, 0);
+    this.cameras.main.fadeIn(500);
   }
 
   createBackground() {
     const graphics = this.add.graphics();
 
-    // Sky gradient
-    graphics.fillGradientStyle(0x2c3e50, 0x2c3e50, 0x1a2a1a, 0x1a2a1a);
-    graphics.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
-
-    // Stylized map of Europe outline (subtle landmass)
-    graphics.fillStyle(0x1e3a1e, 0.4);
+    // Subtle terrain lines in sepia (map-like feel)
+    graphics.lineStyle(1, COLORS.parchmentEdge, 0.3);
     graphics.beginPath();
     graphics.moveTo(0, GAME_HEIGHT);
     for (let x = 0; x <= GAME_WIDTH; x += 20) {
       const y = GAME_HEIGHT - 60 - Math.sin(x * 0.005) * 40 - Math.sin(x * 0.01) * 20;
       graphics.lineTo(x, y);
     }
-    graphics.lineTo(GAME_WIDTH, GAME_HEIGHT);
-    graphics.closePath();
-    graphics.fillPath();
+    graphics.strokePath();
 
     // Distant terrain
-    graphics.fillStyle(0x162e16, 0.4);
+    graphics.lineStyle(1, COLORS.parchmentEdge, 0.2);
     graphics.beginPath();
     graphics.moveTo(0, GAME_HEIGHT);
     for (let x = 0; x <= GAME_WIDTH; x += 20) {
       const y = GAME_HEIGHT - 30 - Math.sin(x * 0.008 + 1) * 30 - Math.sin(x * 0.015) * 15;
       graphics.lineTo(x, y);
     }
-    graphics.lineTo(GAME_WIDTH, GAME_HEIGHT);
-    graphics.closePath();
-    graphics.fillPath();
+    graphics.strokePath();
 
-    // City labels along the journey path
+    // City labels along the journey path (ink style)
     const cities = [
       { name: 'Salzburg', x: 80, y: 410 },
       { name: 'Munich', x: 150, y: 330 },
@@ -82,24 +76,14 @@ export class MapScene extends Phaser.Scene {
 
     cities.forEach(city => {
       this.add.text(city.x, city.y, city.name, {
-        font: '9px monospace',
-        fill: '#5a7a5a'
-      }).setOrigin(0.5).setAlpha(0.6);
+        fontFamily: 'Georgia, serif',
+        fontSize: '9px',
+        color: '#8B4513',
+      }).setOrigin(0.5).setAlpha(0.5);
     });
 
-    // Decorative stars
-    for (let i = 0; i < 30; i++) {
-      const sx = Phaser.Math.Between(0, GAME_WIDTH);
-      const sy = Phaser.Math.Between(0, 120);
-      const star = this.add.circle(sx, sy, Phaser.Math.Between(1, 2), 0xFFFFFF, Phaser.Math.FloatBetween(0.3, 0.8));
-      this.tweens.add({
-        targets: star,
-        alpha: Phaser.Math.FloatBetween(0.1, 0.4),
-        duration: Phaser.Math.Between(1500, 3000),
-        yoyo: true,
-        repeat: -1
-      });
-    }
+    // Musical staff lines as decorative elements
+    drawStaffDivider(this, 20, GAME_HEIGHT - 50, GAME_WIDTH - 40);
   }
 
   createPath() {
@@ -107,6 +91,8 @@ export class MapScene extends Phaser.Scene {
 
     // Draw dotted path connecting all 7 levels with smooth curves
     graphics.lineStyle(4, 0xc8a96e, 0.6);
+    // Draw dotted path connecting levels (ink-on-parchment style)
+    graphics.lineStyle(3, COLORS.goldDark, 0.6);
     const path = new Phaser.Curves.Spline([
       new Phaser.Math.Vector2(LEVEL_DATA[0].x, LEVEL_DATA[0].y),
       new Phaser.Math.Vector2(140, 350),
@@ -155,40 +141,45 @@ export class MapScene extends Phaser.Scene {
 
       // Level number
       const numText = this.add.text(0, 0, `${level.id}`, {
-        font: 'bold 18px monospace',
-        fill: isUnlocked ? '#FFFFFF' : '#888888'
+        fontFamily: 'Georgia, serif',
+        fontSize: '18px',
+        fontStyle: 'bold',
+        color: isUnlocked ? '#FFFFFF' : '#888888',
       }).setOrigin(0.5);
       container.add(numText);
 
       // Completed checkmark
       if (isCompleted) {
         const check = this.add.text(18, -18, '✓', {
-          font: 'bold 16px monospace',
-          fill: '#00FF00'
+          fontFamily: 'Georgia, serif',
+          fontSize: '16px',
+          fontStyle: 'bold',
+          color: '#00FF00',
         }).setOrigin(0.5);
         container.add(check);
 
         // Instrument icon below
         const instrumentIcons = { violin: '🎻', flute: '🎵', piano: '🎹' };
         const instIcon = this.add.text(0, 38, instrumentIcons[level.instrument] || '♫', {
-          font: '18px Arial',
-          fill: '#FFFFFF'
+          fontSize: '18px',
         }).setOrigin(0.5);
         container.add(instIcon);
       }
 
       // Level name
       const nameText = this.add.text(0, -45, level.name, {
-        font: '11px monospace',
-        fill: isUnlocked ? '#FFFFFF' : '#666666'
+        fontFamily: 'Georgia, serif',
+        fontSize: '11px',
+        color: isUnlocked ? '#2B1810' : '#888888',
       }).setOrigin(0.5);
       container.add(nameText);
 
       // Year subtitle
       if (level.year) {
         const yearText = this.add.text(0, -33, level.year, {
-          font: '9px monospace',
-          fill: isUnlocked ? '#c8a96e' : '#555555'
+          fontFamily: 'Georgia, serif',
+          fontSize: '9px',
+          color: isUnlocked ? '#8B4513' : '#888888',
         }).setOrigin(0.5);
         container.add(yearText);
       }
@@ -291,32 +282,40 @@ export class MapScene extends Phaser.Scene {
   }
 
   createTitle() {
-    this.add.text(GAME_WIDTH / 2, 30, "Mozart's Journey", {
-      font: 'bold 28px monospace',
-      fill: '#FFD700',
-      stroke: '#000000',
-      strokeThickness: 3
+    // Treble clef ornaments
+    drawTrebleClef(this, 50, 15, 1.2);
+    drawTrebleClef(this, GAME_WIDTH - 70, 15, 1.2);
+
+    this.add.text(GAME_WIDTH / 2, 28, "Mozart's Journey", {
+      fontFamily: 'Georgia, serif',
+      fontSize: '26px',
+      color: '#FFD700',
+      stroke: '#8B4513',
+      strokeThickness: 3,
     }).setOrigin(0.5);
 
     // Score display
     const score = this.registry.get('score') || 0;
-    this.add.text(GAME_WIDTH - 20, 20, `Score: ${score}`, {
-      font: '14px monospace',
-      fill: '#FFD700'
+    this.add.text(GAME_WIDTH - 20, 55, `Score: ${score}`, {
+      fontFamily: 'Georgia, serif',
+      fontSize: '14px',
+      color: '#B8860B',
     }).setOrigin(1, 0);
 
     // Instructions
-    this.add.text(GAME_WIDTH / 2, GAME_HEIGHT - 25, 'Click a level to play', {
-      font: '14px monospace',
-      fill: '#87CEEB'
+    this.add.text(GAME_WIDTH / 2, GAME_HEIGHT - 25, '♩ Click a level to play ♩', {
+      fontFamily: 'Georgia, serif',
+      fontSize: '14px',
+      color: '#8B4513',
     }).setOrigin(0.5);
 
     // Achievement progress
     const manager = getAchievementManager();
     if (manager) {
       this.add.text(20, GAME_HEIGHT - 25, `🏆 ${manager.getProgressPercent()}%`, {
-        font: '12px monospace',
-        fill: '#FFD700'
+        fontFamily: 'Georgia, serif',
+        fontSize: '12px',
+        color: '#B8860B',
       });
     }
   }
@@ -338,3 +337,4 @@ export class MapScene extends Phaser.Scene {
     });
   }
 }
+

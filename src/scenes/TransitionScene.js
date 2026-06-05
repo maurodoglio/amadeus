@@ -1,9 +1,10 @@
 import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT } from '../config/constants.js';
+import { createCurtainRise, COLORS } from '../ui/UITheme.js';
 
 /**
- * Iris wipe transition scene with level name card.
- * Displays a circle mask that closes/opens between levels.
+ * Theater curtain transition scene with level name card.
+ * Red curtains part to reveal the level.
  */
 export class TransitionScene extends Phaser.Scene {
   constructor() {
@@ -19,120 +20,54 @@ export class TransitionScene extends Phaser.Scene {
   create() {
     const cx = GAME_WIDTH / 2;
     const cy = GAME_HEIGHT / 2;
-    const maxRadius = Math.sqrt(cx * cx + cy * cy);
 
-    // Black background
-    this.add.rectangle(cx, cy, GAME_WIDTH, GAME_HEIGHT, 0x000000).setDepth(0);
+    // Dark stage background
+    this.add.rectangle(cx, cy, GAME_WIDTH, GAME_HEIGHT, 0x0a0a0a).setDepth(0);
 
-    // Level name card
+    // Level name card (displayed behind curtain, revealed when curtain opens)
     const nameText = this.add.text(cx, cy - 30, this.levelName, {
-      font: '28px monospace',
-      fill: '#FFD700',
-      stroke: '#000000',
-      strokeThickness: 4
-    }).setOrigin(0.5).setAlpha(0).setDepth(1);
+      fontFamily: 'Georgia, serif',
+      fontSize: '28px',
+      color: '#FFD700',
+      stroke: '#8B4513',
+      strokeThickness: 3,
+    }).setOrigin(0.5).setDepth(1);
 
-    const subtitleText = this.add.text(cx, cy + 15, '~ Get Ready ~', {
-      font: '14px monospace',
-      fill: '#FFFFFF'
-    }).setOrigin(0.5).setAlpha(0).setDepth(1);
+    const subtitleText = this.add.text(cx, cy + 15, '~ The Stage is Set ~', {
+      fontFamily: 'Georgia, serif',
+      fontSize: '14px',
+      color: '#F5E6C8',
+    }).setOrigin(0.5).setDepth(1);
 
-    // Iris close mask (rendered as a black overlay with circle cutout)
-    const graphics = this.add.graphics().setDepth(10);
+    // Musical ornaments around title
+    this.add.text(cx - 120, cy - 30, '𝄞', {
+      fontFamily: 'Georgia, serif', fontSize: '24px', color: '#B8860B',
+    }).setOrigin(0.5).setDepth(1);
 
-    // Phase 1: Iris closes (circle shrinks to zero)
-    this.tweens.addCounter({
-      from: maxRadius,
-      to: 0,
-      duration: 600,
-      ease: 'Quad.easeIn',
-      onUpdate: (tween) => {
-        const radius = tween.getValue();
-        graphics.clear();
-        graphics.fillStyle(0x000000, 1);
-        graphics.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
-        // Cut a circle out using blend
-        graphics.fillStyle(0x000000, 0);
-        // Draw the mask by filling everything except the circle
-        this.drawIrisMask(graphics, cx, cy, radius);
-      },
-      onComplete: () => {
-        graphics.clear();
-        // Full black screen - show level name
-        this.tweens.add({
-          targets: [nameText, subtitleText],
-          alpha: 1,
-          duration: 400,
-          onComplete: () => {
-            // Hold the name card
-            this.time.delayedCall(1000, () => {
-              this.tweens.add({
-                targets: [nameText, subtitleText],
-                alpha: 0,
-                duration: 300,
-                onComplete: () => {
-                  // Start the next scene underneath
-                  this.scene.launch(this.nextScene, this.sceneData);
-                  this.scene.bringToTop();
+    this.add.text(cx + 120, cy - 30, '𝄞', {
+      fontFamily: 'Georgia, serif', fontSize: '24px', color: '#B8860B',
+    }).setOrigin(0.5).setDepth(1);
 
-                  // Phase 2: Iris opens (circle grows from zero)
-                  this.time.delayedCall(200, () => {
-                    this.tweens.addCounter({
-                      from: 0,
-                      to: maxRadius,
-                      duration: 600,
-                      ease: 'Quad.easeOut',
-                      onUpdate: (tween) => {
-                        const radius = tween.getValue();
-                        graphics.clear();
-                        this.drawIrisMask(graphics, cx, cy, radius);
-                      },
-                      onComplete: () => {
-                        graphics.destroy();
-                        this.scene.stop();
-                      }
-                    });
-                  });
-                }
-              });
+    // Phase 1: Show name card for a moment
+    this.time.delayedCall(1200, () => {
+      // Fade out text
+      this.tweens.add({
+        targets: [nameText, subtitleText],
+        alpha: 0,
+        duration: 400,
+        onComplete: () => {
+          // Launch the next scene behind this one
+          this.scene.launch(this.nextScene, this.sceneData);
+          this.scene.bringToTop();
+
+          // Phase 2: Theater curtain rise effect reveals the level
+          this.time.delayedCall(200, () => {
+            createCurtainRise(this, GAME_WIDTH, GAME_HEIGHT, () => {
+              this.scene.stop();
             });
-          }
-        });
-      }
+          });
+        }
+      });
     });
-  }
-
-  drawIrisMask(graphics, cx, cy, radius) {
-    // Draw a full-screen black rect with a circular hole
-    // We achieve this by drawing black everywhere except the circle
-    graphics.clear();
-    if (radius <= 0) {
-      graphics.fillStyle(0x000000, 1);
-      graphics.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
-      return;
-    }
-
-    // Use a shape to create the mask effect
-    // Draw the black border around the circle
-    graphics.fillStyle(0x000000, 1);
-
-    // Top
-    graphics.fillRect(0, 0, GAME_WIDTH, Math.max(0, cy - radius));
-    // Bottom
-    graphics.fillRect(0, cy + radius, GAME_WIDTH, GAME_HEIGHT - (cy + radius));
-
-    // Draw the sides row by row for smooth circle
-    const steps = Math.ceil(radius * 2);
-    for (let i = 0; i < steps; i++) {
-      const y = cy - radius + i;
-      if (y < 0 || y >= GAME_HEIGHT) continue;
-      const dy = y - cy;
-      const halfWidth = Math.sqrt(Math.max(0, radius * radius - dy * dy));
-      const left = cx - halfWidth;
-      const right = cx + halfWidth;
-
-      if (left > 0) graphics.fillRect(0, y, left, 1);
-      if (right < GAME_WIDTH) graphics.fillRect(right, y, GAME_WIDTH - right, 1);
-    }
   }
 }

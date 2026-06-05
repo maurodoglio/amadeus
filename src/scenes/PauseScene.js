@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT } from '../config/constants.js';
 import { settingsManager } from '../utils/SettingsManager.js';
+import { createPanel, createButton, drawTrebleClef, COLORS } from '../ui/UITheme.js';
 
 export class PauseScene extends Phaser.Scene {
   constructor() {
@@ -10,11 +11,11 @@ export class PauseScene extends Phaser.Scene {
   create() {
     this.showingSettings = false;
 
-    // Semi-transparent dark overlay
+    // Semi-transparent dark overlay with sepia tint
     this.overlay = this.add.rectangle(
       GAME_WIDTH / 2, GAME_HEIGHT / 2,
       GAME_WIDTH, GAME_HEIGHT,
-      0x000000, 0.7
+      0x1a1a0e, 0.75
     );
 
     this.createMainMenu();
@@ -33,12 +34,28 @@ export class PauseScene extends Phaser.Scene {
   }
 
   createMainMenu() {
-    this.menuContainer = this.add.container(GAME_WIDTH / 2, GAME_HEIGHT / 2);
+    this.menuContainer = this.add.container(0, 0);
 
-    const title = this.add.text(0, -120, 'PAUSED', {
-      font: '36px monospace',
-      fill: '#FFD700'
+    // Parchment panel behind menu
+    const panelW = 300;
+    const panelH = 360;
+    const panelX = GAME_WIDTH / 2 - panelW / 2;
+    const panelY = GAME_HEIGHT / 2 - panelH / 2;
+    const panel = createPanel(this, panelX, panelY, panelW, panelH);
+    this.menuContainer.add(panel);
+
+    // Treble clef ornament
+    drawTrebleClef(this, GAME_WIDTH / 2 - 50, panelY + 25, 1.2);
+    drawTrebleClef(this, GAME_WIDTH / 2 + 35, panelY + 25, 1.2);
+
+    const title = this.add.text(GAME_WIDTH / 2, panelY + 35, 'PAUSED', {
+      fontFamily: 'Georgia, serif',
+      fontSize: '30px',
+      color: '#FFD700',
+      stroke: '#8B4513',
+      strokeThickness: 2,
     }).setOrigin(0.5);
+    this.menuContainer.add(title);
 
     const buttons = [
       { text: 'Resume', action: () => this.resume() },
@@ -51,21 +68,11 @@ export class PauseScene extends Phaser.Scene {
 
     this.menuItems = [];
     buttons.forEach((btn, i) => {
-      const y = -40 + i * 50;
-      const text = this.add.text(0, y, btn.text, {
-        font: '22px monospace',
-        fill: '#FFFFFF'
-      }).setOrigin(0.5).setInteractive({ useHandCursor: true });
-
-      text.on('pointerover', () => text.setStyle({ fill: '#FFD700' }));
-      text.on('pointerout', () => text.setStyle({ fill: '#FFFFFF' }));
-      text.on('pointerdown', btn.action);
-
-      this.menuItems.push(text);
-      this.menuContainer.add(text);
+      const y = panelY + 80 + i * 46;
+      const button = createButton(this, GAME_WIDTH / 2, y, btn.text, btn.action, 220);
+      this.menuItems.push(button);
+      this.menuContainer.add(button);
     });
-
-    this.menuContainer.add(title);
   }
 
   showSettings() {

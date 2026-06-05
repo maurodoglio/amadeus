@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT } from '../config/constants.js';
 import { ScoreManager } from '../utils/ScoreManager.js';
+import { drawParchmentBackground, createGoldConfetti, drawStaffDivider, drawTrebleClef, COLORS } from '../ui/UITheme.js';
 
 const LEVEL_INSTRUMENTS = {
   1: 'violin',
@@ -27,7 +28,8 @@ export class LevelCompleteScene extends Phaser.Scene {
   }
 
   create() {
-    this.cameras.main.setBackgroundColor('#1a1a2e');
+    // Parchment background
+    drawParchmentBackground(this, GAME_WIDTH, GAME_HEIGHT);
 
     const totalScore = this.levelScore + this.timeBonus;
     const grade = ScoreManager.getGrade(this.levelNumber, totalScore);
@@ -36,40 +38,46 @@ export class LevelCompleteScene extends Phaser.Scene {
     // Save score
     ScoreManager.saveScore(this.levelNumber, totalScore);
 
+    // Treble clef ornaments
+    drawTrebleClef(this, 80, 40, 1.5);
+    drawTrebleClef(this, GAME_WIDTH - 100, 40, 1.5);
+
     // Title
-    this.add.text(GAME_WIDTH / 2, 60, 'LEVEL COMPLETE!', {
-      font: '32px monospace',
-      fill: '#FFD700',
-      stroke: '#000000',
-      strokeThickness: 3
+    this.add.text(GAME_WIDTH / 2, 55, 'LEVEL COMPLETE!', {
+      fontFamily: 'Georgia, serif',
+      fontSize: '32px',
+      color: '#FFD700',
+      stroke: '#8B4513',
+      strokeThickness: 3,
     }).setOrigin(0.5);
+
+    // Staff divider
+    drawStaffDivider(this, GAME_WIDTH / 2 - 100, 85, 200);
 
     // Score breakdown
-    let yPos = 140;
+    let yPos = 120;
     this.add.text(GAME_WIDTH / 2, yPos, `Level Score: ${this.levelScore}`, {
-      font: '18px monospace',
-      fill: '#FFFFFF'
+      fontFamily: 'Georgia, serif', fontSize: '18px', color: '#2B1810',
     }).setOrigin(0.5);
 
-    yPos += 35;
+    yPos += 32;
     this.add.text(GAME_WIDTH / 2, yPos, `Time Bonus: +${this.timeBonus}`, {
-      font: '18px monospace',
-      fill: '#87CEEB'
+      fontFamily: 'Georgia, serif', fontSize: '18px', color: '#4A3728',
     }).setOrigin(0.5);
 
-    yPos += 35;
+    yPos += 32;
     this.add.text(GAME_WIDTH / 2, yPos, `Total: ${totalScore}`, {
-      font: '22px monospace',
-      fill: '#FFD700'
+      fontFamily: 'Georgia, serif', fontSize: '22px', color: '#B8860B',
     }).setOrigin(0.5);
 
     // Grade display with animation
-    yPos += 60;
+    yPos += 55;
     const gradeText = this.add.text(GAME_WIDTH / 2, yPos, grade, {
-      font: '72px monospace',
-      fill: gradeColor,
-      stroke: '#000000',
-      strokeThickness: 4
+      fontFamily: 'Georgia, serif',
+      fontSize: '72px',
+      color: gradeColor,
+      stroke: '#8B4513',
+      strokeThickness: 4,
     }).setOrigin(0.5).setScale(0);
 
     this.tweens.add({
@@ -77,41 +85,45 @@ export class LevelCompleteScene extends Phaser.Scene {
       scale: 1,
       duration: 500,
       delay: 500,
-      ease: 'Back.easeOut'
+      ease: 'Back.easeOut',
+      onComplete: () => {
+        // Gold confetti burst when grade appears
+        createGoldConfetti(this, GAME_WIDTH / 2, yPos - 30, 50);
+      }
     });
 
-    // Pulsing effect on grade
+    // Gentle pulsing on grade
     this.tweens.add({
       targets: gradeText,
-      scale: 1.1,
-      duration: 800,
+      scale: 1.08,
+      duration: 1000,
       delay: 1200,
       yoyo: true,
       repeat: -1,
       ease: 'Sine.easeInOut'
     });
 
-    // High scores for this level
-    yPos += 80;
-    this.add.text(GAME_WIDTH / 2, yPos, `ΓÇö Level ${this.levelNumber} Best ΓÇö`, {
-      font: '14px monospace',
-      fill: '#808080'
+    // Staff divider
+    drawStaffDivider(this, GAME_WIDTH / 2 - 80, yPos + 50, 160);
+
+    // High scores
+    yPos += 70;
+    this.add.text(GAME_WIDTH / 2, yPos, `— Level ${this.levelNumber} Best —`, {
+      fontFamily: 'Georgia, serif', fontSize: '14px', color: '#808080',
     }).setOrigin(0.5);
 
     const highScores = ScoreManager.getHighScores(this.levelNumber);
     highScores.slice(0, 5).forEach((entry, i) => {
       yPos += 22;
-      const highlight = entry.score === totalScore ? '#FFD700' : '#AAAAAA';
+      const highlight = entry.score === totalScore ? '#FFD700' : '#4A3728';
       this.add.text(GAME_WIDTH / 2, yPos, `${i + 1}. ${entry.score}`, {
-        font: '14px monospace',
-        fill: highlight
+        fontFamily: 'Georgia, serif', fontSize: '14px', color: highlight,
       }).setOrigin(0.5);
     });
 
     // Continue prompt
-    const continueText = this.add.text(GAME_WIDTH / 2, GAME_HEIGHT - 40, 'Press SPACE to continue', {
-      font: '16px monospace',
-      fill: '#87CEEB'
+    const continueText = this.add.text(GAME_WIDTH / 2, GAME_HEIGHT - 35, '♩ Press SPACE to continue ♩', {
+      fontFamily: 'Georgia, serif', fontSize: '16px', color: '#B8860B',
     }).setOrigin(0.5).setAlpha(0);
 
     this.tweens.add({
@@ -121,7 +133,6 @@ export class LevelCompleteScene extends Phaser.Scene {
       delay: 2000
     });
 
-    // Blinking
     this.tweens.add({
       targets: continueText,
       alpha: 0.3,
