@@ -78,27 +78,43 @@ export function drawParchmentBackground(scene, width, height) {
 export function drawConcertHallBackground(scene, width, height) {
   const graphics = scene.add.graphics();
 
-  // Deep navy base
-  graphics.fillStyle(0x0d0d1a, 1);
+  graphics.fillStyle(0x070814, 1);
   graphics.fillRect(0, 0, width, height);
 
-  // Radial warm glow from center-top (stage spotlight feel)
-  const layers = 12;
-  for (let i = layers; i >= 0; i--) {
-    const alpha = 0.03 + (i / layers) * 0.06;
-    const radiusX = (width * 0.5) * (1 - i / (layers * 1.5));
-    const radiusY = (height * 0.6) * (1 - i / (layers * 1.5));
-    graphics.fillStyle(0x1a1030, alpha);
-    graphics.fillEllipse(width / 2, height * 0.35, radiusX * 2, radiusY * 2);
+  const wallLayers = 18;
+  for (let i = 0; i < wallLayers; i++) {
+    const progress = i / (wallLayers - 1);
+    const alpha = 0.05 + progress * 0.035;
+    graphics.fillStyle(progress < 0.5 ? 0x140f26 : 0x22163c, alpha);
+    graphics.fillEllipse(width / 2, height * 0.28, width * (1.05 - progress * 0.45), height * (0.92 - progress * 0.34));
   }
 
-  // Warm golden spotlight glow
-  for (let i = 8; i >= 0; i--) {
-    const alpha = 0.015 * (8 - i);
-    const radius = 60 + i * 30;
-    graphics.fillStyle(0xFFD700, alpha);
-    graphics.fillEllipse(width / 2, height * 0.25, radius * 2.5, radius * 1.2);
+  for (let i = 0; i < 7; i++) {
+    const beamWidth = width * (0.13 + i * 0.025);
+    const beamHeight = height * (0.18 + i * 0.04);
+    graphics.fillStyle(COLORS.gold, 0.012 + i * 0.003);
+    graphics.fillEllipse(width / 2, height * 0.2, beamWidth, beamHeight);
   }
+
+  const balcony = scene.add.graphics();
+  balcony.fillStyle(0x05050b, 0.5);
+  balcony.fillRect(0, height * 0.62, width, height * 0.06);
+  balcony.fillStyle(0x24172e, 0.55);
+  balcony.fillRect(0, height * 0.68, width, height * 0.32);
+  balcony.lineStyle(2, COLORS.goldDark, 0.5);
+  balcony.beginPath();
+  balcony.moveTo(0, height * 0.62);
+  balcony.quadraticCurveTo(width / 2, height * 0.58, width, height * 0.62);
+  balcony.strokePath();
+
+  const columns = scene.add.graphics();
+  [0.12, 0.32, 0.68, 0.88].forEach(ratio => {
+    const cx = width * ratio;
+    columns.fillStyle(0x0d0916, 0.45);
+    columns.fillRoundedRect(cx - 16, 20, 32, height * 0.78, 10);
+    columns.fillStyle(0x352143, 0.25);
+    columns.fillRoundedRect(cx - 7, 20, 14, height * 0.78, 8);
+  });
 
   return graphics;
 }
@@ -186,58 +202,76 @@ export function drawMusicNote(scene, x, y, filled = true, color = COLORS.gold) {
  */
 export function createButton(scene, x, y, text, onClick, width = 180) {
   const container = scene.add.container(x, y);
-  const height = 40;
+  const height = 42;
   const hw = width / 2;
   const hh = height / 2;
+  const shadow = scene.add.graphics();
+  const glow = scene.add.graphics();
+  const glass = scene.add.graphics();
+  const sheen = scene.add.graphics();
 
-  // Button background
-  const bg = scene.add.graphics();
-  bg.fillStyle(COLORS.parchment, 0.9);
-  bg.fillRoundedRect(-hw, -hh, width, height, 6);
-  bg.lineStyle(2, COLORS.goldDark, 1);
-  bg.strokeRoundedRect(-hw, -hh, width, height, 6);
-  container.add(bg);
+  const redraw = (hovered = false) => {
+    shadow.clear();
+    glow.clear();
+    glass.clear();
+    sheen.clear();
 
-  // Button text
+    shadow.fillStyle(COLORS.black, hovered ? 0.32 : 0.22);
+    shadow.fillRoundedRect(-hw + 3, -hh + 5, width, height, 10);
+
+    if (hovered) {
+      glow.lineStyle(8, COLORS.gold, 0.18);
+      glow.strokeRoundedRect(-hw - 2, -hh - 2, width + 4, height + 4, 12);
+    }
+
+    glass.fillStyle(COLORS.navyBlue, hovered ? 0.8 : 0.68);
+    glass.fillRoundedRect(-hw, -hh, width, height, 10);
+    glass.fillStyle(COLORS.white, hovered ? 0.14 : 0.09);
+    glass.fillRoundedRect(-hw + 2, -hh + 2, width - 4, height * 0.48, 8);
+    glass.lineStyle(2, hovered ? COLORS.gold : COLORS.parchmentEdge, hovered ? 0.95 : 0.8);
+    glass.strokeRoundedRect(-hw, -hh, width, height, 10);
+    glass.lineStyle(1, COLORS.white, hovered ? 0.24 : 0.16);
+    glass.strokeRoundedRect(-hw + 4, -hh + 4, width - 8, height - 8, 8);
+
+    sheen.fillStyle(COLORS.goldLight, hovered ? 0.18 : 0.08);
+    sheen.fillRoundedRect(-hw + width * 0.08, -hh + 5, width * 0.34, 5, 3);
+  };
+
+  redraw(false);
+  container.add([shadow, glow, glass, sheen]);
+
   const label = scene.add.text(0, 0, text, {
     fontFamily: 'Georgia, serif',
     fontSize: '18px',
-    color: '#2B1810',
+    fontStyle: 'bold',
+    color: '#F5E6C8'
   }).setOrigin(0.5);
   container.add(label);
 
-  // Interaction zone
   const hitArea = scene.add.rectangle(0, 0, width, height, 0x000000, 0)
     .setInteractive({ useHandCursor: true });
   container.add(hitArea);
 
-  // Hover effects
   hitArea.on('pointerover', () => {
-    bg.clear();
-    bg.fillStyle(COLORS.goldLight, 0.95);
-    bg.fillRoundedRect(-hw, -hh, width, height, 6);
-    bg.lineStyle(2, COLORS.gold, 1);
-    bg.strokeRoundedRect(-hw, -hh, width, height, 6);
-    label.setStyle({ fontFamily: 'Georgia, serif', fontSize: '18px', color: '#2B1810' });
-    scene.tweens.add({ targets: container, scaleX: 1.05, scaleY: 1.05, duration: 100 });
+    redraw(true);
+    label.setColor('#FFF8E7');
+    scene.tweens.add({ targets: container, scaleX: 1.04, scaleY: 1.04, duration: 110, ease: 'Sine.easeOut' });
   });
 
   hitArea.on('pointerout', () => {
-    bg.clear();
-    bg.fillStyle(COLORS.parchment, 0.9);
-    bg.fillRoundedRect(-hw, -hh, width, height, 6);
-    bg.lineStyle(2, COLORS.goldDark, 1);
-    bg.strokeRoundedRect(-hw, -hh, width, height, 6);
-    label.setStyle({ fontFamily: 'Georgia, serif', fontSize: '18px', color: '#2B1810' });
-    scene.tweens.add({ targets: container, scaleX: 1, scaleY: 1, duration: 100 });
+    redraw(false);
+    label.setColor('#F5E6C8');
+    scene.tweens.add({ targets: container, scaleX: 1, scaleY: 1, duration: 110, ease: 'Sine.easeOut' });
   });
 
   hitArea.on('pointerdown', () => {
     scene.tweens.add({
       targets: container,
-      scaleX: 0.95, scaleY: 0.95,
-      duration: 60,
+      scaleX: 0.96,
+      scaleY: 0.96,
+      duration: 70,
       yoyo: true,
+      ease: 'Sine.easeInOut',
       onComplete: () => { if (onClick) onClick(); }
     });
   });
@@ -251,23 +285,162 @@ export function createButton(scene, x, y, text, onClick, width = 180) {
 export function createPanel(scene, x, y, width, height) {
   const graphics = scene.add.graphics();
 
-  // Shadow
-  graphics.fillStyle(COLORS.ink, 0.3);
-  graphics.fillRoundedRect(x + 3, y + 3, width, height, 10);
+  graphics.fillStyle(COLORS.black, 0.26);
+  graphics.fillRoundedRect(x + 6, y + 8, width, height, 16);
 
-  // Main panel
-  graphics.fillStyle(COLORS.parchment, 0.95);
-  graphics.fillRoundedRect(x, y, width, height, 10);
+  graphics.fillStyle(COLORS.parchment, 0.96);
+  graphics.fillRoundedRect(x, y, width, height, 16);
+  graphics.fillStyle(COLORS.white, 0.18);
+  graphics.fillRoundedRect(x + 8, y + 8, width - 16, height * 0.18, 12);
 
-  // Border
-  graphics.lineStyle(3, COLORS.goldDark, 0.8);
-  graphics.strokeRoundedRect(x, y, width, height, 10);
+  graphics.lineStyle(3, COLORS.goldDark, 0.85);
+  graphics.strokeRoundedRect(x, y, width, height, 16);
+  graphics.lineStyle(1.5, COLORS.gold, 0.45);
+  graphics.strokeRoundedRect(x + 8, y + 8, width - 16, height - 16, 12);
 
-  // Inner border
-  graphics.lineStyle(1, COLORS.gold, 0.3);
-  graphics.strokeRoundedRect(x + 6, y + 6, width - 12, height - 12, 7);
+  const ornamentRadius = 6;
+  [
+    [x + 22, y + 22],
+    [x + width - 22, y + 22],
+    [x + 22, y + height - 22],
+    [x + width - 22, y + height - 22]
+  ].forEach(([ox, oy]) => {
+    graphics.fillStyle(COLORS.gold, 0.75);
+    graphics.fillCircle(ox, oy, ornamentRadius);
+    graphics.lineStyle(1, COLORS.parchmentDark, 0.7);
+    graphics.strokeCircle(ox, oy, ornamentRadius + 2);
+  });
 
   return graphics;
+}
+
+/**
+ * Draw an ornate gold frame around a region.
+ */
+export function drawOrnateFrame(scene, x, y, width, height, color = COLORS.gold, alpha = 0.7) {
+  const graphics = scene.add.graphics();
+  graphics.lineStyle(3, color, alpha);
+  graphics.strokeRoundedRect(x, y, width, height, 18);
+  graphics.lineStyle(1, COLORS.white, alpha * 0.4);
+  graphics.strokeRoundedRect(x + 8, y + 8, width - 16, height - 16, 14);
+
+  [
+    [x + 16, y + 16, 1],
+    [x + width - 16, y + 16, -1],
+    [x + 16, y + height - 16, 1],
+    [x + width - 16, y + height - 16, -1]
+  ].forEach(([cx, cy, dir]) => {
+    graphics.lineStyle(2, color, alpha * 0.8);
+    graphics.beginPath();
+    graphics.moveTo(cx, cy + 12 * dir);
+    graphics.quadraticCurveTo(cx + 12 * dir, cy, cx, cy - 12 * dir);
+    graphics.quadraticCurveTo(cx - 12 * dir, cy, cx, cy + 12 * dir);
+    graphics.strokePath();
+    graphics.fillStyle(color, alpha * 0.45);
+    graphics.fillCircle(cx, cy, 3);
+  });
+
+  return graphics;
+}
+
+/**
+ * Draw a simple instrument glyph for UI screens.
+ */
+export function createInstrumentIcon(scene, x, y, instrument, color = COLORS.goldDark, scale = 1) {
+  const g = scene.add.graphics();
+  g.setPosition(x, y);
+  g.lineStyle(Math.max(1, 1.5 * scale), color, 1);
+  g.fillStyle(color, 0.18);
+  const s = scale;
+
+  switch (instrument) {
+    case 'violin':
+      g.strokeEllipse(0, -2 * s, 10 * s, 12 * s);
+      g.strokeEllipse(0, 7 * s, 11 * s, 13 * s);
+      g.beginPath();
+      g.moveTo(0, -12 * s);
+      g.lineTo(0, 15 * s);
+      g.strokePath();
+      g.beginPath();
+      g.moveTo(-4 * s, -15 * s);
+      g.lineTo(4 * s, -15 * s);
+      g.strokePath();
+      break;
+    case 'flute':
+      g.beginPath();
+      g.moveTo(-16 * s, 0);
+      g.lineTo(16 * s, -4 * s);
+      g.strokePath();
+      [-10, -4, 2, 8].forEach(offset => g.fillCircle(offset * s, -2 * s, 1.6 * s));
+      break;
+    case 'piano':
+    case 'harpsichord':
+      g.strokeRoundedRect(-16 * s, -12 * s, 32 * s, 22 * s, 4 * s);
+      g.beginPath();
+      g.moveTo(-12 * s, -2 * s);
+      g.lineTo(12 * s, -2 * s);
+      g.strokePath();
+      [-8, -3, 2, 7].forEach(offset => {
+        g.beginPath();
+        g.moveTo(offset * s, -2 * s);
+        g.lineTo(offset * s, 8 * s);
+        g.strokePath();
+      });
+      break;
+    case 'trumpet':
+      g.beginPath();
+      g.moveTo(-15 * s, 3 * s);
+      g.lineTo(3 * s, 3 * s);
+      g.lineTo(10 * s, -3 * s);
+      g.lineTo(10 * s, 9 * s);
+      g.lineTo(3 * s, 3 * s);
+      g.strokePath();
+      g.beginPath();
+      g.moveTo(-15 * s, 3 * s);
+      g.lineTo(-18 * s, -3 * s);
+      g.strokePath();
+      [ -5, -1, 3 ].forEach(offset => g.fillCircle(offset * s, 0, 1.5 * s));
+      break;
+    case 'drums':
+      g.strokeEllipse(0, 2 * s, 22 * s, 14 * s);
+      g.beginPath();
+      g.moveTo(-11 * s, 2 * s);
+      g.lineTo(-11 * s, 14 * s);
+      g.lineTo(11 * s, 14 * s);
+      g.lineTo(11 * s, 2 * s);
+      g.strokePath();
+      g.beginPath();
+      g.moveTo(-14 * s, -10 * s);
+      g.lineTo(-4 * s, -2 * s);
+      g.moveTo(14 * s, -10 * s);
+      g.lineTo(4 * s, -2 * s);
+      g.strokePath();
+      break;
+    case 'harp':
+      g.beginPath();
+      g.moveTo(-12 * s, 12 * s);
+      g.lineTo(-2 * s, -14 * s);
+      g.lineTo(12 * s, 12 * s);
+      g.lineTo(-12 * s, 12 * s);
+      g.strokePath();
+      [-4, 0, 4].forEach(offset => {
+        g.beginPath();
+        g.moveTo(offset * s - 2 * s, -6 * s);
+        g.lineTo(offset * s, 10 * s);
+        g.strokePath();
+      });
+      break;
+    default:
+      g.fillCircle(0, 0, 4 * s);
+      g.beginPath();
+      g.moveTo(4 * s, 0);
+      g.lineTo(4 * s, -14 * s);
+      g.lineTo(9 * s, -9 * s);
+      g.strokePath();
+      break;
+  }
+
+  return g;
 }
 
 /**

@@ -235,30 +235,91 @@ export class PixelArtGenerator {
 
   drawFace(ctx, x, y, radius, skin, eyeColor = '#222', blush = 'rgba(255,160,170,0.25)') {
     const face = ctx.createRadialGradient(x - radius * 0.35, y - radius * 0.55, radius * 0.2, x, y, radius);
-    face.addColorStop(0, '#fff6ea');
-    face.addColorStop(0.35, skin);
+    face.addColorStop(0, '#fff8f0');
+    face.addColorStop(0.38, skin);
     face.addColorStop(1, this.tint(skin, -18));
     ctx.fillStyle = face;
     ctx.beginPath();
     ctx.arc(x, y, radius, 0, Math.PI * 2);
     ctx.fill();
 
-    ctx.fillStyle = eyeColor;
+    ctx.save();
+    ctx.lineCap = 'round';
+    ctx.strokeStyle = this.tint(eyeColor, -65);
+    ctx.lineWidth = Math.max(1, radius * 0.1);
     ctx.beginPath();
-    ctx.arc(x - radius * 0.34, y - radius * 0.08, radius * 0.08, 0, Math.PI * 2);
-    ctx.arc(x + radius * 0.34, y - radius * 0.08, radius * 0.08, 0, Math.PI * 2);
+    ctx.moveTo(x - radius * 0.56, y - radius * 0.42);
+    ctx.quadraticCurveTo(x - radius * 0.34, y - radius * 0.58, x - radius * 0.15, y - radius * 0.38);
+    ctx.moveTo(x + radius * 0.15, y - radius * 0.38);
+    ctx.quadraticCurveTo(x + radius * 0.34, y - radius * 0.58, x + radius * 0.56, y - radius * 0.42);
+    ctx.stroke();
+
+    const drawEye = (ex, tilt) => {
+      ctx.save();
+      ctx.translate(ex, y - radius * 0.08);
+      ctx.rotate(tilt);
+      ctx.fillStyle = 'rgba(255,255,255,0.98)';
+      ctx.beginPath();
+      ctx.ellipse(0, 0, radius * 0.22, radius * 0.16, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(90,68,54,0.32)';
+      ctx.lineWidth = Math.max(0.8, radius * 0.05);
+      ctx.stroke();
+
+      ctx.fillStyle = eyeColor;
+      ctx.beginPath();
+      ctx.arc(0, radius * 0.01, radius * 0.1, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#171410';
+      ctx.beginPath();
+      ctx.arc(0, radius * 0.01, radius * 0.05, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = 'rgba(255,255,255,0.95)';
+      ctx.beginPath();
+      ctx.arc(radius * 0.03, -radius * 0.04, radius * 0.025, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    };
+
+    drawEye(x - radius * 0.34, -0.12);
+    drawEye(x + radius * 0.34, 0.12);
+
+    ctx.strokeStyle = 'rgba(124,86,60,0.58)';
+    ctx.lineWidth = Math.max(0.75, radius * 0.08);
+    ctx.beginPath();
+    ctx.moveTo(x, y - radius * 0.05);
+    ctx.lineTo(x - radius * 0.08, y + radius * 0.22);
+    ctx.quadraticCurveTo(x + radius * 0.03, y + radius * 0.3, x + radius * 0.1, y + radius * 0.18);
+    ctx.stroke();
+
+    ctx.fillStyle = 'rgba(184,112,120,0.3)';
+    ctx.beginPath();
+    ctx.moveTo(x, y + radius * 0.22);
+    ctx.lineTo(x - radius * 0.06, y + radius * 0.3);
+    ctx.lineTo(x + radius * 0.06, y + radius * 0.3);
+    ctx.closePath();
     ctx.fill();
 
-    ctx.strokeStyle = `rgba(80, 46, 46, 0.65)`;
-    ctx.lineWidth = Math.max(1, radius * 0.12);
+    ctx.strokeStyle = 'rgba(104,38,48,0.75)';
+    ctx.lineWidth = Math.max(1, radius * 0.11);
     ctx.beginPath();
-    ctx.arc(x, y + radius * 0.1, radius * 0.35, 0.2, Math.PI - 0.2);
+    ctx.moveTo(x - radius * 0.3, y + radius * 0.42);
+    ctx.quadraticCurveTo(x, y + radius * 0.62, x + radius * 0.3, y + radius * 0.42);
     ctx.stroke();
+    ctx.strokeStyle = 'rgba(164,88,100,0.55)';
+    ctx.lineWidth = Math.max(0.75, radius * 0.07);
+    ctx.beginPath();
+    ctx.moveTo(x - radius * 0.18, y + radius * 0.45);
+    ctx.quadraticCurveTo(x, y + radius * 0.54, x + radius * 0.18, y + radius * 0.45);
+    ctx.stroke();
+    ctx.restore();
 
     ctx.fillStyle = blush;
     ctx.beginPath();
-    ctx.arc(x - radius * 0.48, y + radius * 0.22, radius * 0.15, 0, Math.PI * 2);
-    ctx.arc(x + radius * 0.48, y + radius * 0.22, radius * 0.15, 0, Math.PI * 2);
+    ctx.arc(x - radius * 0.5, y + radius * 0.24, radius * 0.17, 0, Math.PI * 2);
+    ctx.arc(x + radius * 0.5, y + radius * 0.24, radius * 0.17, 0, Math.PI * 2);
     ctx.fill();
   }
 
