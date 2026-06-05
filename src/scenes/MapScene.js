@@ -36,6 +36,7 @@ export class MapScene extends Phaser.Scene {
     this.createLevelNodes(completedLevels);
     this.createMozartIcon(completedLevels);
     this.createTitle();
+    this.createBackButton();
 
     // Fade in
     this.cameras.main.fadeIn(500);
@@ -319,6 +320,27 @@ export class MapScene extends Phaser.Scene {
         color: '#B8860B',
       });
     }
+  }
+
+  createBackButton() {
+    const btn = this.add.text(20, 55, '← Menu', {
+      fontFamily: 'Georgia, serif',
+      fontSize: '14px',
+      color: '#B8860B',
+    }).setInteractive({ useHandCursor: true });
+
+    btn.on('pointerover', () => btn.setColor('#FFD700'));
+    btn.on('pointerout', () => btn.setColor('#B8860B'));
+    btn.on('pointerdown', () => {
+      this.sound.stopAll();
+      this.scene.start('MenuScene');
+    });
+
+    // ESC key also goes back
+    this.input.keyboard.on('keydown-ESC', () => {
+      this.sound.stopAll();
+      this.scene.start('MenuScene');
+    });
   }
 
   startLevel(level) {
