@@ -197,6 +197,29 @@ export class Mozart extends Phaser.Physics.Arcade.Sprite {
   hit(damageSource) {
     if (this.isInvincible || this.isDead) return;
 
+    // Difficulty-based damage reduction (early levels are forgiving)
+    const damageMultiplier = this.scene.difficulty?.enemyDamageMultiplier ?? 1.0;
+    if (damageMultiplier < 1.0 && Math.random() > damageMultiplier) {
+      // Damage resisted - still show feedback but don't lose a life
+      this.isInvincible = true;
+      if (this.scene.sound.get('sfx_hit')) {
+        this.scene.sound.play('sfx_hit', { volume: 0.15 });
+      }
+      this.scene.cameras.main.shake(80, 0.002);
+      this.scene.tweens.add({
+        targets: this,
+        alpha: 0.5,
+        duration: 80,
+        yoyo: true,
+        repeat: 3,
+        onComplete: () => {
+          this.alpha = 1;
+          this.isInvincible = false;
+        }
+      });
+      return;
+    }
+
     this.isInvincible = true;
     const lives = this.scene.registry.get('lives') - 1;
     this.scene.registry.set('lives', lives);

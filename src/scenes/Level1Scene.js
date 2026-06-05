@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT, TILE_SIZE } from '../config/constants.js';
+import { getLevelDifficulty } from '../config/difficultyConfig.js';
 import { Mozart } from '../sprites/Mozart.js';
 import { Nannerl } from '../sprites/Nannerl.js';
 import { Singer } from '../sprites/enemies/Singer.js';
@@ -31,6 +32,13 @@ export class Level1Scene extends Phaser.Scene {
     this.combo = new ComboSystem(this);
     this.levelStartTime = this.time.now;
     this.levelStartScore = this.registry.get('score') || 0;
+
+    // Difficulty scaling
+    this.difficulty = getLevelDifficulty(1);
+    const currentLives = this.registry.get('lives') || 0;
+    if (currentLives < this.difficulty.startingLives) {
+      this.registry.set('lives', this.difficulty.startingLives);
+    }
 
     // Achievement tracking
     const achievements = getAchievementManager();
@@ -122,9 +130,7 @@ export class Level1Scene extends Phaser.Scene {
     this.enemies = this.physics.add.group();
 
     const singerPositions = [
-      { x: 350, y: GAME_HEIGHT - 80 },
       { x: 700, y: GAME_HEIGHT - 80 },
-      { x: 1100, y: GAME_HEIGHT - 80 },
       { x: 1500, y: GAME_HEIGHT - 80 },
     ];
 
@@ -142,10 +148,7 @@ export class Level1Scene extends Phaser.Scene {
     });
 
     const notePositions = [
-      { x: 500, y: 250 },
       { x: 900, y: 200 },
-      { x: 1300, y: 220 },
-      { x: 1800, y: 180 },
     ];
 
     if (this.coopMode) {
@@ -202,10 +205,10 @@ export class Level1Scene extends Phaser.Scene {
       y: GAME_HEIGHT - 120,
       texture: 'bossLeopoldMozart',
       name: 'Leopold Mozart',
-      health: 3,
-      speed: 90,
-      jumpForce: -320,
-      attackInterval: 2800,
+      health: this.difficulty.boss.health,
+      speed: this.difficulty.boss.speed,
+      jumpForce: this.difficulty.boss.jumpForce,
+      attackInterval: this.difficulty.boss.attackInterval,
       activateX: 1800,
       dialogue: [
         '"Wolfgang! You think you can surpass your own father?"',
@@ -302,6 +305,7 @@ export class Level1Scene extends Phaser.Scene {
     const checkpointPositions = [
       { x: 800, y: GAME_HEIGHT - 64 },
       { x: 1500, y: GAME_HEIGHT - 64 },
+      { x: 1900, y: GAME_HEIGHT - 64 },
     ];
 
     checkpointPositions.forEach(pos => {
@@ -442,7 +446,7 @@ export class Level1Scene extends Phaser.Scene {
         const proj = scene.bossProjectiles.create(boss.x, boss.y - 10, 'bossProjectile');
         proj.body.setAllowGravity(false);
         const angle = Phaser.Math.Angle.Between(boss.x, boss.y, target.x, target.y);
-        const speed = 140 + boss.phase * 30;
+        const speed = this.difficulty.bossProjectileSpeed + boss.phase * 20;
         proj.setVelocity(Math.cos(angle) * speed, Math.sin(angle) * speed);
         scene.time.delayedCall(3000, () => { if (proj.active) proj.destroy(); });
       }

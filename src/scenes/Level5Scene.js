@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT, TILE_SIZE } from '../config/constants.js';
+import { getLevelDifficulty } from '../config/difficultyConfig.js';
 import { Mozart } from '../sprites/Mozart.js';
 import { DrumTroll } from '../sprites/enemies/DrumTroll.js';
 import { DissonantNote } from '../sprites/enemies/DissonantNote.js';
@@ -25,6 +26,14 @@ export class Level5Scene extends Phaser.Scene {
     this.combo = new ComboSystem(this);
     this.levelStartTime = this.time.now;
     this.levelStartScore = this.registry.get('score') || 0;
+    this.lastCheckpoint = null;
+
+    // Difficulty scaling
+    this.difficulty = getLevelDifficulty(5);
+    const currentLives = this.registry.get('lives') || 0;
+    if (currentLives < this.difficulty.startingLives) {
+      this.registry.set('lives', this.difficulty.startingLives);
+    }
 
     // Achievement tracking
     const achievements = getAchievementManager();
@@ -158,10 +167,10 @@ export class Level5Scene extends Phaser.Scene {
       y: GAME_HEIGHT - 120,
       texture: 'bossClementi',
       name: 'Muzio Clementi',
-      health: 3,
-      speed: 130,
-      jumpForce: -360,
-      attackInterval: 2000,
+      health: this.difficulty.boss.health,
+      speed: this.difficulty.boss.speed,
+      jumpForce: this.difficulty.boss.jumpForce,
+      attackInterval: this.difficulty.boss.attackInterval,
       activateX: 2100,
       dialogue: [
         '"Mozart! The Emperor pits us against each other!"',
@@ -220,6 +229,23 @@ export class Level5Scene extends Phaser.Scene {
     setupCamera(this, this.mozart, GAME_WIDTH * 3.3);
     this.physics.world.setBounds(0, 0, GAME_WIDTH * 3.3, GAME_HEIGHT);
     this.mozart.setCollideWorldBounds(true);
+
+    // Checkpoint flags
+    this.checkpoints = this.physics.add.staticGroup();
+    const checkpointPositions = [
+      { x: 700, y: GAME_HEIGHT - 64 },
+      { x: 1400, y: GAME_HEIGHT - 64 },
+      { x: 2100, y: GAME_HEIGHT - 64 },
+    ];
+
+    checkpointPositions.forEach(pos => {
+      const flag = this.checkpoints.create(pos.x, pos.y, 'checkpointFlag')
+        .setDisplaySize(24, 40)
+        .refreshBody();
+      flag.activated = false;
+    });
+
+    this.physics.add.overlap(this.mozart, this.checkpoints, this.activateCheckpoint, null, this);
 
     // Mozart's Symphony No.40 K.550
     this.mozartSoundtrack = new MozartSoundtracks(this);
@@ -377,6 +403,16 @@ export class Level5Scene extends Phaser.Scene {
     if (achievements) achievements.onComboUpdate(this.combo.getComboCount());
 
     if (this.sound.get('sfx_coin')) this.sound.play('sfx_coin', { volume: 0.3 });
+  }
+
+  activateCheckpoint(player, flag) {
+    if (flag.activated) return;
+    flag.activated = true;
+    flag.setTint(0x00FF00);
+    this.lastCheckpoint = flag;
+    if (this.sound.get('sfx_coin')) {
+      this.sound.play('sfx_coin', { volume: 0.2 });
+    }
   }
 
   collectInstrument(player, instrument) {

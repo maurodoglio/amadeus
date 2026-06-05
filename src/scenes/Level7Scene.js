@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT, TILE_SIZE } from '../config/constants.js';
+import { getLevelDifficulty } from '../config/difficultyConfig.js';
 import { Mozart } from '../sprites/Mozart.js';
 import { Singer } from '../sprites/enemies/Singer.js';
 import { DissonantNote } from '../sprites/enemies/DissonantNote.js';
@@ -26,6 +27,14 @@ export class Level7Scene extends Phaser.Scene {
     this.combo = new ComboSystem(this);
     this.levelStartTime = this.time.now;
     this.levelStartScore = this.registry.get('score') || 0;
+    this.lastCheckpoint = null;
+
+    // Difficulty scaling
+    this.difficulty = getLevelDifficulty(7);
+    const currentLives = this.registry.get('lives') || 0;
+    if (currentLives < this.difficulty.startingLives) {
+      this.registry.set('lives', this.difficulty.startingLives);
+    }
 
     // Achievement tracking
     const achievements = getAchievementManager();
@@ -173,10 +182,10 @@ export class Level7Scene extends Phaser.Scene {
       y: 200,
       texture: 'bossMozartShadow',
       name: "Mozart's Shadow",
-      health: 3,
-      speed: 100,
-      jumpForce: -300,
-      attackInterval: 2000,
+      health: this.difficulty.boss.health,
+      speed: this.difficulty.boss.speed,
+      jumpForce: this.difficulty.boss.jumpForce,
+      attackInterval: this.difficulty.boss.attackInterval,
       activateX: 2100,
       dialogue: [
         '"You cannot escape yourself, Wolfgang..."',
@@ -215,6 +224,23 @@ export class Level7Scene extends Phaser.Scene {
     setupCamera(this, this.mozart, GAME_WIDTH * 3.2);
     this.physics.world.setBounds(0, 0, GAME_WIDTH * 3.2, GAME_HEIGHT);
     this.mozart.setCollideWorldBounds(true);
+
+    // Checkpoint flags (on wider platforms in the sky)
+    this.checkpoints = this.physics.add.staticGroup();
+    const checkpointPositions = [
+      { x: 700, y: 340 },
+      { x: 1400, y: 300 },
+      { x: 2100, y: 260 },
+    ];
+
+    checkpointPositions.forEach(pos => {
+      const flag = this.checkpoints.create(pos.x, pos.y, 'checkpointFlag')
+        .setDisplaySize(24, 40)
+        .refreshBody();
+      flag.activated = false;
+    });
+
+    this.physics.add.overlap(this.mozart, this.checkpoints, this.activateCheckpoint, null, this);
 
     // NPC - Young Beethoven (secret encounter, hidden high up)
     const beethovenData = NPC_DIALOGUES.beethoven;
@@ -376,6 +402,16 @@ export class Level7Scene extends Phaser.Scene {
     if (achievements) achievements.onComboUpdate(this.combo.getComboCount());
 
     if (this.sound.get('sfx_coin')) this.sound.play('sfx_coin', { volume: 0.3 });
+  }
+
+  activateCheckpoint(player, flag) {
+    if (flag.activated) return;
+    flag.activated = true;
+    flag.setTint(0x00FF00);
+    this.lastCheckpoint = flag;
+    if (this.sound.get('sfx_coin')) {
+      this.sound.play('sfx_coin', { volume: 0.2 });
+    }
   }
 
   collectInstrument(player, instrument) {

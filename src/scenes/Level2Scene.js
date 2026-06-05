@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT, TILE_SIZE } from '../config/constants.js';
+import { getLevelDifficulty } from '../config/difficultyConfig.js';
 import { Mozart } from '../sprites/Mozart.js';
 import { Nannerl } from '../sprites/Nannerl.js';
 import { DrumTroll } from '../sprites/enemies/DrumTroll.js';
@@ -29,6 +30,13 @@ export class Level2Scene extends Phaser.Scene {
     this.combo = new ComboSystem(this);
     this.levelStartTime = this.time.now;
     this.levelStartScore = this.registry.get('score') || 0;
+
+    // Difficulty scaling
+    this.difficulty = getLevelDifficulty(2);
+    const currentLives = this.registry.get('lives') || 0;
+    if (currentLives < this.difficulty.startingLives) {
+      this.registry.set('lives', this.difficulty.startingLives);
+    }
 
     // Achievement tracking
     const achievements = getAchievementManager();
@@ -150,10 +158,10 @@ export class Level2Scene extends Phaser.Scene {
     this.enemies = this.physics.add.group();
     this.enemyList = [];
 
-    // Drum Trolls
-    const trollPositions = [500, 1000, 1400, 1900];
+    // Drum Trolls (reduced for level 2 difficulty curve)
+    const trollPositions = [500, 1400, 1900];
     if (this.coopMode) {
-      trollPositions.push(750, 1700);
+      trollPositions.push(750);
     }
     trollPositions.forEach(x => {
       const troll = new DrumTroll(this, x, GAME_HEIGHT - 80);
@@ -161,8 +169,8 @@ export class Level2Scene extends Phaser.Scene {
       this.enemyList.push(troll);
     });
 
-    // Broken Instruments
-    const biPositions = [800, 1300, 2200];
+    // Broken Instruments (reduced for level 2)
+    const biPositions = [1300, 2200];
     if (this.coopMode) {
       biPositions.push(1800);
     }
@@ -219,10 +227,10 @@ export class Level2Scene extends Phaser.Scene {
       y: GAME_HEIGHT - 120,
       texture: 'bossEmpressMaria',
       name: 'Empress Maria Theresa',
-      health: 3,
-      speed: 80,
-      jumpForce: -400,
-      attackInterval: 3000,
+      health: this.difficulty.boss.health,
+      speed: this.difficulty.boss.speed,
+      jumpForce: this.difficulty.boss.jumpForce,
+      attackInterval: this.difficulty.boss.attackInterval,
       activateX: 2000,
       dialogue: [
         '"A child prodigy seeks audience with the Empress?"',
@@ -318,6 +326,7 @@ export class Level2Scene extends Phaser.Scene {
     const checkpointPositions = [
       { x: 900, y: GAME_HEIGHT - 64 },
       { x: 1700, y: GAME_HEIGHT - 64 },
+      { x: 2100, y: GAME_HEIGHT - 64 },
     ];
 
     checkpointPositions.forEach(pos => {

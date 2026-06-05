@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT, TILE_SIZE } from '../config/constants.js';
+import { getLevelDifficulty } from '../config/difficultyConfig.js';
 import { Mozart } from '../sprites/Mozart.js';
 import { Singer } from '../sprites/enemies/Singer.js';
 import { DissonantNote } from '../sprites/enemies/DissonantNote.js';
@@ -28,6 +29,13 @@ export class Level4Scene extends Phaser.Scene {
     this.combo = new ComboSystem(this);
     this.levelStartTime = this.time.now;
     this.levelStartScore = this.registry.get('score') || 0;
+
+    // Difficulty scaling
+    this.difficulty = getLevelDifficulty(4);
+    const currentLives = this.registry.get('lives') || 0;
+    if (currentLives < this.difficulty.startingLives) {
+      this.registry.set('lives', this.difficulty.startingLives);
+    }
 
     // Achievement tracking
     const achievements = getAchievementManager();
@@ -126,7 +134,6 @@ export class Level4Scene extends Phaser.Scene {
       { x: 750, y: GAME_HEIGHT - 80 },
       { x: 1150, y: GAME_HEIGHT - 80 },
       { x: 1600, y: GAME_HEIGHT - 80 },
-      { x: 2050, y: GAME_HEIGHT - 80 },
     ];
 
     singerPositions.forEach(pos => {
@@ -138,7 +145,6 @@ export class Level4Scene extends Phaser.Scene {
     const notePositions = [
       { x: 550, y: 200 },
       { x: 1000, y: 180 },
-      { x: 1450, y: 160 },
       { x: 1900, y: 150 },
     ];
 
@@ -184,10 +190,10 @@ export class Level4Scene extends Phaser.Scene {
       y: GAME_HEIGHT - 120,
       texture: 'bossSalieri',
       name: 'Antonio Salieri',
-      health: 3,
-      speed: 120,
-      jumpForce: -380,
-      attackInterval: 2200,
+      health: this.difficulty.boss.health,
+      speed: this.difficulty.boss.speed,
+      jumpForce: this.difficulty.boss.jumpForce,
+      attackInterval: this.difficulty.boss.attackInterval,
       activateX: 1900,
       dialogue: [
         '"Ah, the great Mozart... Let us see who truly commands music."',
@@ -237,6 +243,23 @@ export class Level4Scene extends Phaser.Scene {
     setupCamera(this, this.mozart, GAME_WIDTH * 3);
     this.physics.world.setBounds(0, 0, GAME_WIDTH * 3, GAME_HEIGHT);
     this.mozart.setCollideWorldBounds(true);
+
+    // Checkpoint flags
+    this.checkpoints = this.physics.add.staticGroup();
+    const checkpointPositions = [
+      { x: 800, y: GAME_HEIGHT - 64 },
+      { x: 1500, y: GAME_HEIGHT - 64 },
+      { x: 2000, y: GAME_HEIGHT - 64 },
+    ];
+
+    checkpointPositions.forEach(pos => {
+      const flag = this.checkpoints.create(pos.x, pos.y, 'checkpointFlag')
+        .setDisplaySize(24, 40)
+        .refreshBody();
+      flag.activated = false;
+    });
+
+    this.physics.add.overlap(this.mozart, this.checkpoints, this.activateCheckpoint, null, this);
 
     // NPC - Nannerl (Mozart's sister, gives power-up hints)
     const nannerlData = NPC_DIALOGUES.nannerlNPC;
@@ -418,6 +441,16 @@ export class Level4Scene extends Phaser.Scene {
     if (achievements) achievements.onComboUpdate(this.combo.getComboCount());
 
     if (this.sound.get('sfx_coin')) this.sound.play('sfx_coin', { volume: 0.3 });
+  }
+
+  activateCheckpoint(player, flag) {
+    if (flag.activated) return;
+    flag.activated = true;
+    flag.setTint(0x00FF00);
+    this.lastCheckpoint = flag;
+    if (this.sound.get('sfx_coin')) {
+      this.sound.play('sfx_coin', { volume: 0.2 });
+    }
   }
 
   collectInstrument(player, instrument) {
