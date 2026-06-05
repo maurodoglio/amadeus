@@ -52,34 +52,53 @@ export const SPACING = {
 };
 
 /**
- * Draw a parchment-textured background (procedural noise/gradients).
+ * Draw a parchment-textured background (clean gradient, no noise).
  */
 export function drawParchmentBackground(scene, width, height) {
   const graphics = scene.add.graphics();
 
-  // Base parchment gradient
+  // Clean gradient background
   graphics.fillGradientStyle(COLORS.parchment, COLORS.parchmentDark, COLORS.parchmentEdge, COLORS.parchment);
   graphics.fillRect(0, 0, width, height);
 
-  // Procedural noise texture using small random rectangles
-  graphics.setAlpha(0.04);
-  for (let i = 0; i < 200; i++) {
-    const x = Phaser.Math.Between(0, width);
-    const y = Phaser.Math.Between(0, height);
-    const w = Phaser.Math.Between(2, 12);
-    const h = Phaser.Math.Between(2, 8);
-    graphics.fillStyle(Phaser.Math.Between(0, 1) ? COLORS.ink : COLORS.parchmentEdge);
-    graphics.fillRect(x, y, w, h);
-  }
-  graphics.setAlpha(1);
-
-  // Darkened edges (vignette)
+  // Subtle vignette
   const edgeG = scene.add.graphics();
-  edgeG.fillStyle(COLORS.ink, 0.15);
-  edgeG.fillRect(0, 0, width, 8);
-  edgeG.fillRect(0, height - 8, width, 8);
-  edgeG.fillRect(0, 0, 8, height);
-  edgeG.fillRect(width - 8, 0, 8, height);
+  edgeG.fillStyle(COLORS.ink, 0.08);
+  edgeG.fillRect(0, 0, width, 4);
+  edgeG.fillRect(0, height - 4, width, 4);
+  edgeG.fillRect(0, 0, 4, height);
+  edgeG.fillRect(width - 4, 0, 4, height);
+
+  return graphics;
+}
+
+/**
+ * Draw an elegant dark concert-hall background with smooth radial gradient.
+ */
+export function drawConcertHallBackground(scene, width, height) {
+  const graphics = scene.add.graphics();
+
+  // Deep navy base
+  graphics.fillStyle(0x0d0d1a, 1);
+  graphics.fillRect(0, 0, width, height);
+
+  // Radial warm glow from center-top (stage spotlight feel)
+  const layers = 12;
+  for (let i = layers; i >= 0; i--) {
+    const alpha = 0.03 + (i / layers) * 0.06;
+    const radiusX = (width * 0.5) * (1 - i / (layers * 1.5));
+    const radiusY = (height * 0.6) * (1 - i / (layers * 1.5));
+    graphics.fillStyle(0x1a1030, alpha);
+    graphics.fillEllipse(width / 2, height * 0.35, radiusX * 2, radiusY * 2);
+  }
+
+  // Warm golden spotlight glow
+  for (let i = 8; i >= 0; i--) {
+    const alpha = 0.015 * (8 - i);
+    const radius = 60 + i * 30;
+    graphics.fillStyle(0xFFD700, alpha);
+    graphics.fillEllipse(width / 2, height * 0.25, radius * 2.5, radius * 1.2);
+  }
 
   return graphics;
 }
