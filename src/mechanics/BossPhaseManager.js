@@ -288,7 +288,7 @@ export class BossPhaseManager {
     const scene = this.scene;
 
     // Clear projectiles
-    this.projectiles.clear(true, true);
+    if (this.projectiles) this.projectiles.clear(true, true);
 
     // Phase transition animation
     scene.tweens.add({
@@ -359,14 +359,16 @@ export class BossPhaseManager {
     });
 
     // Clear projectiles
-    this.projectiles.clear(true, true);
+    if (this.projectiles) this.projectiles.clear(true, true);
   }
 
   _emitNoteExplosion() {
     const scene = this.scene;
+    if (!this.boss || !this.boss.active) return;
     const x = this.boss.x;
     const y = this.boss.y;
 
+    if (!scene.textures.exists('particleNote')) return;
     const particles = scene.add.particles(x, y, 'particleNote', {
       speed: { min: 100, max: 250 },
       angle: { min: 0, max: 360 },
@@ -387,15 +389,17 @@ export class BossPhaseManager {
     const scene = this.scene;
 
     // Show instrument reward
-    if (scene.instrument) {
+    if (scene.instrument && scene.instrument.active) {
       scene.instrument.setVisible(true);
-      scene.instrument.body.enable = true;
+      if (scene.instrument.body) {
+        scene.instrument.body.enable = true;
+      }
       scene.tweens.add({
         targets: scene.instrument,
         scaleX: 1.2, scaleY: 1.2,
         duration: 800, yoyo: true, repeat: -1
       });
-      if (scene.particles) {
+      if (scene.particles && scene.particles.emitSparkle) {
         scene.particles.emitSparkle(scene.instrument.x, scene.instrument.y);
       }
     }
