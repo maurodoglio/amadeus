@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT } from '../config/constants.js';
+import { loadScene } from '../utils/SceneLoader.js';
 
 const CUTSCENE_DATA = {
   intro: {
@@ -208,7 +209,9 @@ export class CutsceneScene extends Phaser.Scene {
   create() {
     const cutscene = CUTSCENE_DATA[this.cutsceneKey];
     if (!cutscene) {
-      this.scene.start(this.nextScene);
+      loadScene(this.scene, this.nextScene).then(() => {
+        this.scene.start(this.nextScene);
+      });
       return;
     }
 
@@ -413,8 +416,9 @@ export class CutsceneScene extends Phaser.Scene {
       this.textTimer.destroy();
     }
 
-    this.cameras.main.fade(800, 0, 0, 0, false, (cam, progress) => {
+    this.cameras.main.fade(800, 0, 0, 0, false, async (cam, progress) => {
       if (progress === 1) {
+        await loadScene(this.scene, this.nextScene);
         this.scene.start(this.nextScene);
       }
     });

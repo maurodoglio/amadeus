@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT } from '../config/constants.js';
 import { getAchievementManager } from '../utils/AchievementManager.js';
 import { drawParchmentBackground, drawStaffDivider, drawTrebleClef, COLORS } from '../ui/UITheme.js';
+import { loadScene } from '../utils/SceneLoader.js';
 
 const LEVEL_DATA = [
   { id: 1, name: 'Salzburg Beginnings', year: '1762', scene: 'Level1Scene', instrument: 'violin', x: 80, y: 380, cutscene: 'intro' },
@@ -324,14 +325,22 @@ export class MapScene extends Phaser.Scene {
     this.cameras.main.fade(500, 0, 0, 0, false, (cam, progress) => {
       if (progress === 1) {
         this.registry.set('currentLevel', level.id);
-        // First time playing a level goes through cutscene, replay goes direct
         const completedLevels = this.registry.get('completedLevels') || [];
         if (completedLevels.includes(level.id)) {
-          this.scene.start(level.scene);
-          this.scene.launch('UIScene');
+          this.scene.start('LoadingScene', {
+            targetScene: level.scene,
+            targetData: {},
+            launchScenes: ['UIScene']
+          });
         } else {
-          this.scene.start('CutsceneScene', { cutscene: level.cutscene, nextScene: level.scene });
-          this.scene.launch('UIScene');
+          // Load the level scene first, then go through cutscene
+          loadScene(this.scene, level.scene).then(() => {
+            this.scene.start('CutsceneScene', { cutscene: level.cutscene, nextScene: level.scene });
+            this.scene.launch('UIScene');
+          }).catch(() => {
+            this.scene.start('CutsceneScene', { cutscene: level.cutscene, nextScene: level.scene });
+            this.scene.launch('UIScene');
+          });
         }
       }
     });
