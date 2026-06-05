@@ -15,6 +15,8 @@ import { NPC_DIALOGUES } from '../config/npcDialogues.js';
 import { AdaptiveMusicManager } from '../utils/AdaptiveMusicManager.js';
 import { MozartSoundtracks } from '../utils/MozartSoundtracks.js';
 import { setupBoss, updateBossAI, getBossTarget, showBossDialogue } from '../utils/BossFight.js';
+import { BossPhaseManager } from '../mechanics/BossPhaseManager.js';
+import { getLeopoldPhases } from '../mechanics/BossPhaseDefinitions.js';
 import { getAchievementManager } from '../utils/AchievementManager.js';
 import { CompositionCollector } from '../mechanics/CompositionCollector.js';
 import { PitchPuzzle } from '../mechanics/PitchPuzzle.js';
@@ -212,17 +214,14 @@ export class Level1Scene extends Phaser.Scene {
     this.instrument.setVisible(false);
     this.instrument.body.enable = false;
 
-    // Boss: Leopold Mozart (Father/Teacher - Tutorial Boss)
-    setupBoss(this, {
+    // Boss: Leopold Mozart (Father/Teacher - Multi-phase boss)
+    this.bossManager = new BossPhaseManager(this, {
       x: 2100,
       y: GAME_HEIGHT - 120,
       texture: 'bossLeopoldMozart',
       name: 'Leopold Mozart',
-      health: this.difficulty.boss.health,
-      speed: this.difficulty.boss.speed,
-      jumpForce: this.difficulty.boss.jumpForce,
-      attackInterval: this.difficulty.boss.attackInterval,
       activateX: 1800,
+      phases: getLeopoldPhases(this.difficulty),
       dialogue: [
         '"Wolfgang! You think you can surpass your own father?"',
         '"Show me what I taught you — prove your independence!"',
@@ -230,7 +229,8 @@ export class Level1Scene extends Phaser.Scene {
       ],
       victoryQuote: '"I am convinced that my son can stand on his own."\n— Leopold Mozart'
     });
-    this.bossProjectiles = this.physics.add.group();
+    this.bossManager.create();
+    this.bossProjectiles = this.bossManager.projectiles;
 
     // Sheet music pages (hidden secrets in hard-to-reach spots)
     this.sheetMusicPages = this.physics.add.group();
@@ -450,48 +450,9 @@ export class Level1Scene extends Phaser.Scene {
     if (this.mozartSoundtrack && this.bossActive && !this.mozartSoundtrack.isBossMode) {
       this.mozartSoundtrack.setBossMode(true);
     }
-    // Boss AI: Off-Key Conductor fires note projectiles
-    // Boss AI: Leopold Mozart throws sheet music pages gently
-    updateBossAI(this, time, (scene, t) => {
-      const boss = scene.boss;
-      const target = getBossTarget(scene);
-      const speedMult = boss.phase === 3 ? 1.3 : boss.phase === 2 ? 1.15 : 1;
-
-      if (target.x > boss.x + 30) {
-        boss.setVelocityX(boss.speed * speedMult);
-        boss.setFlipX(false);
-      } else if (target.x < boss.x - 30) {
-        boss.setVelocityX(-boss.speed * speedMult);
-        boss.setFlipX(true);
-      } else {
-        boss.setVelocityX(0);
-      }
-
-      // Throws sheet music pages as gentle projectiles
-      const interval = boss.attackInterval / boss.phase;
-      if (t > boss.attackTimer) {
-        boss.attackTimer = t + interval;
-        const proj = scene.bossProjectiles.create(boss.x, boss.y - 10, 'bossProjectile');
-        proj.body.setAllowGravity(false);
-        const angle = Phaser.Math.Angle.Between(boss.x, boss.y, target.x, target.y);
-        const speed = this.difficulty.bossProjectileSpeed + boss.phase * 20;
-        proj.setVelocity(Math.cos(angle) * speed, Math.sin(angle) * speed);
-        scene.time.delayedCall(3000, () => { if (proj.active) proj.destroy(); });
-      }
-    });
-
-    // Projectile collision with players
-    if (this.bossProjectiles) {
-      this.physics.add.overlap(this.mozart, this.bossProjectiles, (player, proj) => {
-        proj.destroy();
-        player.hit();
-      });
-      if (this.nannerl) {
-        this.physics.add.overlap(this.nannerl, this.bossProjectiles, (player, proj) => {
-          proj.destroy();
-          player.hit();
-        });
-      }
+    // Boss AI: Leopold Mozart multi-phase battle
+    if (this.bossManager) {
+      this.bossManager.update(time);
     }
 
     // Camera follows midpoint in co-op

@@ -1309,6 +1309,117 @@ export class PixelArtGenerator {
     ];
     this.createTexture('chainProjectile', chainProjectile);
 
+    // Boss shockwave (12x4) - ground-traveling attack
+    const Sw = '#FF6600';
+    const bossShockwave = [
+      [_,Sw,Sw,Sw,Sw,Sw,Sw,Sw,Sw,Sw,Sw,_],
+      [Sw,Sw,Sw,Sw,Sw,Sw,Sw,Sw,Sw,Sw,Sw,Sw],
+      [Sw,Sw,Sw,Sw,Sw,Sw,Sw,Sw,Sw,Sw,Sw,Sw],
+      [_,Sw,_,Sw,_,Sw,_,Sw,_,Sw,_,Sw],
+    ];
+    this.createTexture('bossShockwave', bossShockwave);
+
+    // Guard projectile for Maria Theresa (8x10) - soldier silhouette
+    const Gp = '#8B4513';
+    const Ap = '#C0C0C0';
+    const bossGuardProjectile = [
+      [_,_,_,Ap,Ap,_,_,_],
+      [_,_,Ap,Ap,Ap,Ap,_,_],
+      [_,_,_,Gp,Gp,_,_,_],
+      [_,_,Gp,Gp,Gp,Gp,_,_],
+      [_,Gp,Gp,Gp,Gp,Gp,Gp,_],
+      [_,Gp,Gp,Gp,Gp,Gp,Gp,_],
+      [_,_,Gp,Gp,Gp,Gp,_,_],
+      [_,_,Gp,Gp,Gp,Gp,_,_],
+      [_,_,Gp,_,_,Gp,_,_],
+      [_,_,Gp,_,_,Gp,_,_],
+    ];
+    this.createTexture('bossGuardProjectile', bossGuardProjectile);
+
+    // Coin projectile for Maria Theresa (6x6)
+    const Gc = '#FFD700';
+    const bossCoinProjectile = [
+      [_,Gc,Gc,Gc,Gc,_],
+      [Gc,Gc,Gc,Gc,Gc,Gc],
+      [Gc,Gc,_,_,Gc,Gc],
+      [Gc,Gc,_,_,Gc,Gc],
+      [Gc,Gc,Gc,Gc,Gc,Gc],
+      [_,Gc,Gc,Gc,Gc,_],
+    ];
+    this.createTexture('bossCoinProjectile', bossCoinProjectile);
+
+    // Chandelier projectile (10x8)
+    const Cd = '#FFD700';
+    const Cl = '#FFFFFF';
+    const bossChandelierProjectile = [
+      [_,_,Cd,Cd,Cd,Cd,Cd,Cd,_,_],
+      [_,Cd,Cd,Cd,Cd,Cd,Cd,Cd,Cd,_],
+      [Cd,Cd,Cd,Cd,Cd,Cd,Cd,Cd,Cd,Cd],
+      [Cd,Cl,Cd,Cl,Cd,Cl,Cd,Cl,Cd,Cd],
+      [_,Cl,_,Cl,_,Cl,_,Cl,_,_],
+      [_,Cl,_,Cl,_,Cl,_,Cl,_,_],
+      [_,_,_,Cl,_,Cl,_,_,_,_],
+      [_,_,_,_,_,_,_,_,_,_],
+    ];
+    this.createTexture('bossChandelierProjectile', bossChandelierProjectile);
+
+    // Musical note projectile for Salieri/Shadow (8x8) - treble clef shape
+    const Np = '#9400D3';
+    const bossNoteProjectile = [
+      [_,_,_,_,_,Np,Np,_],
+      [_,_,_,_,Np,Np,Np,_],
+      [_,_,_,_,Np,_,_,_],
+      [_,_,_,_,Np,_,_,_],
+      [_,_,_,_,Np,_,_,_],
+      [_,_,Np,Np,Np,_,_,_],
+      [_,Np,Np,Np,Np,_,_,_],
+      [_,_,Np,Np,_,_,_,_],
+    ];
+    this.createTexture('bossNoteProjectile', bossNoteProjectile);
+
+    // Ink blot projectile for Salieri (8x8)
+    const Ik = '#1a1a1a';
+    const bossInkProjectile = [
+      [_,_,Ik,_,_,Ik,_,_],
+      [_,Ik,Ik,Ik,Ik,Ik,Ik,_],
+      [Ik,Ik,Ik,Ik,Ik,Ik,Ik,Ik],
+      [Ik,Ik,Ik,Ik,Ik,Ik,Ik,Ik],
+      [_,Ik,Ik,Ik,Ik,Ik,Ik,_],
+      [_,Ik,Ik,Ik,Ik,Ik,_,_],
+      [_,_,Ik,_,Ik,_,_,_],
+      [_,_,_,_,_,_,_,_],
+    ];
+    this.createTexture('bossInkProjectile', bossInkProjectile);
+
+    // Bill projectile for Debt Collector (8x6)
+    const Bp = '#90EE90';
+    const Bt = '#006400';
+    const bossBillProjectile = [
+      [Bt,Bt,Bt,Bt,Bt,Bt,Bt,Bt],
+      [Bt,Bp,Bp,Bp,Bp,Bp,Bp,Bt],
+      [Bt,Bp,Bt,Bp,Bp,Bt,Bp,Bt],
+      [Bt,Bp,Bp,Bp,Bp,Bp,Bp,Bt],
+      [Bt,Bp,Bp,Bp,Bp,Bp,Bp,Bt],
+      [Bt,Bt,Bt,Bt,Bt,Bt,Bt,Bt],
+    ];
+    this.createTexture('bossBillProjectile', bossBillProjectile);
+
+    // Minion sprite for boss fights (8x10)
+    const Mi = '#8B0000';
+    const bossMinion = [
+      [_,_,Mi,Mi,Mi,Mi,_,_],
+      [_,Mi,Mi,Mi,Mi,Mi,Mi,_],
+      [_,Mi,B,Mi,Mi,B,Mi,_],
+      [_,Mi,Mi,Mi,Mi,Mi,Mi,_],
+      [_,_,Mi,Mi,Mi,Mi,_,_],
+      [_,Mi,Mi,Mi,Mi,Mi,Mi,_],
+      [Mi,Mi,Mi,Mi,Mi,Mi,Mi,Mi],
+      [Mi,_,Mi,Mi,Mi,Mi,_,Mi],
+      [_,_,Mi,_,_,Mi,_,_],
+      [_,_,Mi,_,_,Mi,_,_],
+    ];
+    this.createTexture('bossMinion', bossMinion);
+
     // Mozart counter-note (bright, 8x8)
     const Mn = '#FFD700';
     const mozartNote = [

@@ -8,6 +8,8 @@ import { AdaptiveMusicManager } from '../utils/AdaptiveMusicManager.js';
 import { MozartSoundtracks } from '../utils/MozartSoundtracks.js';
 import { ParticleManager } from '../utils/ParticleManager.js';
 import { setupBoss, updateBossAI, getBossTarget, showBossDialogue } from '../utils/BossFight.js';
+import { BossPhaseManager } from '../mechanics/BossPhaseManager.js';
+import { getDebtCollectorPhases } from '../mechanics/BossPhaseDefinitions.js';
 import { ComboSystem } from '../utils/ComboSystem.js';
 import { getAchievementManager } from '../utils/AchievementManager.js';
 import { CompositionCollector } from '../mechanics/CompositionCollector.js';
@@ -170,16 +172,13 @@ export class Level5Scene extends Phaser.Scene {
     this.instrument.body.enable = false;
 
     // Boss: Muzio Clementi - Piano duel rival
-    setupBoss(this, {
+    this.bossManager = new BossPhaseManager(this, {
       x: 2450,
       y: GAME_HEIGHT - 120,
       texture: 'bossClementi',
       name: 'Muzio Clementi',
-      health: this.difficulty.boss.health,
-      speed: this.difficulty.boss.speed,
-      jumpForce: this.difficulty.boss.jumpForce,
-      attackInterval: this.difficulty.boss.attackInterval,
       activateX: 2100,
+      phases: getDebtCollectorPhases(this.difficulty),
       dialogue: [
         '"Mozart! The Emperor pits us against each other!"',
         '"My rapid scales shall outrun your melodies!"',
@@ -187,7 +186,8 @@ export class Level5Scene extends Phaser.Scene {
       ],
       victoryQuote: '"He plays well, but has no taste or feeling."\n— Mozart on Clementi, 1782'
     });
-    this.bossProjectiles = this.physics.add.group();
+    this.bossManager.create();
+    this.bossProjectiles = this.bossManager.projectiles;
 
     // Wind indicator UI
     this.windArrow = this.add.text(GAME_WIDTH / 2, 30, '→ Wind →', {
@@ -293,47 +293,9 @@ export class Level5Scene extends Phaser.Scene {
     if (this.mozartSoundtrack && this.bossActive && !this.mozartSoundtrack.isBossMode) {
       this.mozartSoundtrack.setBossMode(true);
     }
-    // Boss AI: Storm Trumpeter - wind blasts push player
-    // Boss AI: Muzio Clementi - rapid scales as sweeping horizontal attacks
-    updateBossAI(this, time, (scene, t) => {
-      const boss = scene.boss;
-      const target = getBossTarget(scene);
-      const speedMult = boss.phase === 3 ? 1.5 : boss.phase === 2 ? 1.3 : 1;
-
-      if (target.x > boss.x + 40) {
-        boss.setVelocityX(boss.speed * speedMult);
-        boss.setFlipX(false);
-      } else if (target.x < boss.x - 40) {
-        boss.setVelocityX(-boss.speed * speedMult);
-        boss.setFlipX(true);
-      } else {
-        boss.setVelocityX(0);
-      }
-
-      // Rapid scale attacks: fires fast horizontal projectile bursts
-      const interval = boss.attackInterval / boss.phase;
-      if (t > boss.attackTimer && (boss.body.blocked.down || boss.body.touching.down)) {
-        boss.attackTimer = t + interval;
-        const direction = target.x > boss.x ? 1 : -1;
-        const count = 1 + boss.phase;
-        for (let i = 0; i < count; i++) {
-          scene.time.delayedCall(i * 120, () => {
-            if (!boss.active) return;
-            const proj = scene.bossProjectiles.create(boss.x + direction * 20, boss.y - 10 - i * 12, 'bossProjectile');
-            proj.body.setAllowGravity(false);
-            proj.setVelocity(direction * 300, 0);
-            scene.time.delayedCall(2500, () => { if (proj.active) proj.destroy(); });
-          });
-        }
-      }
-    });
-
-    // Projectile collision
-    if (this.bossProjectiles) {
-      this.physics.add.overlap(this.mozart, this.bossProjectiles, (player, proj) => {
-        proj.destroy();
-        player.hit();
-      });
+    // Boss AI: Debt Collector / Clementi multi-phase battle
+    if (this.bossManager) {
+      this.bossManager.update(time);
     }
 
     // Wind gust mechanic: changes direction every 3 seconds with varying strength

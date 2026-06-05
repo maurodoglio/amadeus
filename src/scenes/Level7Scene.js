@@ -12,6 +12,8 @@ import { AdaptiveMusicManager } from '../utils/AdaptiveMusicManager.js';
 import { MozartSoundtracks } from '../utils/MozartSoundtracks.js';
 import { ParticleManager } from '../utils/ParticleManager.js';
 import { setupBoss, updateBossAI, getBossTarget, showBossDialogue } from '../utils/BossFight.js';
+import { BossPhaseManager } from '../mechanics/BossPhaseManager.js';
+import { getMozartShadowPhases } from '../mechanics/BossPhaseDefinitions.js';
 import { ComboSystem } from '../utils/ComboSystem.js';
 import { getAchievementManager } from '../utils/AchievementManager.js';
 import { CompositionCollector } from '../mechanics/CompositionCollector.js';
@@ -180,16 +182,13 @@ export class Level7Scene extends Phaser.Scene {
     this.instrument.body.enable = false;
 
     // Boss: Mozart's Shadow (Self-Doubt) - Mirror match
-    setupBoss(this, {
+    this.bossManager = new BossPhaseManager(this, {
       x: 2450,
       y: 200,
       texture: 'bossMozartShadow',
       name: "Mozart's Shadow",
-      health: this.difficulty.boss.health,
-      speed: this.difficulty.boss.speed,
-      jumpForce: this.difficulty.boss.jumpForce,
-      attackInterval: this.difficulty.boss.attackInterval,
       activateX: 2100,
+      phases: getMozartShadowPhases(this.difficulty),
       dialogue: [
         '"You cannot escape yourself, Wolfgang..."',
         '"Every note you write, I write in darkness."',
@@ -197,7 +196,8 @@ export class Level7Scene extends Phaser.Scene {
       ],
       victoryQuote: '"Neither a lofty degree of intelligence nor imagination... go to the making of genius. Love, love, love, that is the soul of genius."\n— Mozart'
     });
-    this.bossProjectiles = this.physics.add.group();
+    this.bossManager.create();
+    this.bossProjectiles = this.bossManager.projectiles;
 
     // Composition melody collectibles (Jupiter fugue - sky platforms)
     this.compositionCollector = new CompositionCollector(this, 7);
@@ -312,55 +312,9 @@ export class Level7Scene extends Phaser.Scene {
     if (this.mozartSoundtrack && this.bossActive && !this.mozartSoundtrack.isBossMode) {
       this.mozartSoundtrack.setBossMode(true);
     }
-    // Boss AI: Sky Harpist - fires harp string projectiles in arcs
-    // Boss AI: Mozart's Shadow - mirrors player movements with delay, fires arcing notes
-    updateBossAI(this, time, (scene, t) => {
-      const boss = scene.boss;
-      const target = getBossTarget(scene);
-      const speedMult = boss.phase === 3 ? 1.4 : boss.phase === 2 ? 1.2 : 1;
-
-      // Mirror match: copies player's horizontal movement with a delay
-      scene.time.delayedCall(400, () => {
-        if (!boss.active) return;
-        if (target.x > boss.x + 40) {
-          boss.setVelocityX(boss.speed * speedMult);
-          boss.setFlipX(false);
-        } else if (target.x < boss.x - 40) {
-          boss.setVelocityX(-boss.speed * speedMult);
-          boss.setFlipX(true);
-        } else {
-          boss.setVelocityX(0);
-        }
-      });
-
-      // Shadow note rain: fires projectiles downward in arc pattern (mirrors Mozart's own attacks)
-      const interval = boss.attackInterval / boss.phase;
-      if (t > boss.attackTimer) {
-        boss.attackTimer = t + interval;
-        const count = 2 + boss.phase;
-        for (let i = 0; i < count; i++) {
-          scene.time.delayedCall(i * 150, () => {
-            if (!boss.active) return;
-            const proj = scene.bossProjectiles.create(
-              boss.x + (i - count / 2) * 30,
-              boss.y + 10,
-              'darkProjectile'
-            );
-            proj.body.setAllowGravity(true);
-            proj.setVelocityX((i - count / 2) * 50);
-            proj.setVelocityY(100);
-            scene.time.delayedCall(3000, () => { if (proj.active) proj.destroy(); });
-          });
-        }
-      }
-    });
-
-    // Projectile collision
-    if (this.bossProjectiles) {
-      this.physics.add.overlap(this.mozart, this.bossProjectiles, (player, proj) => {
-        proj.destroy();
-        player.hit();
-      });
+    // Boss AI: Mozart's Shadow multi-phase battle (4 phases)
+    if (this.bossManager) {
+      this.bossManager.update(time);
     }
 
     // Parallax scrolling

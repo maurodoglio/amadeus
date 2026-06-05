@@ -8,6 +8,8 @@ import { AdaptiveMusicManager } from '../utils/AdaptiveMusicManager.js';
 import { MozartSoundtracks } from '../utils/MozartSoundtracks.js';
 import { ParticleManager } from '../utils/ParticleManager.js';
 import { setupBoss, updateBossAI, getBossTarget, showBossDialogue } from '../utils/BossFight.js';
+import { BossPhaseManager } from '../mechanics/BossPhaseManager.js';
+import { getGreyMessengerPhases } from '../mechanics/BossPhaseDefinitions.js';
 import { ComboSystem } from '../utils/ComboSystem.js';
 import { getAchievementManager } from '../utils/AchievementManager.js';
 import { CompositionCollector } from '../mechanics/CompositionCollector.js';
@@ -160,16 +162,13 @@ export class Level6Scene extends Phaser.Scene {
     this.instrument.body.enable = false;
 
     // Boss: The Grey Messenger - commissioned the Requiem
-    setupBoss(this, {
+    this.bossManager = new BossPhaseManager(this, {
       x: 2400,
       y: GAME_HEIGHT - 120,
       texture: 'bossGreyMessenger',
       name: 'The Grey Messenger',
-      health: this.difficulty.boss.health,
-      speed: this.difficulty.boss.speed,
-      jumpForce: this.difficulty.boss.jumpForce,
-      attackInterval: this.difficulty.boss.attackInterval,
       activateX: 2050,
+      phases: getGreyMessengerPhases(this.difficulty),
       dialogue: [
         '"I come with a commission... a Requiem Mass."',
         '"Who sends me? That you need not know..."',
@@ -177,6 +176,8 @@ export class Level6Scene extends Phaser.Scene {
       ],
       victoryQuote: '"I feel that I shall not last much longer... the Requiem... for myself."\n— Mozart, 1791'
     });
+    this.bossManager.create();
+    this.bossProjectiles = this.bossManager.projectiles;
 
     // Darkness overlay - limited visibility
     this.darkness = this.add.graphics();
@@ -273,56 +274,10 @@ export class Level6Scene extends Phaser.Scene {
     if (this.mozartSoundtrack && this.bossActive && !this.mozartSoundtrack.isBossMode) {
       this.mozartSoundtrack.setBossMode(true);
     }
-    // Boss AI: Crystal Drummer - shockwave ground pounds
-    // Boss AI: The Grey Messenger - teleports, shadow attacks, disappears/reappears
-    updateBossAI(this, time, (scene, t) => {
-      const boss = scene.boss;
-      const target = getBossTarget(scene);
-      const speedMult = boss.phase === 3 ? 1.5 : boss.phase === 2 ? 1.2 : 1;
-
-      if (target.x > boss.x + 30) {
-        boss.setVelocityX(boss.speed * speedMult);
-        boss.setFlipX(false);
-      } else if (target.x < boss.x - 30) {
-        boss.setVelocityX(-boss.speed * speedMult);
-        boss.setFlipX(true);
-      } else {
-        boss.setVelocityX(0);
-      }
-
-      // Teleport and shadow attack: disappears, reappears near player
-      const interval = boss.attackInterval / boss.phase;
-      if (t > boss.attackTimer && (boss.body.blocked.down || boss.body.touching.down)) {
-        boss.attackTimer = t + interval;
-
-        // Teleport effect: fade out, reposition, fade in
-        scene.tweens.add({
-          targets: boss,
-          alpha: 0,
-          duration: 300,
-          onComplete: () => {
-            if (!boss.active) return;
-            // Reappear near player but with some offset
-            const offset = Phaser.Math.RND.pick([-150, 150]);
-            const newX = Phaser.Math.Clamp(target.x + offset, 100, scene.physics.world.bounds.width - 100);
-            boss.setPosition(newX, boss.y);
-            scene.tweens.add({
-              targets: boss,
-              alpha: 1,
-              duration: 300
-            });
-            // Screen shake on reappear
-            scene.particles.screenShake(0.012 * boss.phase, 300);
-            scene.particles.emitStomp(boss.x, boss.y + 20);
-            // Push nearby player away
-            if (Math.abs(target.x - boss.x) < 150) {
-              const pushDir = target.x > boss.x ? 1 : -1;
-              target.setVelocityX(pushDir * 200 * boss.phase);
-            }
-          }
-        });
-      }
-    });
+    // Boss AI: The Grey Messenger multi-phase battle
+    if (this.bossManager) {
+      this.bossManager.update(time);
+    }
 
     // Draw darkness with circular cutout around player
     this.updateDarkness();
