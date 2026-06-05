@@ -15,7 +15,9 @@ const LEVEL_IMPORTS = {
  * Lazily loads and registers a level scene. If the scene is already registered,
  * resolves immediately without re-importing.
  */
-export async function loadScene(sceneManager, sceneKey) {
+export async function loadScene(sceneRef, sceneKey) {
+  // Accept either a SceneManager or a ScenePlugin
+  const sceneManager = sceneRef.manager || sceneRef;
   // Already registered — nothing to do
   if (sceneManager.getScene(sceneKey)) {
     return;
