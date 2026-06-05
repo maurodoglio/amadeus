@@ -3,6 +3,7 @@ import { GAME_WIDTH, GAME_HEIGHT, TILE_SIZE } from '../config/constants.js';
 import { getLevelDifficulty } from '../config/difficultyConfig.js';
 import { Mozart } from '../sprites/Mozart.js';
 import { Nannerl } from '../sprites/Nannerl.js';
+import { safeStorage } from '../utils/ErrorBoundary.js';
 import { Singer } from '../sprites/enemies/Singer.js';
 import { DissonantNote } from '../sprites/enemies/DissonantNote.js';
 import { ParticleManager } from '../utils/ParticleManager.js';
@@ -647,7 +648,7 @@ export class Level1Scene extends Phaser.Scene {
     const savedSheetMusic = this.registry.get('sheetMusic') || {};
     savedSheetMusic[pageKey] = true;
     this.registry.set('sheetMusic', savedSheetMusic);
-    localStorage.setItem('sheetMusicCollected', JSON.stringify(savedSheetMusic));
+    safeStorage.set('sheetMusicCollected', JSON.stringify(savedSheetMusic));
 
     this.registry.set('sheetMusicCurrentLevel', { found: this.sheetMusicCollected, total: 3 });
 

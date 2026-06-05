@@ -18,6 +18,8 @@ import { AchievementsScene } from './scenes/AchievementsScene.js';
 import { AchievementPopup } from './ui/AchievementPopup.js';
 import { initAchievementManager } from './utils/AchievementManager.js';
 import { LoadingScene } from './utils/SceneLoader.js';
+import { RecoveryScene } from './scenes/RecoveryScene.js';
+import { installGlobalErrorHandlers } from './utils/ErrorBoundary.js';
 
 const config = {
   type: Phaser.AUTO,
@@ -41,14 +43,17 @@ const config = {
       debug: false
     }
   },
-  scene: [BootScene, MenuScene, MapScene, CutsceneScene, TransitionScene, LevelCompleteScene, InstrumentLessonScene, ConcertScene, UIScene, TouchControls, PauseScene, AccessibilityScene, RhythmScene, MelodyMemoryScene, AchievementsScene, AchievementPopup, LoadingScene]
+  scene: [BootScene, MenuScene, MapScene, CutsceneScene, TransitionScene, LevelCompleteScene, InstrumentLessonScene, ConcertScene, UIScene, TouchControls, PauseScene, AccessibilityScene, RhythmScene, MelodyMemoryScene, AchievementsScene, AchievementPopup, LoadingScene, RecoveryScene]
 };
 
 const game = new Phaser.Game(config);
 
 // Expose game instance for integration testing
 window.game = game;
+// Install global error handlers for graceful degradation
+installGlobalErrorHandlers(game);
 
 // Initialize achievement system after game creation
 initAchievementManager(game);
+
 

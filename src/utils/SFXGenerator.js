@@ -1,4 +1,5 @@
 import { settingsManager } from './SettingsManager.js';
+import { safeAudio, isAudioDisabled } from './ErrorBoundary.js';
 
 /**
  * Generates musical sound effects using Web Audio API oscillators and envelopes.
@@ -12,28 +13,36 @@ export class SFXGenerator {
   }
 
   init() {
-    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    try {
+      this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    } catch (e) {
+      console.warn('[SFXGenerator] Failed to create AudioContext:', e.message);
+      this.audioContext = null;
+    }
   }
 
   generateAll() {
     if (this.generated) return;
     this.init();
+    if (!this.audioContext || isAudioDisabled()) return;
 
-    this.generateJumpSFX();
-    this.generateLandSFX();
-    this.generateAttackSFX();
-    this.generateHitEnemySFX();
-    this.generateTakeDamageSFX();
-    this.generateDefeatEnemySFX();
-    this.generateCollectNoteSFX();
-    this.generateCollectSheetMusicSFX();
-    this.generateHealthPickupSFX();
-    this.generateMenuHoverSFX();
-    this.generateMenuSelectSFX();
-    this.generateCheckpointSFX();
-    this.generateDoorOpenSFX();
-    this.generateNPCInteractionSFX();
-    this.generateBossHitSFX();
+    safeAudio(() => {
+      this.generateJumpSFX();
+      this.generateLandSFX();
+      this.generateAttackSFX();
+      this.generateHitEnemySFX();
+      this.generateTakeDamageSFX();
+      this.generateDefeatEnemySFX();
+      this.generateCollectNoteSFX();
+      this.generateCollectSheetMusicSFX();
+      this.generateHealthPickupSFX();
+      this.generateMenuHoverSFX();
+      this.generateMenuSelectSFX();
+      this.generateCheckpointSFX();
+      this.generateDoorOpenSFX();
+      this.generateNPCInteractionSFX();
+      this.generateBossHitSFX();
+    });
 
     this.generated = true;
   }
@@ -406,10 +415,14 @@ export class SFXGenerator {
    * @param {number} baseVolume - Base volume (0-1), will be scaled by settings
    */
   static play(scene, key, baseVolume = 0.25) {
-    const sfxVolume = settingsManager.get('sfxVolume');
-    if (sfxVolume <= 0) return;
-    if (scene.sound.get(key)) {
-      scene.sound.play(key, { volume: baseVolume * sfxVolume });
+    try {
+      const sfxVolume = settingsManager.get('sfxVolume');
+      if (sfxVolume <= 0) return;
+      if (scene.sound.get(key)) {
+        scene.sound.play(key, { volume: baseVolume * sfxVolume });
+      }
+    } catch (e) {
+      console.warn('[SFXGenerator] play failed:', e.message || e);
     }
   }
 }
