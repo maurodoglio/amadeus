@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { DialogueBox } from '../ui/DialogueBox.js';
+import { SFXGenerator } from '../utils/SFXGenerator.js';
 
 /**
  * Base NPC class with proximity-triggered dialogue.
@@ -79,6 +80,7 @@ export class NPC extends Phaser.Physics.Arcade.Sprite {
 
     this.isTalking = true;
     this.prompt.setVisible(false);
+    SFXGenerator.play(this.scene, 'sfx_npcInteraction', 0.25);
 
     // Freeze Mozart before dialogue starts
     if (this.scene.mozart) {

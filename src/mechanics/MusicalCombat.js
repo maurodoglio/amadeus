@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { SFXGenerator } from '../utils/SFXGenerator.js';
 
 // Note definitions with pitch, color, and display
 const NOTES = {
@@ -156,6 +157,8 @@ export class MusicalCombat {
     const facingRight = !this.player.flipX;
     const x = this.player.x + (facingRight ? 16 : -16);
     const y = this.player.y - 4;
+
+    SFXGenerator.play(this.scene, 'sfx_attack', 0.2);
 
     const proj = this.scene.physics.add.sprite(x, y, 'noteProjectile');
     proj.body.setAllowGravity(false);

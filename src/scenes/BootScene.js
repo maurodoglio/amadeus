@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { PixelArtGenerator } from '../utils/PixelArtGenerator.js';
 import { AudioGenerator } from '../utils/AudioGenerator.js';
 import { drawParchmentBackground, COLORS } from '../ui/UITheme.js';
+import { SFXGenerator } from '../utils/SFXGenerator.js';
 
 export class BootScene extends Phaser.Scene {
   constructor() {
@@ -118,6 +119,10 @@ export class BootScene extends Phaser.Scene {
     const audio = new AudioGenerator(this);
     audio.generateAll();
 
+    // Generate musical SFX
+    const sfx = new SFXGenerator(this);
+    sfx.generateAll();
+
     // Initialize game state
     this.registry.set('lives', 3);
     this.registry.set('score', 0);
@@ -137,3 +142,4 @@ export class BootScene extends Phaser.Scene {
     });
   }
 }
+

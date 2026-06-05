@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { PLAYER } from '../config/constants.js';
 import { ParticleManager } from '../utils/ParticleManager.js';
 import { MusicalCombat } from '../mechanics/MusicalCombat.js';
+import { SFXGenerator } from '../utils/SFXGenerator.js';
 
 export class Mozart extends Phaser.Physics.Arcade.Sprite {
   constructor(scene, x, y) {
@@ -104,6 +105,7 @@ export class Mozart extends Phaser.Physics.Arcade.Sprite {
     // --- Landing detection (squash + buffered jump) ---
     if (onGround && this.wasInAir) {
       this.particles.emitDust(this.x, this.y + this.height / 2);
+      SFXGenerator.play(this.scene, 'sfx_land', 0.2);
       // Landing squash
       this.setScale(1.2, 0.8);
       this.scene.tweens.add({
@@ -189,9 +191,7 @@ export class Mozart extends Phaser.Physics.Arcade.Sprite {
       duration: 150,
       ease: 'Quad.easeOut'
     });
-    if (this.scene.sound.get('sfx_jump')) {
-      this.scene.sound.play('sfx_jump', { volume: 0.3 });
-    }
+    SFXGenerator.play(this.scene, 'sfx_jump', 0.3);
   }
 
   hit(damageSource) {
@@ -202,9 +202,7 @@ export class Mozart extends Phaser.Physics.Arcade.Sprite {
     if (damageMultiplier < 1.0 && Math.random() > damageMultiplier) {
       // Damage resisted - still show feedback but don't lose a life
       this.isInvincible = true;
-      if (this.scene.sound.get('sfx_hit')) {
-        this.scene.sound.play('sfx_hit', { volume: 0.15 });
-      }
+      SFXGenerator.play(this.scene, 'sfx_takeDamage', 0.15);
       this.scene.cameras.main.shake(80, 0.002);
       this.scene.tweens.add({
         targets: this,
@@ -230,9 +228,7 @@ export class Mozart extends Phaser.Physics.Arcade.Sprite {
     }
 
     // Hit feedback
-    if (this.scene.sound.get('sfx_hit')) {
-      this.scene.sound.play('sfx_hit', { volume: 0.3 });
-    }
+    SFXGenerator.play(this.scene, 'sfx_takeDamage', 0.3);
 
     // Screen shake on damage
     this.scene.cameras.main.shake(150, 0.005);
@@ -284,6 +280,7 @@ export class Mozart extends Phaser.Physics.Arcade.Sprite {
     if (this.scene.sound.get('sfx_death')) {
       this.scene.sound.play('sfx_death', { volume: 0.3 });
     }
+    SFXGenerator.play(this.scene, 'sfx_takeDamage', 0.35);
 
     // Brief slow-motion effect
     this.scene.time.timeScale = 0.3;

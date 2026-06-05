@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT } from '../config/constants.js';
+import { SFXGenerator } from './SFXGenerator.js';
 
 /**
  * Reusable boss fight mixin that provides standard boss behavior.
@@ -206,6 +207,7 @@ function hitBoss(scene, player, boss) {
     scene.bossHealthBar.setSize(196 * healthPercent, 16);
 
     if (scene.sound.get('sfx_hit')) scene.sound.play('sfx_hit', { volume: 0.3 });
+    SFXGenerator.play(scene, 'sfx_bossHit', 0.35);
 
     // Flash boss
     scene.tweens.add({

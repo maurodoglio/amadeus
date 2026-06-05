@@ -21,6 +21,7 @@ import { PitchPuzzle } from '../mechanics/PitchPuzzle.js';
 import { ChordDoor } from '../mechanics/ChordDoor.js';
 import { setupCamera, setupCoopCamera, updateCameraLookAhead } from '../utils/CameraManager.js';
 import { ParallaxBackground, PARALLAX_CONFIGS } from '../utils/ParallaxBackground.js';
+import { SFXGenerator } from '../utils/SFXGenerator.js';
 
 export class Level1Scene extends Phaser.Scene {
   constructor() {
@@ -559,9 +560,7 @@ export class Level1Scene extends Phaser.Scene {
         achievements.onComboUpdate(this.combo.getComboCount());
       }
 
-      if (this.sound.get('sfx_coin')) {
-        this.sound.play('sfx_coin', { volume: 0.2 });
-      }
+      SFXGenerator.play(this, 'sfx_defeatEnemy', 0.3);
 
       // Victory fanfare on enemy defeat streak
       if (this.adaptiveMusic && multiplier >= 2) {
@@ -607,6 +606,7 @@ export class Level1Scene extends Phaser.Scene {
     if (this.sound.get('sfx_coin')) {
       this.sound.play('sfx_coin', { volume: 0.3 });
     }
+    SFXGenerator.play(this, 'sfx_collectNote', 0.25);
   }
 
   collectInstrument(player, instrument) {
@@ -698,6 +698,7 @@ export class Level1Scene extends Phaser.Scene {
     if (this.sound.get('sfx_coin')) {
       this.sound.play('sfx_coin', { volume: 0.4 });
     }
+    SFXGenerator.play(this, 'sfx_collectSheetMusic', 0.3);
 
     // Disable physics body immediately to prevent double-collection
     page.body.enable = false;
@@ -763,9 +764,8 @@ export class Level1Scene extends Phaser.Scene {
     flag.setTint(0xFFD700);
     this.particles.emitSparkleCollect(flag.x, flag.y - 20);
 
-    if (this.sound.get('sfx_coin')) {
-      this.sound.play('sfx_coin', { volume: 0.2 });
-    }
+    SFXGenerator.play(this, 'sfx_checkpoint', 0.3);
   }
 }
+
 

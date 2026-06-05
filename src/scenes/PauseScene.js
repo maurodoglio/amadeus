@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT } from '../config/constants.js';
 import { settingsManager } from '../utils/SettingsManager.js';
 import { createPanel, createButton, drawTrebleClef, COLORS } from '../ui/UITheme.js';
+import { SFXGenerator } from '../utils/SFXGenerator.js';
 
 export class PauseScene extends Phaser.Scene {
   constructor() {
@@ -69,7 +70,10 @@ export class PauseScene extends Phaser.Scene {
     this.menuItems = [];
     buttons.forEach((btn, i) => {
       const y = panelY + 80 + i * 46;
-      const button = createButton(this, GAME_WIDTH / 2, y, btn.text, btn.action, 220);
+      const button = createButton(this, GAME_WIDTH / 2, y, btn.text, () => {
+        SFXGenerator.play(this, 'sfx_menuSelect', 0.25);
+        btn.action();
+      }, 220);
       this.menuItems.push(button);
       this.menuContainer.add(button);
     });
@@ -259,3 +263,4 @@ export class PauseScene extends Phaser.Scene {
     this.input.keyboard.off('keydown-P', this.handleResume, this);
   }
 }
+
