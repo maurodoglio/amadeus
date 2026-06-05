@@ -4,6 +4,7 @@ import { AudioGenerator } from '../utils/AudioGenerator.js';
 import { drawParchmentBackground, COLORS } from '../ui/UITheme.js';
 import { SFXGenerator } from '../utils/SFXGenerator.js';
 import { AnimationManager } from '../utils/AnimationManager.js';
+import { safeStorage, safeCall } from '../utils/ErrorBoundary.js';
 
 export class BootScene extends Phaser.Scene {
   constructor() {
@@ -13,6 +14,11 @@ export class BootScene extends Phaser.Scene {
   preload() {
     const width = this.cameras.main.width;
     const height = this.cameras.main.height;
+
+    // Error handling for asset loading
+    this.load.on('loaderror', (file) => {
+      console.warn('[BootScene] Failed to load asset:', file.key, file.url);
+    });
 
     // Parchment background
     drawParchmentBackground(this, width, height);
@@ -121,12 +127,16 @@ export class BootScene extends Phaser.Scene {
     animManager.registerAll();
 
     // Generate audio
-    const audio = new AudioGenerator(this);
-    audio.generateAll();
+    safeCall(() => {
+      const audio = new AudioGenerator(this);
+      audio.generateAll();
+    });
 
     // Generate musical SFX
-    const sfx = new SFXGenerator(this);
-    sfx.generateAll();
+    safeCall(() => {
+      const sfx = new SFXGenerator(this);
+      sfx.generateAll();
+    });
 
     // Initialize game state
     this.registry.set('lives', 3);
@@ -136,7 +146,7 @@ export class BootScene extends Phaser.Scene {
     this.registry.set('coopMode', false);
 
     // Initialize sheet music collection state
-    const savedSheetMusic = JSON.parse(localStorage.getItem('sheetMusicCollected') || '{}');
+    const savedSheetMusic = JSON.parse(safeStorage.get('sheetMusicCollected') || '{}');
     this.registry.set('sheetMusic', savedSheetMusic);
     this.registry.set('sheetMusicCurrentLevel', { found: 0, total: 3 });
 

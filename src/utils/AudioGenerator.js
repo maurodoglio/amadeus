@@ -1,3 +1,5 @@
+import { safeAudio, isAudioDisabled } from './ErrorBoundary.js';
+
 /**
  * Generates chiptune-style audio using the Web Audio API.
  */
@@ -8,27 +10,36 @@ export class AudioGenerator {
   }
 
   init() {
-    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    try {
+      this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    } catch (e) {
+      console.warn('[AudioGenerator] Failed to create AudioContext:', e.message);
+      this.audioContext = null;
+    }
   }
 
   generateAll() {
     this.init();
-    this.generateJumpSound();
-    this.generateCoinSound();
-    this.generateHitSound();
-    this.generateDeathSound();
-    this.generateLevelComplete();
-    this.generateMenuMusic();
-    this.generateViennaMusic();
-    this.generateForestMusic();
-    this.generatePalaceMusic();
-    this.generateBossMusic();
-    this.generateConcertMusic();
-    this.generateRhythmMusic();
-    this.generateCompositionNotes();
-    this.generateDissonanceSound();
-    this.generateChordConsonant();
-    this.generateChordDissonant();
+    if (!this.audioContext || isAudioDisabled()) return;
+
+    safeAudio(() => {
+      this.generateJumpSound();
+      this.generateCoinSound();
+      this.generateHitSound();
+      this.generateDeathSound();
+      this.generateLevelComplete();
+      this.generateMenuMusic();
+      this.generateViennaMusic();
+      this.generateForestMusic();
+      this.generatePalaceMusic();
+      this.generateBossMusic();
+      this.generateConcertMusic();
+      this.generateRhythmMusic();
+      this.generateCompositionNotes();
+      this.generateDissonanceSound();
+      this.generateChordConsonant();
+      this.generateChordDissonant();
+    });
   }
 
   createBuffer(duration, generator) {
