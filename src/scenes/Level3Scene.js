@@ -732,7 +732,8 @@ export class Level3Scene extends Phaser.Scene {
           level: 3,
           levelScore,
           timeBonus,
-          nextScene: 'Level4Scene'
+          nextScene: 'MapScene',
+          nextSceneData: { completedLevel: 3 }
         });
       }
     });
