@@ -99,6 +99,12 @@ export class DialogueBox {
     this.container.setVisible(true);
     this.container.setAlpha(0);
 
+    // Pause game physics and freeze Mozart during dialogue
+    this.scene.physics.world.pause();
+    if (this.scene.mozart) {
+      this.scene.mozart.setVelocity(0, 0);
+    }
+
     this.scene.tweens.add({
       targets: this.container,
       alpha: 1,
@@ -116,6 +122,9 @@ export class DialogueBox {
       this.textTimer.destroy();
       this.textTimer = null;
     }
+
+    // Resume game physics when dialogue ends
+    this.scene.physics.world.resume();
   }
 
   showNext() {
