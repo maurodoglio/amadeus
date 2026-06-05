@@ -103,6 +103,21 @@ export class MenuScene extends Phaser.Scene {
       this.scene.launch('AccessibilityScene', { returnScene: 'MenuScene' });
     });
 
+    // Fullscreen button
+    const fullscreenBtn = this.add.text(GAME_WIDTH - 16, GAME_HEIGHT - 16, '[ ⛶ Fullscreen ]', {
+      font: '14px monospace',
+      fill: '#87CEEB'
+    }).setOrigin(1, 1).setInteractive({ useHandCursor: true });
+    fullscreenBtn.on('pointerover', () => fullscreenBtn.setStyle({ fill: '#FFD700' }));
+    fullscreenBtn.on('pointerout', () => fullscreenBtn.setStyle({ fill: '#87CEEB' }));
+    fullscreenBtn.on('pointerdown', () => {
+      if (this.scale.isFullscreen) {
+        this.scale.stopFullscreen();
+      } else {
+        this.scale.startFullscreen();
+      }
+    });
+
     // Controls help
     this.add.text(GAME_WIDTH / 2, 470, 'Arrow Keys / ENTER to select | Touch D-pad to move', {
       font: '14px monospace',

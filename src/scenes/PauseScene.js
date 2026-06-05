@@ -43,6 +43,7 @@ export class PauseScene extends Phaser.Scene {
     const buttons = [
       { text: 'Resume', action: () => this.resume() },
       { text: 'Restart Level', action: () => this.restartLevel() },
+      { text: 'Fullscreen', action: () => this.toggleFullscreen() },
       { text: 'Settings', action: () => this.showSettings() },
       { text: 'Accessibility', action: () => this.showAccessibility() },
       { text: 'Quit to Menu', action: () => this.quitToMenu() }
@@ -209,6 +210,14 @@ export class PauseScene extends Phaser.Scene {
         sound.setVolume(sfxVolume);
       }
     });
+  }
+
+  toggleFullscreen() {
+    if (this.scale.isFullscreen) {
+      this.scale.stopFullscreen();
+    } else {
+      this.scale.startFullscreen();
+    }
   }
 
   resume() {

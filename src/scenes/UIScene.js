@@ -1,5 +1,4 @@
 import Phaser from 'phaser';
-import { GAME_WIDTH, GAME_HEIGHT } from '../config/constants.js';
 
 export class UIScene extends Phaser.Scene {
   constructor() {
@@ -7,24 +6,26 @@ export class UIScene extends Phaser.Scene {
   }
 
   create() {
+    const cam = this.cameras.main;
+
     // Lives display - Mozart head icons
     this.livesIcons = [];
     this.updateLivesIcons(this.registry.get('lives'));
 
     // Score display
-    this.scoreText = this.add.text(GAME_WIDTH - 16, 16, '', {
+    this.scoreText = this.add.text(cam.width - 16, 16, '', {
       font: '16px monospace',
       fill: '#FFD700'
     }).setOrigin(1, 0);
 
     // Instruments display
-    this.instrumentsText = this.add.text(GAME_WIDTH / 2, 16, '', {
+    this.instrumentsText = this.add.text(cam.width / 2, 16, '', {
       font: '14px monospace',
       fill: '#87CEEB'
     }).setOrigin(0.5, 0);
 
     // Sheet music pages counter
-    this.sheetMusicText = this.add.text(GAME_WIDTH - 16, 36, '', {
+    this.sheetMusicText = this.add.text(cam.width - 16, 36, '', {
       font: '12px monospace',
       fill: '#F5DEB3'
     }).setOrigin(1, 0);
@@ -32,14 +33,14 @@ export class UIScene extends Phaser.Scene {
     // Co-op indicator
     const coopMode = this.registry.get('coopMode');
     if (coopMode) {
-      this.add.text(16, GAME_HEIGHT - 24, 'P1: Arrows+SPACE  P2: WASD+E', {
+      this.coopText = this.add.text(16, cam.height - 24, 'P1: Arrows+SPACE  P2: WASD+E', {
         font: '10px monospace',
         fill: '#808080'
       });
     }
 
     // Combo display
-    this.comboContainer = this.add.container(GAME_WIDTH - 16, 44);
+    this.comboContainer = this.add.container(cam.width - 16, 44);
     this.comboText = this.add.text(0, 0, '', {
       font: 'bold 20px monospace',
       fill: '#FF6600',
@@ -48,6 +49,9 @@ export class UIScene extends Phaser.Scene {
     }).setOrigin(1, 0);
     this.comboContainer.add(this.comboText);
     this.comboContainer.setAlpha(0);
+
+    // Listen for resize events to reposition HUD
+    this.scale.on('resize', this.handleResize, this);
 
     // Listen for registry changes
     this.registry.events.on('changedata-lives', this.updateLives, this);
@@ -128,7 +132,22 @@ export class UIScene extends Phaser.Scene {
     }
   }
 
+  handleResize(gameSize) {
+    const width = gameSize.width;
+    const height = gameSize.height;
+
+    this.scoreText.setPosition(width - 16, 16);
+    this.instrumentsText.setPosition(width / 2, 16);
+    this.sheetMusicText.setPosition(width - 16, 36);
+    this.comboContainer.setPosition(width - 16, 44);
+
+    if (this.coopText) {
+      this.coopText.setPosition(16, height - 24);
+    }
+  }
+
   shutdown() {
+    this.scale.off('resize', this.handleResize, this);
     this.registry.events.off('changedata-lives', this.updateLives, this);
     this.registry.events.off('changedata-score', this.updateScore, this);
     this.registry.events.off('changedata-instruments', this.updateInstruments, this);

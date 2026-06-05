@@ -29,9 +29,11 @@ const config = {
   height: GAME_HEIGHT,
   parent: 'game-container',
   pixelArt: true,
+  roundPixels: true,
   scale: {
     mode: Phaser.Scale.FIT,
-    autoCenter: Phaser.Scale.CENTER_BOTH
+    autoCenter: Phaser.Scale.CENTER_BOTH,
+    autoRound: true
   },
   input: {
     activePointers: 3
