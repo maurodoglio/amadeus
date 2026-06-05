@@ -414,6 +414,18 @@ export class Level2Scene extends Phaser.Scene {
   }
 
   update(time, delta) {
+    // If any dialogue is active, freeze gameplay
+    if ((this.dialogueBox && this.dialogueBox.isActive) ||
+        (this.bossManager && this.bossManager.dialogueActive)) {
+      if (this.dialogueBox && this.dialogueBox.isActive) {
+        if (Phaser.Input.Keyboard.JustDown(this.mozart.spaceKey) ||
+            Phaser.Input.Keyboard.JustDown(this.input.keyboard.addKey('ENTER'))) {
+          this.dialogueBox.advance();
+        }
+      }
+      return;
+    }
+
     if (this.mozart && !this.mozart.isDead) this.mozart.update(time, delta);
     if (this.nannerl && !this.nannerl.isDead) this.nannerl.update();
 

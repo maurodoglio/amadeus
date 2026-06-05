@@ -436,6 +436,11 @@ export class BossPhaseManager {
     this.boss.setVelocityX(0);
     this.boss.setVelocityY(0);
 
+    // Freeze the game world during dialogue
+    scene.physics.pause();
+    if (scene.mozart) scene.mozart.setVelocity(0, 0);
+    if (scene.nannerl) scene.nannerl.setVelocity(0, 0);
+
     const bg = scene.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT - 80, GAME_WIDTH - 80, 70, 0x000000, 0.85)
       .setScrollFactor(0).setDepth(200);
     const text = scene.add.text(GAME_WIDTH / 2, GAME_HEIGHT - 80, lines[0], {
@@ -454,6 +459,7 @@ export class BossPhaseManager {
         text.destroy();
         advanceKey.off('down', advanceDialogue);
         this.dialogueActive = false;
+        scene.physics.resume();
         if (onComplete) onComplete();
       }
     };

@@ -158,20 +158,23 @@ export class Level1Scene extends Phaser.Scene {
     // Tutorial dialogue (first time only)
     if (!this.registry.get('tutorialShown')) {
       this.time.delayedCall(500, () => {
-        const tutorialDialogue = new DialogueBox(this);
-        tutorialDialogue.show([
+        this.dialogueBox = new DialogueBox(this);
+        this.physics.pause();
+        if (this.mozart) this.mozart.setVelocity(0, 0);
+        this.dialogueBox.show([
           { name: 'Mozart', text: 'Welcome! Use ARROW KEYS to move and UP to jump.' },
           { name: 'Mozart', text: 'Collect musical notes for points. Jump on enemies to defeat them!' },
           { name: 'Mozart', text: 'Find the magic instrument at the end to become a great musician!' }
         ], () => {
           this.registry.set('tutorialShown', true);
+          this.physics.resume();
         });
 
         // Handle dialogue input
         const spaceKey = this.input.keyboard.addKey('SPACE');
         const enterKey = this.input.keyboard.addKey('ENTER');
         const advanceDialogue = () => {
-          if (tutorialDialogue.isActive) tutorialDialogue.advance();
+          if (this.dialogueBox && this.dialogueBox.isActive) this.dialogueBox.advance();
         };
         spaceKey.on('down', advanceDialogue);
         enterKey.on('down', advanceDialogue);
@@ -432,11 +435,14 @@ export class Level1Scene extends Phaser.Scene {
   }
 
   update(time, delta) {
-    // If dialogue is active, only handle dialogue input
-    if (this.dialogueBox && this.dialogueBox.isActive) {
-      if (Phaser.Input.Keyboard.JustDown(this.mozart.spaceKey) ||
-          Phaser.Input.Keyboard.JustDown(this.input.keyboard.addKey('ENTER'))) {
-        this.dialogueBox.advance();
+    // If any dialogue is active, freeze gameplay
+    if ((this.dialogueBox && this.dialogueBox.isActive) ||
+        (this.bossManager && this.bossManager.dialogueActive)) {
+      if (this.dialogueBox && this.dialogueBox.isActive) {
+        if (Phaser.Input.Keyboard.JustDown(this.mozart.spaceKey) ||
+            Phaser.Input.Keyboard.JustDown(this.input.keyboard.addKey('ENTER'))) {
+          this.dialogueBox.advance();
+        }
       }
       return;
     }
