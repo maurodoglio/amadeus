@@ -13,27 +13,14 @@ import { GAME_WIDTH, GAME_HEIGHT } from '../config/constants.js';
  */
 export function getLeopoldPhases(difficulty) {
   const baseSpeed = difficulty.boss.speed || 100;
-  const projSpeed = difficulty.bossProjectileSpeed || 120;
 
   return [
     {
       hp: Math.ceil(difficulty.boss.health * 0.6),
       name: 'Conducting Fury',
       update(manager, time) {
-        const boss = manager.boss;
-        manager.moveTowardTarget(baseSpeed);
-
-        // Throws sheet music at regular intervals
-        if (time > manager.attackTimer) {
-          manager.attackTimer = time + 2200;
-          manager.fireProjectile(projSpeed, 'bossProjectile');
-          // Second sheet on harder variants
-          if (difficulty.boss.health > 4) {
-            manager.scene.time.delayedCall(400, () => {
-              manager.fireProjectile(projSpeed * 0.8, 'bossProjectile');
-            });
-          }
-        }
+        // Simple movement toward player — no projectiles (tutorial boss)
+        manager.moveTowardTarget(baseSpeed * 0.7);
 
         // Boss is always vulnerable in phase 1 (tutorial boss)
         manager.isVulnerable = true;
@@ -45,21 +32,16 @@ export function getLeopoldPhases(difficulty) {
       update(manager, time) {
         const boss = manager.boss;
 
-        // More aggressive movement
-        manager.moveTowardTarget(baseSpeed * 1.3);
+        // Slightly faster movement, still no projectiles
+        manager.moveTowardTarget(baseSpeed);
 
-        // Rapid sheet music barrages
+        // Brief pauses with vulnerability windows
         if (time > manager.attackTimer) {
-          manager.attackTimer = time + 1800;
-          for (let i = 0; i < 3; i++) {
-            manager.scene.time.delayedCall(i * 300, () => {
-              manager.fireProjectile(projSpeed + 30, 'bossProjectile');
-            });
-          }
-          // Conduct pause after barrage — vulnerability window
-          manager.scene.time.delayedCall(1200, () => {
+          manager.attackTimer = time + 2500;
+          // Conduct pause — vulnerability window
+          manager.scene.time.delayedCall(800, () => {
             boss.setVelocityX(0);
-            manager.openVulnerability(1500);
+            manager.openVulnerability(2000);
           });
         }
       }
