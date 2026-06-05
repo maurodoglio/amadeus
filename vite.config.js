@@ -4,7 +4,14 @@ export default defineConfig({
   base: '/amadeus/',
   build: {
     outDir: 'dist',
-    assetsDir: 'assets'
+    assetsDir: 'assets',
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['phaser']
+        }
+      }
+    }
   },
   server: {
     port: 3000,

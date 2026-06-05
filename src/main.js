@@ -5,13 +5,6 @@ import { MenuScene } from './scenes/MenuScene.js';
 import { MapScene } from './scenes/MapScene.js';
 import { CutsceneScene } from './scenes/CutsceneScene.js';
 import { TransitionScene } from './scenes/TransitionScene.js';
-import { Level1Scene } from './scenes/Level1Scene.js';
-import { Level2Scene } from './scenes/Level2Scene.js';
-import { Level3Scene } from './scenes/Level3Scene.js';
-import { Level4Scene } from './scenes/Level4Scene.js';
-import { Level5Scene } from './scenes/Level5Scene.js';
-import { Level6Scene } from './scenes/Level6Scene.js';
-import { Level7Scene } from './scenes/Level7Scene.js';
 import { ConcertScene } from './scenes/ConcertScene.js';
 import { LevelCompleteScene } from './scenes/LevelCompleteScene.js';
 import { InstrumentLessonScene } from './scenes/InstrumentLessonScene.js';
@@ -24,6 +17,7 @@ import { MelodyMemoryScene } from './scenes/MelodyMemoryScene.js';
 import { AchievementsScene } from './scenes/AchievementsScene.js';
 import { AchievementPopup } from './ui/AchievementPopup.js';
 import { initAchievementManager } from './utils/AchievementManager.js';
+import { LoadingScene } from './utils/SceneLoader.js';
 
 const config = {
   type: Phaser.AUTO,
@@ -47,7 +41,7 @@ const config = {
       debug: false
     }
   },
-  scene: [BootScene, MenuScene, MapScene, CutsceneScene, TransitionScene, Level1Scene, Level2Scene, Level3Scene, Level4Scene, Level5Scene, Level6Scene, Level7Scene, LevelCompleteScene, InstrumentLessonScene, ConcertScene, UIScene, TouchControls, PauseScene, AccessibilityScene, RhythmScene, MelodyMemoryScene, AchievementsScene, AchievementPopup]
+  scene: [BootScene, MenuScene, MapScene, CutsceneScene, TransitionScene, LevelCompleteScene, InstrumentLessonScene, ConcertScene, UIScene, TouchControls, PauseScene, AccessibilityScene, RhythmScene, MelodyMemoryScene, AchievementsScene, AchievementPopup, LoadingScene]
 };
 
 const game = new Phaser.Game(config);
