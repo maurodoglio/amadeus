@@ -15,6 +15,7 @@ import { MozartSoundtracks } from '../utils/MozartSoundtracks.js';
 import { setupBoss, updateBossAI, getBossTarget, showBossDialogue } from '../utils/BossFight.js';
 import { getAchievementManager } from '../utils/AchievementManager.js';
 import { CompositionCollector } from '../mechanics/CompositionCollector.js';
+import { PitchPuzzle } from '../mechanics/PitchPuzzle.js';
 import { setupCamera, setupCoopCamera, updateCameraLookAhead } from '../utils/CameraManager.js';
 
 export class Level2Scene extends Phaser.Scene {
@@ -303,6 +304,11 @@ export class Level2Scene extends Phaser.Scene {
     ];
     this.compositionCollector.create(compositionNotePositions);
     this.compositionCollector.setupOverlap(this.mozart);
+
+    // Pitch Puzzle
+    this.pitchPuzzle = new PitchPuzzle(this, 2, { x: 1700, y: GAME_HEIGHT - 130 });
+    this.pitchPuzzle.create();
+    this.pitchPuzzle.setupOverlap(this.mozart);
 
     // Collisions
     this.physics.add.collider(this.mozart, this.platforms);
