@@ -1,3 +1,4 @@
+// @ts-check
 import Phaser from 'phaser';
 import { PLAYER } from '../config/constants.js';
 import { ParticleManager } from '../utils/ParticleManager.js';
@@ -6,7 +7,18 @@ import { SFXGenerator } from '../utils/SFXGenerator.js';
 import { AnimationManager } from '../utils/AnimationManager.js';
 import { InstrumentWeapons } from '../mechanics/InstrumentWeapons.js';
 
+/**
+ * Mozart — the player-controlled character sprite.
+ * Handles movement with coyote time and jump buffering,
+ * animations, combat, and instrument weapon systems.
+ * @extends Phaser.Physics.Arcade.Sprite
+ */
 export class Mozart extends Phaser.Physics.Arcade.Sprite {
+  /**
+   * @param {Phaser.Scene} scene - The scene this sprite belongs to
+   * @param {number} x - Initial X position
+   * @param {number} y - Initial Y position
+   */
   constructor(scene, x, y) {
     super(scene, x, y, 'mozart');
     scene.add.existing(this);
@@ -55,6 +67,11 @@ export class Mozart extends Phaser.Physics.Arcade.Sprite {
     this.touchControls = null;
   }
 
+  /**
+   * Update player state: movement, jumping, animations, and combat.
+   * @param {number} time - Current game time in ms
+   * @param {number} delta - Time elapsed since last frame in ms
+   */
   update(time, delta) {
     if (this.isDead) return;
     if (this.isAttacking) return;
@@ -184,6 +201,9 @@ export class Mozart extends Phaser.Physics.Arcade.Sprite {
     }
   }
 
+  /**
+   * Execute a jump with visual stretch effect and sound.
+   */
   executeJump() {
     this.setVelocityY(PLAYER.JUMP_VELOCITY);
     this.play('mozart_jump_up', true);
@@ -201,6 +221,7 @@ export class Mozart extends Phaser.Physics.Arcade.Sprite {
 
   /**
    * Play the attack animation (dramatic conductor pose).
+   * @param {(() => void)} [onComplete] - Callback invoked when the animation finishes
    */
   playAttack(onComplete) {
     this.isAttacking = true;
@@ -218,6 +239,11 @@ export class Mozart extends Phaser.Physics.Arcade.Sprite {
     this.play('mozart_victory');
   }
 
+  /**
+   * Handle taking damage from an enemy or hazard.
+   * Applies difficulty-based damage reduction, knockback, and invincibility frames.
+   * @param {Phaser.GameObjects.Sprite|{x: number}} [damageSource] - The source of damage for knockback direction
+   */
   hit(damageSource) {
     if (this.isInvincible || this.isDead) return;
 
@@ -301,6 +327,9 @@ export class Mozart extends Phaser.Physics.Arcade.Sprite {
     });
   }
 
+  /**
+   * Kill the player with dramatic slow-motion and spin animation.
+   */
   die() {
     this.isDead = true;
     this.setVelocity(0, 0);
@@ -342,6 +371,8 @@ export class Mozart extends Phaser.Physics.Arcade.Sprite {
 
   /**
    * Respawn at a given position with sparkle effect.
+   * @param {number} x - Respawn X position
+   * @param {number} y - Respawn Y position
    */
   respawn(x, y) {
     this.isDead = false;
@@ -377,6 +408,10 @@ export class Mozart extends Phaser.Physics.Arcade.Sprite {
     });
   }
 
+  /**
+   * Collect an instrument and add it to the player's inventory.
+   * @param {string} instrument - The instrument identifier to collect
+   */
   collectInstrument(instrument) {
     const instruments = this.scene.registry.get('instruments');
     instruments.push(instrument);

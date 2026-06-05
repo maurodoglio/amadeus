@@ -1,14 +1,22 @@
 import { safeAudio, isAudioDisabled } from './ErrorBoundary.js';
 
+// @ts-check
 /**
  * Generates chiptune-style audio using the Web Audio API.
  */
 export class AudioGenerator {
+  /**
+   * @param {Phaser.Scene} scene - The scene to register audio with
+   */
   constructor(scene) {
     this.scene = scene;
+    /** @type {AudioContext|null} */
     this.audioContext = null;
   }
 
+  /**
+   * Initialize the Web Audio context.
+   */
   init() {
     try {
       this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -18,6 +26,9 @@ export class AudioGenerator {
     }
   }
 
+  /**
+   * Generate all game audio (SFX and music tracks).
+   */
   generateAll() {
     this.init();
     if (!this.audioContext || isAudioDisabled()) return;
@@ -42,6 +53,12 @@ export class AudioGenerator {
     });
   }
 
+  /**
+   * Create an audio buffer with generated waveform data.
+   * @param {number} duration - Duration in seconds
+   * @param {(data: Float32Array, sampleRate: number, length: number) => void} generator - Function that fills the buffer
+   * @returns {AudioBuffer} The generated audio buffer
+   */
   createBuffer(duration, generator) {
     const sampleRate = this.audioContext.sampleRate;
     const length = sampleRate * duration;
@@ -51,6 +68,11 @@ export class AudioGenerator {
     return buffer;
   }
 
+  /**
+   * Convert an AudioBuffer to a base64-encoded WAV data URI.
+   * @param {AudioBuffer} buffer - The audio buffer to encode
+   * @returns {string} A data:audio/wav;base64,... URI
+   */
   bufferToBase64(buffer) {
     const numChannels = buffer.numberOfChannels;
     const length = buffer.length;
@@ -99,12 +121,23 @@ export class AudioGenerator {
     return 'data:audio/wav;base64,' + btoa(binary);
   }
 
+  /**
+   * Write a string into a DataView at the specified byte offset.
+   * @param {DataView} view - The DataView to write to
+   * @param {number} offset - Byte offset
+   * @param {string} string - The string to write
+   */
   writeString(view, offset, string) {
     for (let i = 0; i < string.length; i++) {
       view.setUint8(offset + i, string.charCodeAt(i));
     }
   }
 
+  /**
+   * Register an AudioBuffer as a decoded sound in the scene's sound manager.
+   * @param {string} key - Sound key to register
+   * @param {AudioBuffer} buffer - The audio buffer to add
+   */
   addSoundToScene(key, buffer) {
     const dataUri = this.bufferToBase64(buffer);
     this.scene.sound.decodeAudio(key, dataUri);
@@ -586,3 +619,4 @@ export class AudioGenerator {
     this.addSoundToScene('sfx_chordDissonant', buffer);
   }
 }
+

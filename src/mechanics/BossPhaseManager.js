@@ -1,5 +1,10 @@
+// @ts-check
 import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT } from '../config/constants.js';
+
+/**
+ * @typedef {import('../types.js').BossPhaseConfig} BossPhaseConfig
+ */
 
 /**
  * BossPhaseManager — Manages multi-phase boss battles with musical mechanics.
@@ -7,6 +12,20 @@ import { GAME_WIDTH, GAME_HEIGHT } from '../config/constants.js';
  * vulnerability windows, and transition animations.
  */
 export class BossPhaseManager {
+  /**
+   * @param {Phaser.Scene} scene - The current game scene
+   * @param {Object} config - Boss configuration
+   * @param {string} config.name - Boss display name
+   * @param {string} config.texture - Texture key for the boss sprite
+   * @param {number} config.x - Initial X position
+   * @param {number} config.y - Initial Y position
+   * @param {number} [config.scale] - Sprite scale (default 2.5)
+   * @param {number} [config.activateX] - X position that triggers boss activation
+   * @param {string[]} [config.dialogue] - Intro dialogue lines
+   * @param {string} [config.victoryQuote] - Text shown on defeat
+   * @param {BossPhaseConfig[]} config.phases - Array of phase configurations
+   * @param {number} [config.coopHealthBonus] - Extra HP per phase in co-op mode
+   */
   constructor(scene, config) {
     this.scene = scene;
     this.config = config;
@@ -40,6 +59,9 @@ export class BossPhaseManager {
     this.ui = null;
   }
 
+  /**
+   * Create the boss sprite, projectile group, UI, and collision handlers.
+   */
   create() {
     const scene = this.scene;
     const coopMode = scene.coopMode || false;
@@ -362,6 +384,8 @@ export class BossPhaseManager {
 
   /**
    * Show dramatic intro dialogue before fight starts.
+   * @param {string[]} lines - Dialogue lines to display sequentially
+   * @param {(() => void)} [onComplete] - Callback when dialogue finishes
    */
   showDialogue(lines, onComplete) {
     if (!lines || lines.length === 0) {
@@ -400,6 +424,7 @@ export class BossPhaseManager {
 
   /**
    * Call in the scene's update() method.
+   * @param {number} time - Current game time in ms
    */
   update(time) {
     if (!this.boss || !this.boss.active) return;
@@ -438,6 +463,7 @@ export class BossPhaseManager {
 
   /**
    * Open a vulnerability window for the specified duration.
+   * @param {number} [duration=2000] - Duration of vulnerability in ms
    */
   openVulnerability(duration = 2000) {
     if (this.isVulnerable) return;
@@ -465,6 +491,7 @@ export class BossPhaseManager {
 
   /**
    * Get the nearest player target.
+   * @returns {Phaser.Physics.Arcade.Sprite} The nearest active player sprite
    */
   getTarget() {
     const scene = this.scene;
@@ -483,6 +510,9 @@ export class BossPhaseManager {
 
   /**
    * Fire a projectile toward the target player.
+   * @param {number} [speed=150] - Projectile speed in pixels/second
+   * @param {string} [texture='bossProjectile'] - Texture key for the projectile
+   * @returns {Phaser.Physics.Arcade.Sprite|undefined} The created projectile sprite
    */
   fireProjectile(speed = 150, texture = 'bossProjectile') {
     const target = this.getTarget();
@@ -497,6 +527,9 @@ export class BossPhaseManager {
 
   /**
    * Fire a shockwave along the ground.
+   * @param {number} [speed=200] - Shockwave speed in pixels/second
+   * @param {number} [direction=1] - Direction (1 = right, -1 = left)
+   * @returns {Phaser.Physics.Arcade.Sprite|undefined} The created shockwave sprite
    */
   fireShockwave(speed = 200, direction = 1) {
     const proj = this.projectiles.create(
@@ -514,6 +547,7 @@ export class BossPhaseManager {
 
   /**
    * Move boss toward target.
+   * @param {number} [speed=100] - Movement speed in pixels/second
    */
   moveTowardTarget(speed = 100) {
     const target = this.getTarget();
@@ -530,6 +564,7 @@ export class BossPhaseManager {
 
   /**
    * Make boss jump.
+   * @param {number} [force=-350] - Jump velocity (negative = upward)
    */
   jump(force = -350) {
     if (this.boss.body.blocked.down || this.boss.body.touching.down) {
@@ -539,6 +574,11 @@ export class BossPhaseManager {
 
   /**
    * Spawn minion enemies during the boss fight.
+   * @param {number} x - Spawn X position
+   * @param {number} y - Spawn Y position
+   * @param {string} [texture='bossMinion'] - Texture key for the minion
+   * @param {number} [speed=80] - Minion movement speed
+   * @returns {Phaser.Physics.Arcade.Sprite} The created minion sprite
    */
   spawnMinion(x, y, texture = 'bossMinion', speed = 80) {
     const minion = this.scene.physics.add.sprite(x, y, texture);

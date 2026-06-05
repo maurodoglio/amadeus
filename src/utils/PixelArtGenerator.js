@@ -1,3 +1,4 @@
+// @ts-check
 import { TILE_SIZE } from '../config/constants.js';
 import { generateAllParallaxTextures } from './ParallaxBackground.js';
 
@@ -6,10 +7,16 @@ import { generateAllParallaxTextures } from './ParallaxBackground.js';
  * Each sprite is defined as a 2D array of color values.
  */
 export class PixelArtGenerator {
+  /**
+   * @param {Phaser.Scene} scene - The scene to register textures with
+   */
   constructor(scene) {
     this.scene = scene;
   }
 
+  /**
+   * Generate all game textures (sprites, tiles, items, backgrounds, etc.).
+   */
   generateAll() {
     this.generateMozart();
     this.generateNannerl();
@@ -28,6 +35,12 @@ export class PixelArtGenerator {
     this.generateWeaponSprites();
   }
 
+  /**
+   * Create a single-frame texture from pixel data.
+   * @param {string} key - Texture key to register
+   * @param {(string|null)[][]} pixelData - 2D array of CSS color strings (null = transparent)
+   * @param {number} [scale=2] - Scale multiplier for each pixel
+   */
   createTexture(key, pixelData, scale = 2) {
     const width = pixelData[0].length;
     const height = pixelData.length;
@@ -49,6 +62,12 @@ export class PixelArtGenerator {
     this.scene.textures.addCanvas(key, canvas);
   }
 
+  /**
+   * Create a sprite sheet texture from multiple frames of pixel data.
+   * @param {string} key - Texture key to register
+   * @param {(string|null)[][][]} frames - Array of frames, each a 2D pixel array
+   * @param {number} [scale=2] - Scale multiplier for each pixel
+   */
   createSpriteSheet(key, frames, scale = 2) {
     const width = frames[0][0].length;
     const height = frames[0].length;
