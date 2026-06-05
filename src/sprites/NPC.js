@@ -80,6 +80,11 @@ export class NPC extends Phaser.Physics.Arcade.Sprite {
     this.isTalking = true;
     this.prompt.setVisible(false);
 
+    // Freeze Mozart before dialogue starts
+    if (this.scene.mozart) {
+      this.scene.mozart.setVelocity(0, 0);
+    }
+
     dialogueBox.show(lines, () => {
       this.isTalking = false;
       if (!this.hasInteracted) {
