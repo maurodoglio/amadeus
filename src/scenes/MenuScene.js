@@ -3,6 +3,7 @@ import { GAME_WIDTH, GAME_HEIGHT } from '../config/constants.js';
 import { ScoreManager } from '../utils/ScoreManager.js';
 import { MozartSoundtracks } from '../utils/MozartSoundtracks.js';
 import { drawParchmentBackground, drawStaffDivider, drawTrebleClef, createButton, COLORS, FONTS } from '../ui/UITheme.js';
+import { SFXGenerator } from '../utils/SFXGenerator.js';
 
 export class MenuScene extends Phaser.Scene {
   constructor() {
@@ -142,9 +143,12 @@ export class MenuScene extends Phaser.Scene {
     this.selectedOption = (this.selectedOption + dir + this.menuOptions.length) % this.menuOptions.length;
     const targetY = this.selectedOption === 0 ? 355 : 400;
     this.selector.setY(targetY);
+    this.selector.setY(this.menuOptions[this.selectedOption].y);
+    SFXGenerator.play(this, 'sfx_menuHover', 0.2);
   }
 
   confirmSelection() {
+    SFXGenerator.play(this, 'sfx_menuSelect', 0.3);
     const coopMode = this.selectedOption === 1;
     this.startGame(coopMode);
   }
@@ -172,3 +176,4 @@ export class MenuScene extends Phaser.Scene {
     this.scene.launch('TouchControls');
   }
 }
+
