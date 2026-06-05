@@ -228,32 +228,41 @@ export class CutsceneScene extends Phaser.Scene {
     boxBg.setStrokeStyle(2, 0xFFD700);
     this.dialogBox.add(boxBg);
 
+    // Portrait frame (inside the box, left-aligned with padding)
+    const portraitX = -boxBg.width / 2 + 50;
+    this.portraitFrame = this.add.rectangle(portraitX, 0, 70, 70, 0x222222);
+    this.portraitFrame.setStrokeStyle(2, 0xFFD700);
+    this.portraitFrame.setVisible(false);
+    this.dialogBox.add(this.portraitFrame);
+
+    // Portrait image
+    this.portraitImage = this.add.image(portraitX, 0, 'mozart');
+    this.portraitImage.setScale(2);
+    this.portraitImage.setVisible(false);
+    this.dialogBox.add(this.portraitImage);
+
+    // Text x offset (shifted right when portrait is present)
+    const textXWithPortrait = -boxBg.width / 2 + 95;
+    const textXNoPortrait = -boxBg.width / 2 + 20;
+    this.textXWithPortrait = textXWithPortrait;
+    this.textXNoPortrait = textXNoPortrait;
+    this.textWidthWithPortrait = boxBg.width - 120 - 80;
+    this.textWidthNoPortrait = boxBg.width - 120;
+
     // Character name text
-    this.nameText = this.add.text(-boxBg.width / 2 + 20, -boxBg.height / 2 + 10, '', {
+    this.nameText = this.add.text(textXNoPortrait, -boxBg.height / 2 + 10, '', {
       font: 'bold 16px monospace',
       fill: '#FFD700'
     });
     this.dialogBox.add(this.nameText);
 
     // Dialog text
-    this.dialogText = this.add.text(-boxBg.width / 2 + 20, -boxBg.height / 2 + 35, '', {
+    this.dialogText = this.add.text(textXNoPortrait, -boxBg.height / 2 + 35, '', {
       font: '14px monospace',
       fill: '#FFFFFF',
       wordWrap: { width: boxBg.width - 120 }
     });
     this.dialogBox.add(this.dialogText);
-
-    // Portrait frame
-    this.portraitFrame = this.add.rectangle(-boxBg.width / 2 - 50, 0, 70, 70, 0x222222);
-    this.portraitFrame.setStrokeStyle(2, 0xFFD700);
-    this.portraitFrame.setVisible(false);
-    this.dialogBox.add(this.portraitFrame);
-
-    // Portrait image
-    this.portraitImage = this.add.image(-boxBg.width / 2 - 50, 0, 'mozart');
-    this.portraitImage.setScale(2);
-    this.portraitImage.setVisible(false);
-    this.dialogBox.add(this.portraitImage);
 
     // Continue prompt
     this.continueText = this.add.text(boxBg.width / 2 - 20, boxBg.height / 2 - 20, '▼', {
@@ -331,11 +340,16 @@ export class CutsceneScene extends Phaser.Scene {
     // Update name
     this.nameText.setText(dialogue.name);
 
-    // Update portrait
+    // Update portrait and adjust text position
     if (dialogue.portrait && this.textures.exists(dialogue.portrait)) {
       this.portraitFrame.setVisible(true);
       this.portraitImage.setTexture(dialogue.portrait);
       this.portraitImage.setVisible(true);
+
+      // Shift text to accommodate portrait
+      this.nameText.setX(this.textXWithPortrait);
+      this.dialogText.setX(this.textXWithPortrait);
+      this.dialogText.setWordWrapWidth(this.textWidthWithPortrait);
 
       // Portrait entrance animation
       this.portraitImage.setScale(0);
@@ -348,6 +362,11 @@ export class CutsceneScene extends Phaser.Scene {
     } else {
       this.portraitFrame.setVisible(false);
       this.portraitImage.setVisible(false);
+
+      // Use full width for text
+      this.nameText.setX(this.textXNoPortrait);
+      this.dialogText.setX(this.textXNoPortrait);
+      this.dialogText.setWordWrapWidth(this.textWidthNoPortrait);
     }
 
     // Typewriter text reveal
