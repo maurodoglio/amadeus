@@ -394,7 +394,13 @@ export class Level2Scene extends Phaser.Scene {
 
     // Handle resume from rhythm scene - apply power-up
     this.events.on('resume', () => {
-      this.sound.resumeAll();
+      try {
+        this.sound.resumeAll();
+        if (this.mozartSoundtrack) this.mozartSoundtrack.play('level2');
+        if (this.adaptiveMusic) this.adaptiveMusic.start('exploration');
+      } catch (e) {
+        // Ignore audio resume errors
+      }
       const powerUp = this.registry.get('rhythmPowerUp');
       if (powerUp) {
         this.registry.set('rhythmPowerUp', null);
@@ -667,14 +673,24 @@ export class Level2Scene extends Phaser.Scene {
     this.rhythmCooldown = true;
     this.time.delayedCall(1000, () => { this.rhythmCooldown = false; });
 
-    this.scene.pause();
-    this.sound.pauseAll();
+    try {
+      // Stop adaptive music (uses its own Web Audio context, not Phaser sound)
+      if (this.adaptiveMusic) this.adaptiveMusic.stop();
+      if (this.mozartSoundtrack) this.mozartSoundtrack.stop();
+      this.sound.pauseAll();
+    } catch (e) {
+      // Ignore audio errors to prevent blocking scene transition
+    }
+
+    // Launch RhythmScene BEFORE pausing so it initializes while Level2 is still active
     this.scene.launch('RhythmScene', {
       returnScene: 'Level2Scene',
       difficulty: stage.difficulty || 2,
       playerX: player.x,
       playerY: player.y
     });
+    this.scene.bringToTop('RhythmScene');
+    this.scene.pause();
   }
 
   applyRhythmPowerUp(powerUp) {

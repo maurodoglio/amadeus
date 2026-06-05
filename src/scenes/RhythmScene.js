@@ -226,6 +226,19 @@ export class RhythmScene extends Phaser.Scene {
     Object.keys(this.keys).forEach(keyName => {
       this.keys[keyName].on('down', () => this.onKeyPress(this.keyLaneMap[keyName]));
     });
+
+    // ESC key to exit rhythm game early
+    this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC).on('down', () => {
+      this.exitRhythmGame();
+    });
+  }
+
+  /** Exits the rhythm game and returns to the level scene */
+  exitRhythmGame() {
+    if (this._exiting) return;
+    this._exiting = true;
+    this.scene.stop('RhythmScene');
+    this.scene.resume(this.returnScene);
   }
 
   /** Creates a simple click/tick sound using Web Audio API */
@@ -736,8 +749,7 @@ export class RhythmScene extends Phaser.Scene {
     this.time.delayedCall(800, () => {
       this.input.keyboard.once('keydown', () => {
         this.applyRewards(stars);
-        this.scene.stop('RhythmScene');
-        this.scene.resume(this.returnScene);
+        this.exitRhythmGame();
       });
     });
   }
