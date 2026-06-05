@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT } from '../config/constants.js';
 import { MozartSoundtracks } from '../utils/MozartSoundtracks.js';
-import { drawConcertHallBackground, drawOrnateFrame, COLORS } from '../ui/UITheme.js';
+import { drawConcertHallBackground, drawOrnateFrame, graphicsQuadCurve, COLORS } from '../ui/UITheme.js';
 import { SFXGenerator } from '../utils/SFXGenerator.js';
 
 export class MenuScene extends Phaser.Scene {
@@ -51,7 +51,7 @@ export class MenuScene extends Phaser.Scene {
     hall.lineStyle(3, COLORS.goldDark, 0.45);
     hall.beginPath();
     hall.moveTo(0, GAME_HEIGHT - 92);
-    hall.quadraticCurveTo(GAME_WIDTH / 2, GAME_HEIGHT - 120, GAME_WIDTH, GAME_HEIGHT - 92);
+    graphicsQuadCurve(hall, 0, GAME_HEIGHT - 92, GAME_WIDTH / 2, GAME_HEIGHT - 120, GAME_WIDTH, GAME_HEIGHT - 92);
     hall.strokePath();
 
     const columns = this.add.graphics();
@@ -166,9 +166,9 @@ export class MenuScene extends Phaser.Scene {
     body.fillStyle(0x04050b, 0.95);
     body.beginPath();
     body.moveTo(-58, 78);
-    body.quadraticCurveTo(-78, -4, -18, -44);
+    graphicsQuadCurve(body, -58, 78, -78, -4, -18, -44);
     body.lineTo(18, -44);
-    body.quadraticCurveTo(82, -2, 60, 78);
+    graphicsQuadCurve(body, 18, -44, 82, -2, 60, 78);
     body.lineTo(26, 112);
     body.lineTo(-26, 112);
     body.closePath();

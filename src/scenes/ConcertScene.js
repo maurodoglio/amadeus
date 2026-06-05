@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT } from '../config/constants.js';
-import { drawConcertHallBackground, createInstrumentIcon, COLORS, drawOrnateFrame } from '../ui/UITheme.js';
+import { drawConcertHallBackground, createInstrumentIcon, COLORS, drawOrnateFrame, graphicsQuadCurve } from '../ui/UITheme.js';
 
 export class ConcertScene extends Phaser.Scene {
   constructor() {
@@ -122,7 +122,7 @@ export class ConcertScene extends Phaser.Scene {
       frame.strokeCircle(0, 0, 18);
       frame.beginPath();
       frame.moveTo(-18, 0);
-      frame.quadraticCurveTo(0, 20, 18, 0);
+      graphicsQuadCurve(frame, -18, 0, 0, 20, 18, 0);
       frame.strokePath();
       [-12, 0, 12].forEach(offset => {
         frame.lineStyle(1.5, COLORS.goldLight, 0.8);

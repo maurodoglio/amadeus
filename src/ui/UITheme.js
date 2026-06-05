@@ -1,6 +1,20 @@
 import Phaser from 'phaser';
 
 /**
+ * Draw a quadratic Bézier curve on a Phaser Graphics object by subdividing into line segments.
+ * Phaser Graphics doesn't have quadraticCurveTo, so we approximate.
+ */
+export function graphicsQuadCurve(graphics, startX, startY, cpX, cpY, endX, endY, segments = 8) {
+  for (let i = 1; i <= segments; i++) {
+    const t = i / segments;
+    const mt = 1 - t;
+    const x = mt * mt * startX + 2 * mt * t * cpX + t * t * endX;
+    const y = mt * mt * startY + 2 * mt * t * cpY + t * t * endY;
+    graphics.lineTo(x, y);
+  }
+}
+
+/**
  * Shared UI theme constants and helpers for the 18th-century classical music manuscript aesthetic.
  * All visuals are procedural (Phaser graphics, no external images).
  */
@@ -104,7 +118,7 @@ export function drawConcertHallBackground(scene, width, height) {
   balcony.lineStyle(2, COLORS.goldDark, 0.5);
   balcony.beginPath();
   balcony.moveTo(0, height * 0.62);
-  balcony.quadraticCurveTo(width / 2, height * 0.58, width, height * 0.62);
+  graphicsQuadCurve(balcony, 0, height * 0.62, width / 2, height * 0.58, width, height * 0.62);
   balcony.strokePath();
 
   const columns = scene.add.graphics();
@@ -333,8 +347,8 @@ export function drawOrnateFrame(scene, x, y, width, height, color = COLORS.gold,
     graphics.lineStyle(2, color, alpha * 0.8);
     graphics.beginPath();
     graphics.moveTo(cx, cy + 12 * dir);
-    graphics.quadraticCurveTo(cx + 12 * dir, cy, cx, cy - 12 * dir);
-    graphics.quadraticCurveTo(cx - 12 * dir, cy, cx, cy + 12 * dir);
+    graphicsQuadCurve(graphics, cx, cy + 12 * dir, cx + 12 * dir, cy, cx, cy - 12 * dir);
+    graphicsQuadCurve(graphics, cx, cy - 12 * dir, cx - 12 * dir, cy, cx, cy + 12 * dir);
     graphics.strokePath();
     graphics.fillStyle(color, alpha * 0.45);
     graphics.fillCircle(cx, cy, 3);
