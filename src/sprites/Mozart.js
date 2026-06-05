@@ -19,27 +19,39 @@ export class Mozart extends Phaser.Physics.Arcade.Sprite {
     this.canAttack = false;
     this.wasInAir = false;
 
+    // Gameplay feel state
+    this.coyoteTimer = 0;
+    this.jumpBufferTimer = 0;
+    this.isJumpHeld = false;
+    this.currentVelocityX = 0;
+
     this.particles = new ParticleManager(scene);
 
     // Animations
-    scene.anims.create({
-      key: 'mozart_idle',
-      frames: [{ key: 'mozart', frame: 0 }],
-      frameRate: 1
-    });
+    if (!scene.anims.exists('mozart_idle')) {
+      scene.anims.create({
+        key: 'mozart_idle',
+        frames: [{ key: 'mozart', frame: 0 }],
+        frameRate: 1
+      });
+    }
 
-    scene.anims.create({
-      key: 'mozart_walk',
-      frames: scene.anims.generateFrameNumbers('mozart', { start: 0, end: 2 }),
-      frameRate: 8,
-      repeat: -1
-    });
+    if (!scene.anims.exists('mozart_walk')) {
+      scene.anims.create({
+        key: 'mozart_walk',
+        frames: scene.anims.generateFrameNumbers('mozart', { start: 0, end: 2 }),
+        frameRate: 8,
+        repeat: -1
+      });
+    }
 
-    scene.anims.create({
-      key: 'mozart_jump',
-      frames: [{ key: 'mozart', frame: 3 }],
-      frameRate: 1
-    });
+    if (!scene.anims.exists('mozart_jump')) {
+      scene.anims.create({
+        key: 'mozart_jump',
+        frames: [{ key: 'mozart', frame: 3 }],
+        frameRate: 1
+      });
+    }
 
     this.play('mozart_idle');
 
@@ -54,8 +66,10 @@ export class Mozart extends Phaser.Physics.Arcade.Sprite {
     this.touchControls = null;
   }
 
-  update(time) {
+  update(time, delta) {
     if (this.isDead) return;
+
+    const dt = delta || 16;
 
     // Lazily acquire touch controls reference
     if (!this.touchControls) {
@@ -65,33 +79,91 @@ export class Mozart extends Phaser.Physics.Arcade.Sprite {
     const touch = this.touchControls || {};
     const onGround = this.body.blocked.down || this.body.touching.down;
 
-    // Emit dust on landing
+    // --- Coyote time ---
+    if (onGround) {
+      this.coyoteTimer = PLAYER.COYOTE_TIME;
+    } else {
+      this.coyoteTimer -= dt;
+    }
+    const canCoyoteJump = this.coyoteTimer > 0;
+
+    // --- Jump input buffering ---
+    const jumpPressed = Phaser.Input.Keyboard.JustDown(this.cursors.up) ||
+                        Phaser.Input.Keyboard.JustDown(this.spaceKey) ||
+                        (touch.isJump && !this._prevTouchJump);
+    this._prevTouchJump = !!touch.isJump;
+
+    if (jumpPressed) {
+      this.jumpBufferTimer = PLAYER.JUMP_BUFFER_TIME;
+    } else {
+      this.jumpBufferTimer -= dt;
+    }
+
+    const jumpHeld = this.cursors.up.isDown || this.spaceKey.isDown || touch.isJump;
+
+    // --- Landing detection (squash + buffered jump) ---
     if (onGround && this.wasInAir) {
       this.particles.emitDust(this.x, this.y + this.height / 2);
+      // Landing squash
+      this.setScale(1.2, 0.8);
+      this.scene.tweens.add({
+        targets: this,
+        scaleX: 1,
+        scaleY: 1,
+        duration: 120,
+        ease: 'Back.easeOut'
+      });
     }
     this.wasInAir = !onGround;
 
-    // Horizontal movement (keyboard OR touch)
+    // --- Horizontal movement with acceleration/deceleration ---
+    let targetVX = 0;
     if (this.cursors.left.isDown || touch.isLeft) {
-      this.setVelocityX(-PLAYER.SPEED);
+      targetVX = -PLAYER.SPEED;
       this.setFlipX(true);
-      if (onGround) this.play('mozart_walk', true);
     } else if (this.cursors.right.isDown || touch.isRight) {
-      this.setVelocityX(PLAYER.SPEED);
+      targetVX = PLAYER.SPEED;
       this.setFlipX(false);
-      if (onGround) this.play('mozart_walk', true);
-    } else {
-      this.setVelocityX(0);
-      if (onGround) this.play('mozart_idle', true);
     }
 
-    // Jumping (keyboard OR touch)
-    if ((this.cursors.up.isDown || this.spaceKey.isDown || touch.isJump) && onGround) {
-      this.setVelocityY(PLAYER.JUMP_VELOCITY);
-      this.play('mozart_jump', true);
-      if (this.scene.sound.get('sfx_jump')) {
-        this.scene.sound.play('sfx_jump', { volume: 0.3 });
+    if (targetVX !== 0) {
+      // Accelerate toward target
+      if (this.currentVelocityX < targetVX) {
+        this.currentVelocityX = Math.min(this.currentVelocityX + PLAYER.ACCELERATION * (dt / 1000), targetVX);
+      } else if (this.currentVelocityX > targetVX) {
+        this.currentVelocityX = Math.max(this.currentVelocityX - PLAYER.ACCELERATION * (dt / 1000), targetVX);
       }
+    } else {
+      // Decelerate to stop
+      if (this.currentVelocityX > 0) {
+        this.currentVelocityX = Math.max(0, this.currentVelocityX - PLAYER.DECELERATION * (dt / 1000));
+      } else if (this.currentVelocityX < 0) {
+        this.currentVelocityX = Math.min(0, this.currentVelocityX + PLAYER.DECELERATION * (dt / 1000));
+      }
+    }
+
+    this.setVelocityX(this.currentVelocityX);
+
+    // Animations for ground movement
+    if (onGround) {
+      if (Math.abs(this.currentVelocityX) > 10) {
+        this.play('mozart_walk', true);
+      } else {
+        this.play('mozart_idle', true);
+      }
+    }
+
+    // --- Jumping (with coyote time + input buffer) ---
+    if (this.jumpBufferTimer > 0 && canCoyoteJump) {
+      this.executeJump();
+      this.jumpBufferTimer = 0;
+      this.coyoteTimer = 0;
+    }
+
+    // --- Variable jump height ---
+    if (!onGround && this.body.velocity.y < 0 && !jumpHeld) {
+      // Player released jump early — apply extra gravity for a shorter hop
+      this.body.velocity.y += PLAYER.GRAVITY * PLAYER.VARIABLE_JUMP_GRAVITY_MULT * (dt / 1000);
     }
 
     // In-air animation
@@ -105,7 +177,24 @@ export class Mozart extends Phaser.Physics.Arcade.Sprite {
     }
   }
 
-  hit() {
+  executeJump() {
+    this.setVelocityY(PLAYER.JUMP_VELOCITY);
+    this.play('mozart_jump', true);
+    // Jump stretch
+    this.setScale(0.85, 1.15);
+    this.scene.tweens.add({
+      targets: this,
+      scaleX: 1,
+      scaleY: 1,
+      duration: 150,
+      ease: 'Quad.easeOut'
+    });
+    if (this.scene.sound.get('sfx_jump')) {
+      this.scene.sound.play('sfx_jump', { volume: 0.3 });
+    }
+  }
+
+  hit(damageSource) {
     if (this.isInvincible || this.isDead) return;
 
     this.isInvincible = true;
@@ -122,10 +211,20 @@ export class Mozart extends Phaser.Physics.Arcade.Sprite {
       this.scene.sound.play('sfx_hit', { volume: 0.3 });
     }
 
+    // Screen shake on damage
+    this.scene.cameras.main.shake(150, 0.005);
+
+    // Knockback away from damage source
+    let knockbackDir = this.flipX ? 1 : -1;
+    if (damageSource && damageSource.x !== undefined) {
+      knockbackDir = this.x < damageSource.x ? -1 : 1;
+    }
+    this.setVelocity(PLAYER.KNOCKBACK_X * knockbackDir, PLAYER.KNOCKBACK_Y);
+    this.currentVelocityX = PLAYER.KNOCKBACK_X * knockbackDir;
+
     // If there's a checkpoint, respawn there
     if (this.scene.lastCheckpoint) {
       this.isDead = true;
-      this.setVelocity(0, -200);
 
       this.scene.tweens.add({
         targets: this,
