@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT } from '../config/constants.js';
 import { ScoreManager } from '../utils/ScoreManager.js';
 import { MozartSoundtracks } from '../utils/MozartSoundtracks.js';
+import { drawParchmentBackground, drawStaffDivider, drawTrebleClef, createButton, COLORS, FONTS } from '../ui/UITheme.js';
 
 export class MenuScene extends Phaser.Scene {
   constructor() {
@@ -9,41 +10,53 @@ export class MenuScene extends Phaser.Scene {
   }
 
   create() {
-    // Background
-    this.cameras.main.setBackgroundColor('#1a1a2e');
+    // Parchment-textured background
+    drawParchmentBackground(this, GAME_WIDTH, GAME_HEIGHT);
 
-    // Title
-    this.add.text(GAME_WIDTH / 2, 60, 'AMADEUS', {
-      font: '64px monospace',
-      fill: '#FFD700',
+    // Treble clef ornaments on sides
+    drawTrebleClef(this, 60, 50, 1.8);
+    drawTrebleClef(this, GAME_WIDTH - 80, 50, 1.8);
+
+    // Title with gold heading
+    this.add.text(GAME_WIDTH / 2, 55, 'AMADEUS', {
+      fontFamily: 'Georgia, serif',
+      fontSize: '52px',
+      color: '#FFD700',
       stroke: '#8B4513',
-      strokeThickness: 4
+      strokeThickness: 4,
     }).setOrigin(0.5);
 
     // Subtitle
-    this.add.text(GAME_WIDTH / 2, 115, "Mozart's Musical Quest", {
-      font: '24px monospace',
-      fill: '#FFFFFF'
+    this.add.text(GAME_WIDTH / 2, 105, "Mozart's Musical Quest", {
+      fontFamily: 'Georgia, serif',
+      fontSize: '20px',
+      color: '#4A3728',
     }).setOrigin(0.5);
+
+    // Musical staff divider
+    drawStaffDivider(this, GAME_WIDTH / 2 - 120, 128, 240);
 
     // Mozart sprite
     if (this.textures.exists('mozart')) {
-      this.add.image(GAME_WIDTH / 2 - 30, 190, 'mozart').setScale(2.5);
+      this.add.image(GAME_WIDTH / 2 - 30, 180, 'mozart').setScale(2.5);
     }
 
     // Nannerl sprite
     if (this.textures.exists('nannerl')) {
-      this.add.image(GAME_WIDTH / 2 + 30, 190, 'nannerl').setScale(2.5);
+      this.add.image(GAME_WIDTH / 2 + 30, 180, 'nannerl').setScale(2.5);
     }
 
     // High Scores section
-    this.add.text(GAME_WIDTH / 2, 250, '— HIGH SCORES —', {
-      font: '14px monospace',
-      fill: '#FFD700'
+    drawStaffDivider(this, GAME_WIDTH / 2 - 120, 218, 240);
+
+    this.add.text(GAME_WIDTH / 2, 240, '— HIGH SCORES —', {
+      fontFamily: 'Georgia, serif',
+      fontSize: '14px',
+      color: '#B8860B',
     }).setOrigin(0.5);
 
     const levelNames = ['Vienna Streets', 'Enchanted Forest', 'Royal Palace'];
-    let yPos = 275;
+    let yPos = 262;
 
     for (let level = 1; level <= 3; level++) {
       const scores = ScoreManager.getHighScores(level);
@@ -52,81 +65,55 @@ export class MenuScene extends Phaser.Scene {
       const gradeColor = scores.length > 0 ? ScoreManager.getGradeColor(grade) : '#808080';
 
       this.add.text(GAME_WIDTH / 2 - 160, yPos, `${level}. ${levelNames[level - 1]}`, {
-        font: '12px monospace',
-        fill: '#AAAAAA'
+        fontFamily: 'Georgia, serif', fontSize: '12px', color: '#4A3728'
       });
 
       this.add.text(GAME_WIDTH / 2 + 80, yPos, `${bestScore}`, {
-        font: '12px monospace',
-        fill: '#FFFFFF'
+        fontFamily: 'Georgia, serif', fontSize: '12px', color: '#2B1810'
       });
 
       this.add.text(GAME_WIDTH / 2 + 150, yPos, `[${grade}]`, {
-        font: '12px monospace',
-        fill: gradeColor
+        fontFamily: 'Georgia, serif', fontSize: '12px', color: gradeColor
       });
 
       yPos += 22;
     }
 
-    // Menu options
+    // Menu buttons (ornate style)
     this.selectedOption = 0;
     this.menuOptions = [];
 
-    const option1P = this.add.text(GAME_WIDTH / 2, 370, '1 Player', {
-      font: '20px monospace',
-      fill: '#87CEEB'
-    }).setOrigin(0.5);
-    this.menuOptions.push(option1P);
+    const btn1P = createButton(this, GAME_WIDTH / 2, 355, '♩  1 Player  ♩', () => this.startGame(false));
+    this.menuOptions.push(btn1P);
 
-    const option2P = this.add.text(GAME_WIDTH / 2, 400, '2 Players', {
-      font: '20px monospace',
-      fill: '#87CEEB'
-    }).setOrigin(0.5);
-    this.menuOptions.push(option2P);
+    const btn2P = createButton(this, GAME_WIDTH / 2, 400, '♩  2 Players  ♩', () => this.startGame(true));
+    this.menuOptions.push(btn2P);
 
-    // Selection indicator
-    this.selector = this.add.text(GAME_WIDTH / 2 - 80, 370, '▶', {
-      font: '20px monospace',
-      fill: '#FFD700'
+    // Selection indicator (gold treble clef)
+    this.selector = this.add.text(GAME_WIDTH / 2 - 110, 355, '𝄞', {
+      fontFamily: 'Georgia, serif',
+      fontSize: '24px',
+      color: '#FFD700',
     }).setOrigin(0.5);
 
     // Accessibility button
-    const accessBtn = this.add.text(GAME_WIDTH / 2, 440, 'Accessibility Options', {
-      font: '16px monospace',
-      fill: '#87CEEB'
-    }).setOrigin(0.5).setInteractive({ useHandCursor: true });
-    accessBtn.on('pointerover', () => accessBtn.setStyle({ fill: '#FFD700' }));
-    accessBtn.on('pointerout', () => accessBtn.setStyle({ fill: '#87CEEB' }));
-    accessBtn.on('pointerdown', () => {
+    createButton(this, GAME_WIDTH / 2, 440, 'Accessibility', () => {
       this.scene.sleep();
       this.scene.launch('AccessibilityScene', { returnScene: 'MenuScene' });
-    });
+    }, 160);
 
     // Fullscreen button
-    const fullscreenBtn = this.add.text(GAME_WIDTH - 16, GAME_HEIGHT - 16, '[ ⛶ Fullscreen ]', {
-      font: '14px monospace',
-      fill: '#87CEEB'
-    }).setOrigin(1, 1).setInteractive({ useHandCursor: true });
-    fullscreenBtn.on('pointerover', () => fullscreenBtn.setStyle({ fill: '#FFD700' }));
-    fullscreenBtn.on('pointerout', () => fullscreenBtn.setStyle({ fill: '#87CEEB' }));
-    fullscreenBtn.on('pointerdown', () => {
+    createButton(this, GAME_WIDTH - 80, GAME_HEIGHT - 24, '⛶ Fullscreen', () => {
       if (this.scale.isFullscreen) {
         this.scale.stopFullscreen();
       } else {
         this.scale.startFullscreen();
       }
-    });
+    }, 140);
 
     // Controls help
-    this.add.text(GAME_WIDTH / 2, 470, 'Arrow Keys / ENTER to select | Touch D-pad to move', {
-      font: '14px monospace',
-      fill: '#808080'
-    }).setOrigin(0.5);
-
-    this.add.text(GAME_WIDTH / 2, 490, 'P1: Arrows + SPACE | P2: WASD + E', {
-      font: '12px monospace',
-      fill: '#606060'
+    this.add.text(GAME_WIDTH / 2, GAME_HEIGHT - 20, 'Arrow Keys / ENTER to select  |  Touch D-pad to move', {
+      fontFamily: 'Georgia, serif', fontSize: '11px', color: '#808080'
     }).setOrigin(0.5);
 
     // Blinking effect on selector
@@ -145,7 +132,6 @@ export class MenuScene extends Phaser.Scene {
     this.input.keyboard.on('keydown-S', () => this.changeSelection(1));
     this.input.keyboard.on('keydown-SPACE', () => this.confirmSelection());
     this.input.keyboard.on('keydown-ENTER', () => this.confirmSelection());
-    this.input.once('pointerdown', () => this.confirmSelection());
 
     // Play menu music - Mozart medley
     this.mozartSoundtrack = new MozartSoundtracks(this);
@@ -154,7 +140,8 @@ export class MenuScene extends Phaser.Scene {
 
   changeSelection(dir) {
     this.selectedOption = (this.selectedOption + dir + this.menuOptions.length) % this.menuOptions.length;
-    this.selector.setY(this.menuOptions[this.selectedOption].y);
+    const targetY = this.selectedOption === 0 ? 355 : 400;
+    this.selector.setY(targetY);
   }
 
   confirmSelection() {

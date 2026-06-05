@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { PixelArtGenerator } from '../utils/PixelArtGenerator.js';
 import { AudioGenerator } from '../utils/AudioGenerator.js';
+import { drawParchmentBackground, COLORS } from '../ui/UITheme.js';
 
 export class BootScene extends Phaser.Scene {
   constructor() {
@@ -8,19 +9,48 @@ export class BootScene extends Phaser.Scene {
   }
 
   preload() {
-    // Show loading bar
     const width = this.cameras.main.width;
     const height = this.cameras.main.height;
 
-    const progressBar = this.add.graphics();
-    const progressBox = this.add.graphics();
-    progressBox.fillStyle(0x222222, 0.8);
-    progressBox.fillRect(width / 2 - 160, height / 2 - 25, 320, 50);
+    // Parchment background
+    drawParchmentBackground(this, width, height);
 
-    const loadingText = this.add.text(width / 2, height / 2 - 50, 'Loading...', {
-      font: '20px monospace',
-      fill: '#ffffff'
+    // Quill writing "Loading..." text
+    const loadingText = this.add.text(width / 2, height / 2 - 40, '', {
+      fontFamily: 'Georgia, serif',
+      fontSize: '24px',
+      color: '#2B1810',
+      fontStyle: 'italic',
     }).setOrigin(0.5);
+
+    // Animate quill writing text character by character
+    const fullText = 'Loading...';
+    let charIndex = 0;
+    this.time.addEvent({
+      delay: 150,
+      callback: () => {
+        if (charIndex < fullText.length) {
+          loadingText.setText(fullText.substring(0, charIndex + 1));
+          // Ink drop particle at current text position
+          this.createInkDrop(
+            width / 2 + (charIndex - fullText.length / 2) * 10,
+            height / 2 - 35
+          );
+          charIndex++;
+        }
+      },
+      repeat: fullText.length - 1
+    });
+
+    // Progress bar styled as an ink line
+    const progressBox = this.add.graphics();
+    progressBox.lineStyle(2, COLORS.goldDark, 0.8);
+    progressBox.strokeRoundedRect(width / 2 - 150, height / 2 + 10, 300, 20, 4);
+
+    const progressBar = this.add.graphics();
+
+    // Quill icon (procedural)
+    this.drawQuill(width / 2 - 170, height / 2 + 10);
 
     // Simulate loading progress
     let progress = 0;
@@ -29,14 +59,54 @@ export class BootScene extends Phaser.Scene {
       callback: () => {
         progress += 0.1;
         progressBar.clear();
-        progressBar.fillStyle(0xFFD700, 1);
-        progressBar.fillRect(width / 2 - 150, height / 2 - 15, 300 * Math.min(progress, 1), 30);
+        progressBar.fillStyle(COLORS.goldDark, 1);
+        progressBar.fillRoundedRect(width / 2 - 148, height / 2 + 12, 296 * Math.min(progress, 1), 16, 3);
         if (progress >= 1) {
           timer.destroy();
         }
       },
       loop: true
     });
+  }
+
+  createInkDrop(x, y) {
+    const drop = this.add.circle(x, y + 10, Phaser.Math.Between(1, 3), COLORS.ink, 0.7);
+    this.tweens.add({
+      targets: drop,
+      y: y + Phaser.Math.Between(20, 40),
+      alpha: 0,
+      scaleX: 0.3,
+      scaleY: 0.3,
+      duration: Phaser.Math.Between(400, 800),
+      onComplete: () => drop.destroy()
+    });
+  }
+
+  drawQuill(x, y) {
+    const g = this.add.graphics();
+    // Feather shaft
+    g.lineStyle(2, COLORS.inkLight, 1);
+    g.beginPath();
+    g.moveTo(x, y + 18);
+    g.lineTo(x + 14, y - 8);
+    g.strokePath();
+    // Feather barbs
+    g.lineStyle(1, COLORS.parchmentEdge, 0.7);
+    for (let i = 0; i < 5; i++) {
+      const bx = x + 3 + i * 2;
+      const by = y + 12 - i * 4;
+      g.beginPath();
+      g.moveTo(bx, by);
+      g.lineTo(bx - 4, by - 3);
+      g.strokePath();
+      g.beginPath();
+      g.moveTo(bx, by);
+      g.lineTo(bx + 4, by - 3);
+      g.strokePath();
+    }
+    // Nib
+    g.fillStyle(COLORS.ink, 1);
+    g.fillTriangle(x, y + 18, x - 1, y + 22, x + 1, y + 22);
   }
 
   create() {
