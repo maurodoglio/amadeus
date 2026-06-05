@@ -13,6 +13,8 @@ import { ScoreManager } from '../utils/ScoreManager.js';
 import { AdaptiveMusicManager } from '../utils/AdaptiveMusicManager.js';
 import { MozartSoundtracks } from '../utils/MozartSoundtracks.js';
 import { setupBoss, updateBossAI, getBossTarget, showBossDialogue } from '../utils/BossFight.js';
+import { BossPhaseManager } from '../mechanics/BossPhaseManager.js';
+import { getMariaTheresaPhases } from '../mechanics/BossPhaseDefinitions.js';
 import { getAchievementManager } from '../utils/AchievementManager.js';
 import { CompositionCollector } from '../mechanics/CompositionCollector.js';
 import { PitchPuzzle } from '../mechanics/PitchPuzzle.js';
@@ -229,16 +231,13 @@ export class Level2Scene extends Phaser.Scene {
     this.instrument.body.enable = false;
 
     // Boss: Empress Maria Theresa
-    setupBoss(this, {
+    this.bossManager = new BossPhaseManager(this, {
       x: 2350,
       y: GAME_HEIGHT - 120,
       texture: 'bossEmpressMaria',
       name: 'Empress Maria Theresa',
-      health: this.difficulty.boss.health,
-      speed: this.difficulty.boss.speed,
-      jumpForce: this.difficulty.boss.jumpForce,
-      attackInterval: this.difficulty.boss.attackInterval,
       activateX: 2000,
+      phases: getMariaTheresaPhases(this.difficulty),
       dialogue: [
         '"A child prodigy seeks audience with the Empress?"',
         '"Prove yourself worthy of the Imperial court!"',
@@ -246,6 +245,8 @@ export class Level2Scene extends Phaser.Scene {
       ],
       victoryQuote: '"The Empress kissed me and took me on her lap."\n— Mozart, age 6'
     });
+    this.bossManager.create();
+    this.bossProjectiles = this.bossManager.projectiles;
 
     // Sheet music pages (hidden secrets in hard-to-reach spots)
     this.sheetMusicPages = this.physics.add.group();
@@ -434,36 +435,10 @@ export class Level2Scene extends Phaser.Scene {
     if (this.mozartSoundtrack && this.bossActive && !this.mozartSoundtrack.isBossMode) {
       this.mozartSoundtrack.setBossMode(true);
     }
-    // Boss AI: Forest Drummer - ground pound shockwave attack
-    // Boss AI: Empress Maria Theresa - summons palace guards (ground pound gauntlet)
-    updateBossAI(this, time, (scene, t) => {
-      const boss = scene.boss;
-      const target = getBossTarget(scene);
-      const speedMult = boss.phase === 3 ? 1.4 : boss.phase === 2 ? 1.2 : 1;
-
-      if (target.x > boss.x + 40) {
-        boss.setVelocityX(boss.speed * speedMult);
-        boss.setFlipX(false);
-      } else if (target.x < boss.x - 40) {
-        boss.setVelocityX(-boss.speed * speedMult);
-        boss.setFlipX(true);
-      } else {
-        boss.setVelocityX(0);
-      }
-
-      // Summons guards: stomps ground to create shockwaves (gauntlet style)
-      const interval = boss.attackInterval / boss.phase;
-      if (t > boss.attackTimer && (boss.body.blocked.down || boss.body.touching.down)) {
-        boss.setVelocityY(boss.jumpForce * (1 + boss.phase * 0.1));
-        boss.attackTimer = t + interval;
-        scene.time.delayedCall(600, () => {
-          if (boss.active) {
-            scene.particles.screenShake(0.01, 200);
-            scene.particles.emitStomp(boss.x, boss.y + 20);
-          }
-        });
-      }
-    });
+    // Boss AI: Empress Maria Theresa multi-phase battle
+    if (this.bossManager) {
+      this.bossManager.update(time);
+    }
 
     // Camera follows midpoint in co-op
     if (this.coopMode && this.cameraTarget) {

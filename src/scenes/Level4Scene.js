@@ -11,6 +11,8 @@ import { AdaptiveMusicManager } from '../utils/AdaptiveMusicManager.js';
 import { MozartSoundtracks } from '../utils/MozartSoundtracks.js';
 import { ParticleManager } from '../utils/ParticleManager.js';
 import { setupBoss, updateBossAI, getBossTarget, showBossDialogue } from '../utils/BossFight.js';
+import { BossPhaseManager } from '../mechanics/BossPhaseManager.js';
+import { getSalieriPhases } from '../mechanics/BossPhaseDefinitions.js';
 import { ComboSystem } from '../utils/ComboSystem.js';
 import { getAchievementManager } from '../utils/AchievementManager.js';
 import { CompositionCollector } from '../mechanics/CompositionCollector.js';
@@ -191,16 +193,13 @@ export class Level4Scene extends Phaser.Scene {
     this.instrument.body.enable = false;
 
     // Boss: Antonio Salieri - Musical duel
-    setupBoss(this, {
+    this.bossManager = new BossPhaseManager(this, {
       x: 2250,
       y: GAME_HEIGHT - 120,
       texture: 'bossSalieri',
       name: 'Antonio Salieri',
-      health: this.difficulty.boss.health,
-      speed: this.difficulty.boss.speed,
-      jumpForce: this.difficulty.boss.jumpForce,
-      attackInterval: this.difficulty.boss.attackInterval,
       activateX: 1900,
+      phases: getSalieriPhases(this.difficulty),
       dialogue: [
         '"Ah, the great Mozart... Let us see who truly commands music."',
         '"My dark melodies shall overwhelm your bright compositions!"',
@@ -208,7 +207,8 @@ export class Level4Scene extends Phaser.Scene {
       ],
       victoryQuote: '"Salieri admitted that Mozart\'s music was sublime."\n— Historical accounts'
     });
-    this.bossProjectiles = this.physics.add.group();
+    this.bossManager.create();
+    this.bossProjectiles = this.bossManager.projectiles;
 
     // Rhythm beat indicator (UI)
     this.beatIndicator = this.add.circle(GAME_WIDTH / 2, 30, 15, 0xFF4500, 0.5)
@@ -334,46 +334,9 @@ export class Level4Scene extends Phaser.Scene {
     if (this.mozartSoundtrack && this.bossActive && !this.mozartSoundtrack.isBossMode) {
       this.mozartSoundtrack.setBossMode(true);
     }
-    // Boss AI: Phantom Singer - teleports and fires sonic waves
-    // Boss AI: Antonio Salieri - plays dark note projectiles, pattern-matching battle
-    updateBossAI(this, time, (scene, t) => {
-      const boss = scene.boss;
-      const target = getBossTarget(scene);
-      const speedMult = boss.phase === 3 ? 1.6 : boss.phase === 2 ? 1.3 : 1;
-
-      if (target.x > boss.x + 50) {
-        boss.setVelocityX(boss.speed * speedMult);
-        boss.setFlipX(false);
-      } else if (target.x < boss.x - 50) {
-        boss.setVelocityX(-boss.speed * speedMult);
-        boss.setFlipX(true);
-      } else {
-        boss.setVelocityX(0);
-      }
-
-      // Dark note attack pattern: fires dark projectiles in increasing waves
-      const interval = boss.attackInterval / boss.phase;
-      if (t > boss.attackTimer) {
-        boss.attackTimer = t + interval;
-        const numProjectiles = boss.phase;
-        for (let i = 0; i < numProjectiles; i++) {
-          const angle = Phaser.Math.Angle.Between(boss.x, boss.y, target.x, target.y);
-          const spread = (i - (numProjectiles - 1) / 2) * 0.3;
-          const proj = scene.bossProjectiles.create(boss.x, boss.y - 10, 'darkProjectile');
-          proj.body.setAllowGravity(false);
-          const speed = 200;
-          proj.setVelocity(Math.cos(angle + spread) * speed, Math.sin(angle + spread) * speed);
-          scene.time.delayedCall(3000, () => { if (proj.active) proj.destroy(); });
-        }
-      }
-    });
-
-    // Projectile collision
-    if (this.bossProjectiles) {
-      this.physics.add.overlap(this.mozart, this.bossProjectiles, (player, proj) => {
-        proj.destroy();
-        player.hit();
-      });
+    // Boss AI: Antonio Salieri multi-phase battle
+    if (this.bossManager) {
+      this.bossManager.update(time);
     }
 
     // Rhythm mechanic: platforms toggle on/off every 1.2 seconds
