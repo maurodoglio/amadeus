@@ -13,6 +13,7 @@ import { setupBoss, updateBossAI, getBossTarget, showBossDialogue } from '../uti
 import { ComboSystem } from '../utils/ComboSystem.js';
 import { getAchievementManager } from '../utils/AchievementManager.js';
 import { CompositionCollector } from '../mechanics/CompositionCollector.js';
+import { setupCamera, updateCameraLookAhead } from '../utils/CameraManager.js';
 
 export class Level4Scene extends Phaser.Scene {
   constructor() {
@@ -233,8 +234,7 @@ export class Level4Scene extends Phaser.Scene {
     }
 
     // Camera
-    this.cameras.main.setBounds(0, 0, GAME_WIDTH * 3, GAME_HEIGHT);
-    this.cameras.main.startFollow(this.mozart, true, 0.1, 0.1);
+    setupCamera(this, this.mozart, GAME_WIDTH * 3);
     this.physics.world.setBounds(0, 0, GAME_WIDTH * 3, GAME_HEIGHT);
     this.mozart.setCollideWorldBounds(true);
 
@@ -269,10 +269,12 @@ export class Level4Scene extends Phaser.Scene {
       return;
     }
 
-    if (this.mozart) this.mozart.update(time);
+    if (this.mozart) this.mozart.update(time, delta);
     this.enemyList.forEach(e => {
       if (e.active) e.update(time, delta);
     });
+
+    updateCameraLookAhead(this, this.mozart);
 
     // NPC updates and interaction
     if (this.nannerlNPC) {

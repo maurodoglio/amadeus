@@ -14,6 +14,7 @@ import { MozartSoundtracks } from '../utils/MozartSoundtracks.js';
 import { setupBoss, updateBossAI, getBossTarget, showBossDialogue } from '../utils/BossFight.js';
 import { getAchievementManager } from '../utils/AchievementManager.js';
 import { CompositionCollector } from '../mechanics/CompositionCollector.js';
+import { setupCamera, setupCoopCamera, updateCameraLookAhead } from '../utils/CameraManager.js';
 
 export class Level2Scene extends Phaser.Scene {
   constructor() {
@@ -353,14 +354,13 @@ export class Level2Scene extends Phaser.Scene {
     this.physics.add.overlap(this.mozart, this.practiceStages, this.enterPracticeStage, null, this);
 
     // Camera
-    this.cameras.main.setBounds(0, 0, GAME_WIDTH * 3.2, GAME_HEIGHT);
     this.physics.world.setBounds(0, 0, GAME_WIDTH * 3.2, GAME_HEIGHT);
 
     if (this.coopMode && this.nannerl) {
       this.cameraTarget = this.add.zone(0, 0, 1, 1);
-      this.cameras.main.startFollow(this.cameraTarget, true, 0.1, 0.1);
+      setupCoopCamera(this, this.cameraTarget, GAME_WIDTH * 3.2);
     } else {
-      this.cameras.main.startFollow(this.mozart, true, 0.1, 0.1);
+      setupCamera(this, this.mozart, GAME_WIDTH * 3.2);
     }
 
     this.mozart.setCollideWorldBounds(true);
@@ -390,7 +390,7 @@ export class Level2Scene extends Phaser.Scene {
   }
 
   update(time, delta) {
-    if (this.mozart && !this.mozart.isDead) this.mozart.update(time);
+    if (this.mozart && !this.mozart.isDead) this.mozart.update(time, delta);
     if (this.nannerl && !this.nannerl.isDead) this.nannerl.update();
 
     this.enemyList.forEach(e => {
@@ -445,6 +445,8 @@ export class Level2Scene extends Phaser.Scene {
       } else if (p2 && !p2.isDead) {
         this.cameraTarget.setPosition(p2.x, p2.y);
       }
+    } else {
+      updateCameraLookAhead(this, this.mozart);
     }
 
     // Parallax scrolling
