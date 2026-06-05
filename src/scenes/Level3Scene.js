@@ -276,6 +276,11 @@ export class Level3Scene extends Phaser.Scene {
       this.mozart.combat.setupCollision(this.enemies);
     }
 
+    // Set up instrument weapon collisions
+    if (this.mozart.instrumentWeapons) {
+      this.mozart.instrumentWeapons.setupCollision(this.enemies);
+    }
+
     if (this.coopMode && this.nannerl) {
       this.physics.add.collider(this.nannerl, this.platforms);
       this.physics.add.overlap(this.nannerl, this.enemies, this.hitEnemy, null, this);

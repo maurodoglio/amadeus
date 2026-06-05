@@ -25,6 +25,7 @@ export class PixelArtGenerator {
     this.generateParallaxLayers();
     this.generateRhythmSprites();
     this.generateCompositionNotes();
+    this.generateWeaponSprites();
   }
 
   createTexture(key, pixelData, scale = 2) {
@@ -2260,5 +2261,71 @@ export class PixelArtGenerator {
       ];
       this.createTexture(`compositionNote_${pitch}`, notePixels);
     });
+  }
+
+  generateWeaponSprites() {
+    // Flute projectile - a horizontal glowing note streak
+    const fluteCanvas = document.createElement('canvas');
+    fluteCanvas.width = 18;
+    fluteCanvas.height = 10;
+    const fluteCtx = fluteCanvas.getContext('2d');
+    const fluteGrad = fluteCtx.createLinearGradient(0, 5, 18, 5);
+    fluteGrad.addColorStop(0, 'rgba(136, 204, 255, 0.2)');
+    fluteGrad.addColorStop(0.5, 'rgba(136, 204, 255, 0.9)');
+    fluteGrad.addColorStop(1, 'rgba(255, 255, 255, 1)');
+    fluteCtx.fillStyle = fluteGrad;
+    fluteCtx.fillRect(0, 2, 18, 6);
+    fluteCtx.fillStyle = '#FFFFFF';
+    fluteCtx.fillRect(14, 3, 4, 4);
+    this.scene.textures.addCanvas('weaponFlute', fluteCanvas);
+
+    // Piano key projectile - a falling key
+    const keyCanvas = document.createElement('canvas');
+    keyCanvas.width = 12;
+    keyCanvas.height = 20;
+    const keyCtx = keyCanvas.getContext('2d');
+    keyCtx.fillStyle = '#FFFFFF';
+    keyCtx.fillRect(1, 0, 10, 18);
+    keyCtx.fillStyle = '#333333';
+    keyCtx.fillRect(2, 1, 8, 2);
+    keyCtx.fillStyle = '#EEEEEE';
+    keyCtx.fillRect(2, 14, 8, 4);
+    keyCtx.strokeStyle = '#AAAAAA';
+    keyCtx.strokeRect(1, 0, 10, 18);
+    this.scene.textures.addCanvas('weaponPianoKey', keyCanvas);
+
+    // Shockwave ring for timpani (circular ring)
+    const ringCanvas = document.createElement('canvas');
+    ringCanvas.width = 32;
+    ringCanvas.height = 32;
+    const ringCtx = ringCanvas.getContext('2d');
+    ringCtx.strokeStyle = '#FF4444';
+    ringCtx.lineWidth = 3;
+    ringCtx.beginPath();
+    ringCtx.arc(16, 16, 12, 0, Math.PI * 2);
+    ringCtx.stroke();
+    const ringGrad = ringCtx.createRadialGradient(16, 16, 8, 16, 16, 14);
+    ringGrad.addColorStop(0, 'rgba(255, 68, 68, 0)');
+    ringGrad.addColorStop(1, 'rgba(255, 68, 68, 0.3)');
+    ringCtx.fillStyle = ringGrad;
+    ringCtx.fill();
+    this.scene.textures.addCanvas('weaponShockwave', ringCanvas);
+
+    // Violin slash arc
+    const slashCanvas = document.createElement('canvas');
+    slashCanvas.width = 32;
+    slashCanvas.height = 32;
+    const slashCtx = slashCanvas.getContext('2d');
+    slashCtx.strokeStyle = '#FF8844';
+    slashCtx.lineWidth = 3;
+    slashCtx.beginPath();
+    slashCtx.arc(16, 16, 12, -Math.PI / 3, Math.PI / 3);
+    slashCtx.stroke();
+    slashCtx.strokeStyle = '#FFCC88';
+    slashCtx.lineWidth = 1.5;
+    slashCtx.beginPath();
+    slashCtx.arc(16, 16, 10, -Math.PI / 4, Math.PI / 4);
+    slashCtx.stroke();
+    this.scene.textures.addCanvas('weaponSlash', slashCanvas);
   }
 }
