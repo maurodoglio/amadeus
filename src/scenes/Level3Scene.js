@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT, TILE_SIZE } from '../config/constants.js';
+import { getLevelDifficulty } from '../config/difficultyConfig.js';
 import { Mozart } from '../sprites/Mozart.js';
 import { Nannerl } from '../sprites/Nannerl.js';
 import { Singer } from '../sprites/enemies/Singer.js';
@@ -34,6 +35,13 @@ export class Level3Scene extends Phaser.Scene {
     this.combo = new ComboSystem(this);
     this.levelStartTime = this.time.now;
     this.levelStartScore = this.registry.get('score') || 0;
+
+    // Difficulty scaling
+    this.difficulty = getLevelDifficulty(3);
+    const currentLives = this.registry.get('lives') || 0;
+    if (currentLives < this.difficulty.startingLives) {
+      this.registry.set('lives', this.difficulty.startingLives);
+    }
 
     // Achievement tracking
     const achievements = getAchievementManager();
@@ -117,8 +125,8 @@ export class Level3Scene extends Phaser.Scene {
     this.enemies = this.physics.add.group();
     this.enemyList = [];
 
-    // Mix of all enemy types
-    const singerPositions = [300, 800, 1200];
+    // Mix of all enemy types (6 total for medium difficulty)
+    const singerPositions = [300, 1200];
     if (this.coopMode) singerPositions.push(500, 1000);
     singerPositions.forEach(x => {
       const singer = new Singer(this, x, GAME_HEIGHT - 80);
@@ -126,7 +134,7 @@ export class Level3Scene extends Phaser.Scene {
       this.enemyList.push(singer);
     });
 
-    const trollPositions = [600, 1000, 1600];
+    const trollPositions = [600, 1600];
     if (this.coopMode) trollPositions.push(1400);
     trollPositions.forEach(x => {
       const troll = new DrumTroll(this, x, GAME_HEIGHT - 80);
@@ -134,7 +142,7 @@ export class Level3Scene extends Phaser.Scene {
       this.enemyList.push(troll);
     });
 
-    const noteEnemyPositions = [{ x: 450, y: 180 }, { x: 1100, y: 160 }, { x: 1700, y: 170 }];
+    const noteEnemyPositions = [{ x: 450, y: 180 }, { x: 1100, y: 160 }];
     if (this.coopMode) noteEnemyPositions.push({ x: 800, y: 150 });
     noteEnemyPositions.forEach(pos => {
       const note = new DissonantNote(this, pos.x, pos.y);
@@ -323,7 +331,7 @@ export class Level3Scene extends Phaser.Scene {
     this.boss.setScale(2.5);
     this.boss.body.setAllowGravity(true);
     this.boss.setCollideWorldBounds(true);
-    this.boss.health = this.coopMode ? 7 : 5;
+    this.boss.health = this.coopMode ? this.difficulty.boss.health + 2 : this.difficulty.boss.health;
     this.boss.maxHealth = this.boss.health;
     this.boss.isActive = false;
     this.boss.attackTimer = 0;

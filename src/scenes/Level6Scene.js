@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT, TILE_SIZE } from '../config/constants.js';
+import { getLevelDifficulty } from '../config/difficultyConfig.js';
 import { Mozart } from '../sprites/Mozart.js';
 import { DrumTroll } from '../sprites/enemies/DrumTroll.js';
 import { BrokenInstrument } from '../sprites/enemies/BrokenInstrument.js';
@@ -22,6 +23,14 @@ export class Level6Scene extends Phaser.Scene {
     this.combo = new ComboSystem(this);
     this.levelStartTime = this.time.now;
     this.levelStartScore = this.registry.get('score') || 0;
+    this.lastCheckpoint = null;
+
+    // Difficulty scaling
+    this.difficulty = getLevelDifficulty(6);
+    const currentLives = this.registry.get('lives') || 0;
+    if (currentLives < this.difficulty.startingLives) {
+      this.registry.set('lives', this.difficulty.startingLives);
+    }
 
     // Achievement tracking
     const achievements = getAchievementManager();
@@ -150,10 +159,10 @@ export class Level6Scene extends Phaser.Scene {
       y: GAME_HEIGHT - 120,
       texture: 'bossGreyMessenger',
       name: 'The Grey Messenger',
-      health: 3,
-      speed: 95,
-      jumpForce: -380,
-      attackInterval: 2600,
+      health: this.difficulty.boss.health,
+      speed: this.difficulty.boss.speed,
+      jumpForce: this.difficulty.boss.jumpForce,
+      attackInterval: this.difficulty.boss.attackInterval,
       activateX: 2050,
       dialogue: [
         '"I come with a commission... a Requiem Mass."',
@@ -202,6 +211,23 @@ export class Level6Scene extends Phaser.Scene {
     setupCamera(this, this.mozart, GAME_WIDTH * 3.2);
     this.physics.world.setBounds(0, 0, GAME_WIDTH * 3.2, GAME_HEIGHT);
     this.mozart.setCollideWorldBounds(true);
+
+    // Checkpoint flags
+    this.checkpoints = this.physics.add.staticGroup();
+    const checkpointPositions = [
+      { x: 700, y: GAME_HEIGHT - 64 },
+      { x: 1400, y: GAME_HEIGHT - 64 },
+      { x: 2050, y: GAME_HEIGHT - 64 },
+    ];
+
+    checkpointPositions.forEach(pos => {
+      const flag = this.checkpoints.create(pos.x, pos.y, 'checkpointFlag')
+        .setDisplaySize(24, 40)
+        .refreshBody();
+      flag.activated = false;
+    });
+
+    this.physics.add.overlap(this.mozart, this.checkpoints, this.activateCheckpoint, null, this);
 
     // Mozart's Lacrimosa from Requiem K.626
     this.mozartSoundtrack = new MozartSoundtracks(this);
@@ -363,6 +389,16 @@ export class Level6Scene extends Phaser.Scene {
     if (this.sound.get('sfx_coin')) this.sound.play('sfx_coin', { volume: 0.3 });
     // Collecting notes slightly increases visibility
     this.glowRadius = Math.min(this.glowRadius + 5, 180);
+  }
+
+  activateCheckpoint(player, flag) {
+    if (flag.activated) return;
+    flag.activated = true;
+    flag.setTint(0x00FF00);
+    this.lastCheckpoint = flag;
+    if (this.sound.get('sfx_coin')) {
+      this.sound.play('sfx_coin', { volume: 0.2 });
+    }
   }
 
   collectInstrument(player, instrument) {
