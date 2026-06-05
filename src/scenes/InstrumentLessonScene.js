@@ -97,9 +97,12 @@ export class InstrumentLessonScene extends Phaser.Scene {
   init(data) {
     this.instrumentKey = data.instrument || 'violin';
     this.levelNumber = data.level || 1;
+    this.difficulty = data.difficulty || this.levelNumber;
+    this.returnScene = data.returnScene || null;
     this.nextScene = data.nextScene || 'MapScene';
     this.nextSceneData = data.nextSceneData || {};
     this.cutscene = data.cutscene || null;
+    this.lessonBonusValue = data.lessonBonus ?? (this.difficulty * 100);
   }
 
   create() {
@@ -678,6 +681,15 @@ export class InstrumentLessonScene extends Phaser.Scene {
     // Close audio context
     if (this.audioContext && this.audioContext.state !== 'closed') {
       this.audioContext.close();
+    }
+
+    if (this.returnScene) {
+      if (this.lessonBonusValue > 0) {
+        this.registry.set('lessonBonus', this.lessonBonusValue);
+      }
+      this.scene.stop();
+      this.scene.resume(this.returnScene);
+      return;
     }
 
     if (this.cutscene) {

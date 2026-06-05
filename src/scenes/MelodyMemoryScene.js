@@ -540,10 +540,9 @@ export class MelodyMemoryScene extends Phaser.Scene {
       }).setOrigin(0.5);
     });
 
-    // Reward: Score bonus applied to main game
+    // Reward: score bonus handed back to the main level on resume
     const bonus = success ? this.score : Math.floor(this.score / 2);
-    const currentScore = this.registry.get('score') || 0;
-    this.registry.set('score', currentScore + bonus);
+    this.bonusAward = bonus;
 
     // Composition fragment reward for success
     if (success) {
@@ -556,7 +555,7 @@ export class MelodyMemoryScene extends Phaser.Scene {
       }).setOrigin(0.5);
     }
 
-    this.add.text(GAME_WIDTH / 2, GAME_HEIGHT / 2 + 90, `+${bonus} points added!`, {
+    this.add.text(GAME_WIDTH / 2, GAME_HEIGHT / 2 + 90, `+${bonus} points earned!`, {
       font: '12px monospace',
       fill: '#90EE90'
     }).setOrigin(0.5);
@@ -579,8 +578,8 @@ export class MelodyMemoryScene extends Phaser.Scene {
     this.audioCtx = null;
 
     // Store reward info for the level to pick up on resume
-    if (this.score > 0) {
-      this.registry.set('melodyMemoryBonus', this.score);
+    if (this.bonusAward > 0) {
+      this.registry.set('melodyMemoryBonus', this.bonusAward);
     }
 
     this.scene.stop();
