@@ -82,6 +82,8 @@ export class Level1Scene extends Phaser.Scene {
     }
 
     // Platforms - Vienna buildings and ledges
+    this.oneWayPlatforms = this.physics.add.staticGroup();
+
     const platformData = [
       { x: 200, y: 360, w: 3 },
       { x: 400, y: 300, w: 2 },
@@ -126,7 +128,7 @@ export class Level1Scene extends Phaser.Scene {
 
     platformData.forEach(p => {
       for (let i = 0; i < p.w; i++) {
-        this.platforms.create(p.x + i * TILE_SIZE, p.y, 'platform')
+        this.oneWayPlatforms.create(p.x + i * TILE_SIZE, p.y, 'platform')
           .setDisplaySize(TILE_SIZE, TILE_SIZE / 2)
           .refreshBody();
       }
@@ -335,7 +337,10 @@ export class Level1Scene extends Phaser.Scene {
 
     // Collisions
     this.physics.add.collider(this.mozart, this.platforms);
+    this.physics.add.collider(this.mozart, this.oneWayPlatforms, null, this._oneWayCheck, this);
+    this.physics.add.collider(this.mozart, this.movingPlatforms, null, this._oneWayCheck, this);
     this.physics.add.collider(this.enemies, this.platforms);
+    this.physics.add.collider(this.enemies, this.oneWayPlatforms);
 
     this.physics.add.overlap(this.mozart, this.enemies, this.hitEnemy, null, this);
     this.physics.add.overlap(this.mozart, this.collectibles, this.collectNote, null, this);
@@ -354,6 +359,8 @@ export class Level1Scene extends Phaser.Scene {
 
     if (this.coopMode && this.nannerl) {
       this.physics.add.collider(this.nannerl, this.platforms);
+      this.physics.add.collider(this.nannerl, this.oneWayPlatforms, null, this._oneWayCheck, this);
+      this.physics.add.collider(this.nannerl, this.movingPlatforms, null, this._oneWayCheck, this);
       this.physics.add.overlap(this.nannerl, this.enemies, this.hitEnemy, null, this);
       this.physics.add.overlap(this.nannerl, this.collectibles, this.collectNote, null, this);
       this.physics.add.overlap(this.nannerl, this.instrument, this.collectInstrument, null, this);
@@ -419,6 +426,9 @@ export class Level1Scene extends Phaser.Scene {
     // Background music - adaptive system for combat transitions
     this.adaptiveMusic = new AdaptiveMusicManager(this);
     this.adaptiveMusic.start('exploration');
+  }
+  _oneWayCheck(player, platform) {
+    return player.body.bottom <= platform.body.top + 8 && player.body.velocity.y >= 0;
   }
 
   update(time, delta) {

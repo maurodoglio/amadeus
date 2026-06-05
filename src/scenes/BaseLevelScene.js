@@ -179,11 +179,12 @@ export class BaseLevelScene extends Phaser.Scene {
       }
     }
 
-    // Static platforms
+    // Static platforms (one-way: passable from below)
+    this.oneWayPlatforms = this.physics.add.staticGroup();
     if (config.platformData) {
       config.platformData.forEach(p => {
         for (let i = 0; i < p.w; i++) {
-          const plat = this.platforms.create(p.x + i * TILE_SIZE, p.y, 'platform')
+          const plat = this.oneWayPlatforms.create(p.x + i * TILE_SIZE, p.y, 'platform')
             .setDisplaySize(TILE_SIZE, TILE_SIZE / 2)
             .refreshBody();
           if (p.tint) plat.setTint(p.tint);
@@ -392,8 +393,12 @@ export class BaseLevelScene extends Phaser.Scene {
     this.physics.add.collider(this.mozart, this.platforms);
     this.physics.add.collider(this.enemies, this.platforms);
 
+    // One-way platforms: only collide when player is falling onto them from above
+    this.physics.add.collider(this.mozart, this.oneWayPlatforms, null, this._oneWayCheck, this);
+    this.physics.add.collider(this.enemies, this.oneWayPlatforms);
+
     if (this.movingPlatforms) {
-      this.physics.add.collider(this.mozart, this.movingPlatforms);
+      this.physics.add.collider(this.mozart, this.movingPlatforms, null, this._oneWayCheck, this);
     }
 
     this.physics.add.overlap(this.mozart, this.enemies, this.hitEnemy, null, this);
@@ -416,8 +421,9 @@ export class BaseLevelScene extends Phaser.Scene {
     // Co-op collisions
     if (this.coopMode && this.nannerl) {
       this.physics.add.collider(this.nannerl, this.platforms);
+      this.physics.add.collider(this.nannerl, this.oneWayPlatforms, null, this._oneWayCheck, this);
       if (this.movingPlatforms) {
-        this.physics.add.collider(this.nannerl, this.movingPlatforms);
+        this.physics.add.collider(this.nannerl, this.movingPlatforms, null, this._oneWayCheck, this);
       }
       this.physics.add.overlap(this.nannerl, this.enemies, this.hitEnemy, null, this);
       this.physics.add.overlap(this.nannerl, this.collectibles, this.collectNote, null, this);
@@ -426,6 +432,15 @@ export class BaseLevelScene extends Phaser.Scene {
       }
       this.physics.add.collider(this.mozart, this.nannerl, this.playerBounce, null, this);
     }
+  }
+
+  /** One-way platform check: only collide when player is above the platform and falling */
+  _oneWayCheck(player, platform) {
+    const playerBottom = player.body.bottom;
+    const platTop = platform.body.top || platform.body.y;
+    // Allow collision only when player's feet are at or above platform top
+    // and the player is moving downward (or stationary)
+    return playerBottom <= platTop + 8 && player.body.velocity.y >= 0;
   }
 
   createCheckpoints(config) {

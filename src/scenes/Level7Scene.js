@@ -76,6 +76,8 @@ export class Level7Scene extends Phaser.Scene {
     this.platforms = this.physics.add.staticGroup();
 
     // Floating cloud/stone platforms (no continuous ground - sky level)
+    this.oneWayPlatforms = this.physics.add.staticGroup();
+
     const platformData = [
       { x: 50, y: 400, w: 4 },
       { x: 250, y: 340, w: 3 },
@@ -109,7 +111,7 @@ export class Level7Scene extends Phaser.Scene {
 
     platformData.forEach(p => {
       for (let i = 0; i < p.w; i++) {
-        const plat = this.platforms.create(p.x + i * TILE_SIZE, p.y, 'platform')
+        const plat = this.oneWayPlatforms.create(p.x + i * TILE_SIZE, p.y, 'platform')
           .setDisplaySize(TILE_SIZE, TILE_SIZE / 2)
           .refreshBody();
         plat.setTint(0xCCCCFF);
@@ -233,7 +235,9 @@ export class Level7Scene extends Phaser.Scene {
 
     // Collisions
     this.physics.add.collider(this.mozart, this.platforms);
+    this.physics.add.collider(this.mozart, this.oneWayPlatforms, null, this._oneWayCheck, this);
     this.physics.add.collider(this.enemies, this.platforms);
+    this.physics.add.collider(this.enemies, this.oneWayPlatforms);
 
     this.physics.add.overlap(this.mozart, this.enemies, this.hitEnemy, null, this);
     this.physics.add.overlap(this.mozart, this.collectibles, this.collectNote, null, this);
@@ -291,6 +295,9 @@ export class Level7Scene extends Phaser.Scene {
     // Adaptive music system
     this.adaptiveMusic = new AdaptiveMusicManager(this);
     this.adaptiveMusic.start('exploration');
+  }
+  _oneWayCheck(player, platform) {
+    return player.body.bottom <= platform.body.top + 8 && player.body.velocity.y >= 0;
   }
 
   update(time, delta) {

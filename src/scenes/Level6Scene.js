@@ -80,6 +80,8 @@ export class Level6Scene extends Phaser.Scene {
     }
 
     // Cave platforms (stalactites and stalagmites as platforms)
+    this.oneWayPlatforms = this.physics.add.staticGroup();
+
     const platformData = [
       { x: 200, y: 360, w: 2 },
       { x: 380, y: 300, w: 3 },
@@ -97,6 +99,11 @@ export class Level6Scene extends Phaser.Scene {
       { x: 2800, y: 320, w: 3 },
       { x: 3040, y: 240, w: 2 },
       { x: 3260, y: 280, w: 3 },
+      { x: 1240, y: 320, w: 2 },
+      { x: 1480, y: 180, w: 2 },
+      { x: 1720, y: 330, w: 2 },
+      { x: 1960, y: 150, w: 2 },
+      { x: 2180, y: 290, w: 2 },
       // Stepping-stone platforms for bonus collectibles
       { x: 360, y: 210, w: 1 },
       { x: 650, y: 170, w: 1 },
@@ -110,7 +117,7 @@ export class Level6Scene extends Phaser.Scene {
 
     platformData.forEach(p => {
       for (let i = 0; i < p.w; i++) {
-        this.platforms.create(p.x + i * TILE_SIZE, p.y, 'platform')
+        this.oneWayPlatforms.create(p.x + i * TILE_SIZE, p.y, 'platform')
           .setDisplaySize(TILE_SIZE, TILE_SIZE / 2)
           .refreshBody();
       }
@@ -194,7 +201,9 @@ export class Level6Scene extends Phaser.Scene {
 
     // Collisions
     this.physics.add.collider(this.mozart, this.platforms);
+    this.physics.add.collider(this.mozart, this.oneWayPlatforms, null, this._oneWayCheck, this);
     this.physics.add.collider(this.enemies, this.platforms);
+    this.physics.add.collider(this.enemies, this.oneWayPlatforms);
 
     this.physics.add.overlap(this.mozart, this.enemies, this.hitEnemy, null, this);
     this.physics.add.overlap(this.mozart, this.collectibles, this.collectNote, null, this);
@@ -284,6 +293,9 @@ export class Level6Scene extends Phaser.Scene {
         });
       }
     });
+  }
+  _oneWayCheck(player, platform) {
+    return player.body.bottom <= platform.body.top + 8 && player.body.velocity.y >= 0;
   }
 
   update(time, delta) {
