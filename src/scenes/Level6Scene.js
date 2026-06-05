@@ -223,6 +223,11 @@ export class Level6Scene extends Phaser.Scene {
       this.mozart.combat.setupCollision(this.enemies);
     }
 
+    // Set up instrument weapon collisions
+    if (this.mozart.instrumentWeapons) {
+      this.mozart.instrumentWeapons.setupCollision(this.enemies);
+    }
+
     // Camera
     setupCamera(this, this.mozart, GAME_WIDTH * 3.2);
     this.physics.world.setBounds(0, 0, GAME_WIDTH * 3.2, GAME_HEIGHT);

@@ -4,6 +4,7 @@ import { ParticleManager } from '../utils/ParticleManager.js';
 import { MusicalCombat } from '../mechanics/MusicalCombat.js';
 import { SFXGenerator } from '../utils/SFXGenerator.js';
 import { AnimationManager } from '../utils/AnimationManager.js';
+import { InstrumentWeapons } from '../mechanics/InstrumentWeapons.js';
 
 export class Mozart extends Phaser.Physics.Arcade.Sprite {
   constructor(scene, x, y) {
@@ -46,6 +47,9 @@ export class Mozart extends Phaser.Physics.Arcade.Sprite {
 
     // Musical combat system
     this.combat = new MusicalCombat(scene, this);
+
+    // Instrument weapons system (unlocked by completing levels)
+    this.instrumentWeapons = new InstrumentWeapons(scene, this);
 
     // Reference to touch controls scene (if running)
     this.touchControls = null;
@@ -172,6 +176,11 @@ export class Mozart extends Phaser.Physics.Arcade.Sprite {
     // Musical combat update
     if (this.combat) {
       this.combat.update(time || this.scene.time.now);
+    }
+
+    // Instrument weapons update
+    if (this.instrumentWeapons) {
+      this.instrumentWeapons.update(time || this.scene.time.now, dt);
     }
   }
 
@@ -378,4 +387,5 @@ export class Mozart extends Phaser.Physics.Arcade.Sprite {
     }
   }
 }
+
 
