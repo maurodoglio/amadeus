@@ -1,4 +1,5 @@
 import { TILE_SIZE } from '../config/constants.js';
+import { generateAllParallaxTextures } from './ParallaxBackground.js';
 
 /**
  * Generates pixel art sprites programmatically using canvas.
@@ -1429,6 +1430,7 @@ export class PixelArtGenerator {
     this.generateViennaParallax();
     this.generateForestParallax();
     this.generatePalaceParallax();
+    this.generateThemedParallaxLayers();
   }
 
   generateViennaParallax() {
@@ -1624,6 +1626,10 @@ export class PixelArtGenerator {
       }
     }
     this.scene.textures.addCanvas('parallaxPalace_near', canvas3);
+  }
+
+  generateThemedParallaxLayers() {
+    generateAllParallaxTextures(this.scene);
   }
 
   drawCloud(ctx, x, y, size) {

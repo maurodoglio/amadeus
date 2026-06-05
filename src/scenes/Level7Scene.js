@@ -16,6 +16,7 @@ import { ComboSystem } from '../utils/ComboSystem.js';
 import { getAchievementManager } from '../utils/AchievementManager.js';
 import { CompositionCollector } from '../mechanics/CompositionCollector.js';
 import { setupCamera, updateCameraLookAhead } from '../utils/CameraManager.js';
+import { ParallaxBackground, PARALLAX_CONFIGS } from '../utils/ParallaxBackground.js';
 
 export class Level7Scene extends Phaser.Scene {
   constructor() {
@@ -40,12 +41,8 @@ export class Level7Scene extends Phaser.Scene {
     const achievements = getAchievementManager();
     if (achievements) achievements.onLevelStart(7);
 
-    // Background - sky cathedral
-    if (this.textures.exists('bgSky')) {
-      this.add.image(GAME_WIDTH / 2, GAME_HEIGHT / 2, 'bgSky');
-    } else {
-      this.cameras.main.setBackgroundColor('#1a1a4e');
-    }
+    // Parallax background
+    this.parallaxBg = new ParallaxBackground(this, PARALLAX_CONFIGS.level7);
 
     // Level title
     const title = this.add.text(GAME_WIDTH / 2, 50, 'Eternal Legacy', {
@@ -348,6 +345,9 @@ export class Level7Scene extends Phaser.Scene {
         player.hit();
       });
     }
+
+    // Parallax scrolling
+    this.parallaxBg.update(time, delta);
 
     // Fall death (fall off bottom of sky)
     if (this.mozart && this.mozart.y > GAME_HEIGHT + 50) {

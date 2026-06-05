@@ -18,6 +18,7 @@ import { setupBoss, updateBossAI, getBossTarget, showBossDialogue } from '../uti
 import { getAchievementManager } from '../utils/AchievementManager.js';
 import { CompositionCollector } from '../mechanics/CompositionCollector.js';
 import { setupCamera, setupCoopCamera, updateCameraLookAhead } from '../utils/CameraManager.js';
+import { ParallaxBackground, PARALLAX_CONFIGS } from '../utils/ParallaxBackground.js';
 
 export class Level1Scene extends Phaser.Scene {
   constructor() {
@@ -46,12 +47,7 @@ export class Level1Scene extends Phaser.Scene {
 
     // Parallax background layers
     const worldWidth = GAME_WIDTH * 3;
-    this.bgFar = this.add.tileSprite(0, 0, GAME_WIDTH, GAME_HEIGHT, 'parallaxVienna_far')
-      .setOrigin(0, 0).setScrollFactor(0).setDepth(-10);
-    this.bgMid = this.add.tileSprite(0, 0, GAME_WIDTH, GAME_HEIGHT, 'parallaxVienna_mid')
-      .setOrigin(0, 0).setScrollFactor(0).setDepth(-9);
-    this.bgNear = this.add.tileSprite(0, 0, GAME_WIDTH, GAME_HEIGHT, 'parallaxVienna_near')
-      .setOrigin(0, 0).setScrollFactor(0).setDepth(-8);
+    this.parallaxBg = new ParallaxBackground(this, PARALLAX_CONFIGS.level1);
 
     // Level title
     const title = this.add.text(GAME_WIDTH / 2, 50, 'Salzburg Beginnings', {
@@ -496,10 +492,7 @@ export class Level1Scene extends Phaser.Scene {
     }
 
     // Parallax scrolling
-    const camX = this.cameras.main.scrollX;
-    this.bgFar.tilePositionX = camX * 0.1;
-    this.bgMid.tilePositionX = camX * 0.3;
-    this.bgNear.tilePositionX = camX * 0.5;
+    this.parallaxBg.update(time, delta);
 
     // Fall death
     if (this.mozart && !this.mozart.isDead && this.mozart.y > GAME_HEIGHT + 50) {

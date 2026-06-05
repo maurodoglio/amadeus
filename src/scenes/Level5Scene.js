@@ -12,6 +12,7 @@ import { ComboSystem } from '../utils/ComboSystem.js';
 import { getAchievementManager } from '../utils/AchievementManager.js';
 import { CompositionCollector } from '../mechanics/CompositionCollector.js';
 import { setupCamera, updateCameraLookAhead } from '../utils/CameraManager.js';
+import { ParallaxBackground, PARALLAX_CONFIGS } from '../utils/ParallaxBackground.js';
 
 export class Level5Scene extends Phaser.Scene {
   constructor() {
@@ -39,12 +40,8 @@ export class Level5Scene extends Phaser.Scene {
     const achievements = getAchievementManager();
     if (achievements) achievements.onLevelStart(5);
 
-    // Background
-    if (this.textures.exists('bgMountain')) {
-      this.add.image(GAME_WIDTH / 2, GAME_HEIGHT / 2, 'bgMountain');
-    } else {
-      this.cameras.main.setBackgroundColor('#4a6fa5');
-    }
+    // Parallax background
+    this.parallaxBg = new ParallaxBackground(this, PARALLAX_CONFIGS.level5);
 
     // Level title
     const title = this.add.text(GAME_WIDTH / 2, 50, 'Storm & Struggle', {
@@ -354,6 +351,9 @@ export class Level5Scene extends Phaser.Scene {
       if (p.x > GAME_WIDTH + 50) p.x = -50;
       if (p.x < -50) p.x = GAME_WIDTH + 50;
     });
+
+    // Parallax scrolling
+    this.parallaxBg.update(time, delta);
 
     // Fall death
     if (this.mozart && this.mozart.y > GAME_HEIGHT + 50) {
