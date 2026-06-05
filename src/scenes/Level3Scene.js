@@ -302,6 +302,31 @@ export class Level3Scene extends Phaser.Scene {
 
     this.physics.add.overlap(this.mozart, this.checkpoints, this.activateCheckpoint, null, this);
 
+    // Melody Memory Portal (mini-game trigger)
+    this.melodyPortals = this.physics.add.staticGroup();
+    const melodyPortal = this.melodyPortals.create(1050, GAME_HEIGHT - 80, 'practiceStage')
+      .setDisplaySize(64, 48)
+      .setTint(0xaa66ff)
+      .refreshBody();
+    melodyPortal.difficulty = 2;
+
+    this.add.text(1050, GAME_HEIGHT - 115, '♪ Melody ♪', {
+      font: '10px monospace',
+      fill: '#AA66FF',
+      stroke: '#000000',
+      strokeThickness: 2
+    }).setOrigin(0.5);
+
+    this.tweens.add({
+      targets: melodyPortal,
+      alpha: { from: 0.7, to: 1 },
+      duration: 1000,
+      yoyo: true,
+      repeat: -1
+    });
+
+    this.physics.add.overlap(this.mozart, this.melodyPortals, this.enterMelodyMemory, null, this);
+
     // Camera
     this.physics.world.setBounds(0, 0, GAME_WIDTH * 3.5, GAME_HEIGHT);
 
@@ -339,6 +364,30 @@ export class Level3Scene extends Phaser.Scene {
     // Background music - adaptive system
     this.adaptiveMusic = new AdaptiveMusicManager(this);
     this.adaptiveMusic.start('exploration');
+
+    // Handle resume from melody memory mini-game
+    this.events.on('resume', () => {
+      this.sound.resumeAll();
+      const bonus = this.registry.get('melodyMemoryBonus');
+      if (bonus) {
+        this.registry.set('melodyMemoryBonus', null);
+        const currentScore = this.registry.get('score') || 0;
+        this.registry.set('score', currentScore + bonus);
+        const indicator = this.add.text(this.mozart.x, this.mozart.y - 40, `+${bonus} ♪`, {
+          font: '14px monospace',
+          fill: '#AA66FF',
+          stroke: '#000000',
+          strokeThickness: 2
+        }).setOrigin(0.5);
+        this.tweens.add({
+          targets: indicator,
+          y: indicator.y - 30,
+          alpha: 0,
+          duration: 1500,
+          onComplete: () => indicator.destroy()
+        });
+      }
+    });
   }
 
   createBoss() {
@@ -817,5 +866,22 @@ export class Level3Scene extends Phaser.Scene {
     if (this.sound.get('sfx_coin')) {
       this.sound.play('sfx_coin', { volume: 0.2 });
     }
+  }
+
+  enterMelodyMemory(player, portal) {
+    if (!this.mozart.cursors.up.isDown && !this.mozart.wasdKeys?.W?.isDown) return;
+
+    if (this.melodyCooldown) return;
+    this.melodyCooldown = true;
+    this.time.delayedCall(1000, () => { this.melodyCooldown = false; });
+
+    this.scene.pause();
+    this.sound.pauseAll();
+    this.scene.launch('MelodyMemoryScene', {
+      returnScene: 'Level3Scene',
+      difficulty: portal.difficulty || 2,
+      playerX: player.x,
+      playerY: player.y
+    });
   }
 }
