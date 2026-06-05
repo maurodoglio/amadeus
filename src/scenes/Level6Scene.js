@@ -14,6 +14,7 @@ import { CompositionCollector } from '../mechanics/CompositionCollector.js';
 import { PitchPuzzle } from '../mechanics/PitchPuzzle.js';
 import { ChordDoor } from '../mechanics/ChordDoor.js';
 import { setupCamera, updateCameraLookAhead } from '../utils/CameraManager.js';
+import { ParallaxBackground, PARALLAX_CONFIGS } from '../utils/ParallaxBackground.js';
 
 export class Level6Scene extends Phaser.Scene {
   constructor() {
@@ -38,12 +39,8 @@ export class Level6Scene extends Phaser.Scene {
     const achievements = getAchievementManager();
     if (achievements) achievements.onLevelStart(6);
 
-    // Background - dark caves
-    if (this.textures.exists('bgCaves')) {
-      this.add.image(GAME_WIDTH / 2, GAME_HEIGHT / 2, 'bgCaves');
-    } else {
-      this.cameras.main.setBackgroundColor('#0a0a0a');
-    }
+    // Parallax background
+    this.parallaxBg = new ParallaxBackground(this, PARALLAX_CONFIGS.level6);
 
     // Level title
     const title = this.add.text(GAME_WIDTH / 2, 50, 'The Requiem Mystery', {
@@ -324,6 +321,9 @@ export class Level6Scene extends Phaser.Scene {
 
     // Draw darkness with circular cutout around player
     this.updateDarkness();
+
+    // Parallax scrolling
+    this.parallaxBg.update(time, delta);
 
     // Fall death
     if (this.mozart && this.mozart.y > GAME_HEIGHT + 50) {

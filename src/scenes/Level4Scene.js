@@ -17,6 +17,7 @@ import { CompositionCollector } from '../mechanics/CompositionCollector.js';
 import { PitchPuzzle } from '../mechanics/PitchPuzzle.js';
 import { ChordDoor } from '../mechanics/ChordDoor.js';
 import { setupCamera, updateCameraLookAhead } from '../utils/CameraManager.js';
+import { ParallaxBackground, PARALLAX_CONFIGS } from '../utils/ParallaxBackground.js';
 
 export class Level4Scene extends Phaser.Scene {
   constructor() {
@@ -43,12 +44,8 @@ export class Level4Scene extends Phaser.Scene {
     const achievements = getAchievementManager();
     if (achievements) achievements.onLevelStart(4);
 
-    // Background
-    if (this.textures.exists('bgOpera')) {
-      this.add.image(GAME_WIDTH / 2, GAME_HEIGHT / 2, 'bgOpera');
-    } else {
-      this.cameras.main.setBackgroundColor('#2a0a0a');
-    }
+    // Parallax background
+    this.parallaxBg = new ParallaxBackground(this, PARALLAX_CONFIGS.level4);
 
     // Level title
     const title = this.add.text(GAME_WIDTH / 2, 50, 'Vienna Opera', {
@@ -402,6 +399,9 @@ export class Level4Scene extends Phaser.Scene {
       });
       this.beatIndicator.setFillStyle(this.rhythmBeat ? 0x00FF00 : 0xFF4500, 0.8);
     }
+
+    // Parallax scrolling
+    this.parallaxBg.update(time, delta);
 
     // Fall death
     if (this.mozart && this.mozart.y > GAME_HEIGHT + 50) {

@@ -18,6 +18,7 @@ import { AdaptiveMusicManager } from '../utils/AdaptiveMusicManager.js';
 import { MozartSoundtracks } from '../utils/MozartSoundtracks.js';
 import { getAchievementManager } from '../utils/AchievementManager.js';
 import { setupCamera, setupCoopCamera, updateCameraLookAhead } from '../utils/CameraManager.js';
+import { ParallaxBackground, PARALLAX_CONFIGS } from '../utils/ParallaxBackground.js';
 import { CompositionCollector } from '../mechanics/CompositionCollector.js';
 import { PitchPuzzle } from '../mechanics/PitchPuzzle.js';
 import { ChordDoor } from '../mechanics/ChordDoor.js';
@@ -50,12 +51,7 @@ export class Level3Scene extends Phaser.Scene {
     if (achievements) achievements.onLevelStart(3);
 
     // Parallax background layers
-    this.bgFar = this.add.tileSprite(0, 0, GAME_WIDTH, GAME_HEIGHT, 'parallaxPalace_far')
-      .setOrigin(0, 0).setScrollFactor(0).setDepth(-10);
-    this.bgMid = this.add.tileSprite(0, 0, GAME_WIDTH, GAME_HEIGHT, 'parallaxPalace_mid')
-      .setOrigin(0, 0).setScrollFactor(0).setDepth(-9);
-    this.bgNear = this.add.tileSprite(0, 0, GAME_WIDTH, GAME_HEIGHT, 'parallaxPalace_near')
-      .setOrigin(0, 0).setScrollFactor(0).setDepth(-8);
+    this.parallaxBg = new ParallaxBackground(this, PARALLAX_CONFIGS.level3);
 
     // Level title
     const title = this.add.text(GAME_WIDTH / 2, 50, "Archbishop's Palace", {
@@ -471,10 +467,7 @@ export class Level3Scene extends Phaser.Scene {
     }
 
     // Parallax scrolling
-    const camX = this.cameras.main.scrollX;
-    this.bgFar.tilePositionX = camX * 0.1;
-    this.bgMid.tilePositionX = camX * 0.3;
-    this.bgNear.tilePositionX = camX * 0.5;
+    this.parallaxBg.update(time, delta);
 
     // Activate boss when any player gets close
     if (this.boss && this.boss.active && !this.boss.isActive) {
