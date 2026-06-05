@@ -1,3 +1,8 @@
+// @ts-check
+/**
+ * @typedef {import('../types.js').DifficultySettings} DifficultySettings
+ */
+
 /**
  * Per-level difficulty configuration for progressive challenge scaling.
  * 
@@ -83,6 +88,8 @@ export const DIFFICULTY = {
 
 /**
  * Get difficulty settings for a specific level.
+ * @param {number} level - Level number (1-7)
+ * @returns {DifficultySettings} The difficulty settings for the specified level
  */
 export function getLevelDifficulty(level) {
   return {

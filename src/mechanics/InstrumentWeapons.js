@@ -1,3 +1,4 @@
+// @ts-check
 import Phaser from 'phaser';
 
 /**
@@ -92,6 +93,10 @@ export { WEAPON_DEFS, LEVEL_TO_WEAPON };
  * Weapons are unlocked by completing levels. Each weapon has a unique attack.
  */
 export class InstrumentWeapons {
+  /**
+   * @param {Phaser.Scene} scene - The current game scene
+   * @param {import('../sprites/Mozart.js').Mozart} player - The player sprite
+   */
   constructor(scene, player) {
     this.scene = scene;
     this.player = player;
@@ -216,6 +221,11 @@ export class InstrumentWeapons {
     }
   }
 
+  /**
+   * Update weapon cooldowns, handle input, and manage projectiles.
+   * @param {number} time - Current game time in ms
+   * @param {number} delta - Time elapsed since last frame in ms
+   */
   update(time, delta) {
     if (this.player.isDead) return;
 
@@ -255,6 +265,9 @@ export class InstrumentWeapons {
     this.updateHUD();
   }
 
+  /**
+   * Execute the current weapon's attack if off cooldown.
+   */
   attack() {
     if (!this.currentWeapon) return;
     if (this.cooldowns[this.currentWeapon] > 0) return;
@@ -502,6 +515,15 @@ export class InstrumentWeapons {
 
   // --- Helper methods ---
 
+  /**
+   * Damage all enemies within an arc range from a center point.
+   * @param {number} cx - Center X position
+   * @param {number} cy - Center Y position
+   * @param {number} range - Maximum distance in pixels
+   * @param {number} damage - Damage to apply
+   * @param {boolean} facingRight - Whether the attack faces right
+   * @param {number} angleDeg - Arc angle in degrees
+   */
   damageEnemiesInRange(cx, cy, range, damage, facingRight, angleDeg) {
     if (!this.scene.enemies) return;
 
@@ -521,6 +543,11 @@ export class InstrumentWeapons {
     });
   }
 
+  /**
+   * Apply damage to a single enemy and destroy it if health depletes.
+   * @param {Phaser.Physics.Arcade.Sprite} enemy - The enemy sprite
+   * @param {number} damage - Amount of damage to deal
+   */
   damageEnemy(enemy, damage) {
     if (!enemy.active) return;
     if (enemy.health === undefined) enemy.health = 3;
@@ -536,6 +563,10 @@ export class InstrumentWeapons {
     }
   }
 
+  /**
+   * Destroy an enemy with particle effects and score reward.
+   * @param {Phaser.Physics.Arcade.Sprite} enemy - The enemy to destroy
+   */
   destroyEnemy(enemy) {
     if (this.scene.particles) {
       this.scene.particles.emitStomp(enemy.x, enemy.y);
@@ -551,6 +582,11 @@ export class InstrumentWeapons {
     enemy.destroy();
   }
 
+  /**
+   * Stun an enemy for the specified duration.
+   * @param {Phaser.Physics.Arcade.Sprite} enemy - The enemy to stun
+   * @param {number} duration - Stun duration in milliseconds
+   */
   stunEnemy(enemy, duration) {
     if (enemy.isStunned) return;
     enemy.isStunned = true;
@@ -569,6 +605,11 @@ export class InstrumentWeapons {
     });
   }
 
+  /**
+   * Charm an enemy to fight on Mozart's side for the specified duration.
+   * @param {Phaser.Physics.Arcade.Sprite} enemy - The enemy to charm
+   * @param {number} duration - Charm duration in milliseconds
+   */
   charmEnemy(enemy, duration) {
     enemy.isCharmed = true;
     const originalSpeed = enemy.speed || 60;
@@ -672,6 +713,8 @@ export class InstrumentWeapons {
 
   /**
    * Handle projectile hitting an enemy (called by scene overlap handler).
+   * @param {Phaser.Physics.Arcade.Sprite} enemy - The enemy hit
+   * @param {Phaser.Physics.Arcade.Sprite} projectile - The projectile that hit
    */
   handleProjectileHit(enemy, projectile) {
     if (!projectile.active || !enemy.active) return;
@@ -691,6 +734,7 @@ export class InstrumentWeapons {
 
   /**
    * Set up overlap detection between weapon projectiles and enemy group.
+   * @param {Phaser.Physics.Arcade.Group} enemyGroup - The group of enemies to check collisions against
    */
   setupCollision(enemyGroup) {
     this.scene.physics.add.overlap(
