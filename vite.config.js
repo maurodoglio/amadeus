@@ -18,6 +18,7 @@ export default defineConfig({
     open: true
   },
   test: {
-    globals: true
+    globals: true,
+    exclude: ['tests/e2e/**', 'node_modules/**']
   }
 });
