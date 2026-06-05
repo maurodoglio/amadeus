@@ -93,6 +93,10 @@ export class Level7Scene extends Phaser.Scene {
       { x: 2250, y: 160, w: 2 },
       { x: 2200, y: 360, w: 3 },
       { x: 2450, y: 280, w: 4 },
+      // Stepping-stone platforms for bonus collectibles
+      { x: 380, y: 120, w: 1 },
+      { x: 1240, y: 160, w: 1 },
+      { x: 1630, y: 140, w: 1 },
     ];
 
     platformData.forEach(p => {
