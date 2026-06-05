@@ -160,6 +160,39 @@ export class BossPhaseManager {
     this.phaseMarkers.forEach(m => m.setVisible(false));
   }
 
+  _createArenaBarrier() {
+    const scene = this.scene;
+    // Create an invisible static wall at activateX to prevent backtracking
+    const wallX = this.activateX - 16;
+    const wallH = GAME_HEIGHT;
+
+    // Use a zone with a static body as the wall
+    this.arenaWall = scene.add.zone(wallX, wallH / 2, 32, wallH);
+    scene.physics.add.existing(this.arenaWall, true); // true = static
+
+    // Collide players with the wall
+    scene.physics.add.collider(scene.mozart, this.arenaWall);
+    if (scene.coopMode && scene.nannerl) {
+      scene.physics.add.collider(scene.nannerl, this.arenaWall);
+    }
+
+    // Subtle visual indicator
+    this.arenaWallVisual = scene.add.rectangle(
+      wallX, wallH / 2, 6, wallH, 0x220011, 0.5
+    );
+  }
+
+  _removeArenaBarrier() {
+    if (this.arenaWall) {
+      this.arenaWall.destroy();
+      this.arenaWall = null;
+    }
+    if (this.arenaWallVisual) {
+      this.arenaWallVisual.destroy();
+      this.arenaWallVisual = null;
+    }
+  }
+
   _updateHealthBar() {
     const barWidth = 300;
     const percent = Math.max(0, this.totalHP / this.maxTotalHP);
@@ -298,6 +331,7 @@ export class BossPhaseManager {
     this.isDefeated = true;
     const scene = this.scene;
     scene.bossDefeated = true;
+    this._removeArenaBarrier();
 
     // Slow-motion effect
     scene.time.timeScale = 0.5;
@@ -438,6 +472,7 @@ export class BossPhaseManager {
       if (anyClose) {
         this.isActive = true;
         this._showUI();
+        this._createArenaBarrier();
 
         // Stop current music, play boss music
         scene.sound.stopAll();

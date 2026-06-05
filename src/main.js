@@ -19,6 +19,7 @@ import { AchievementPopup } from './ui/AchievementPopup.js';
 import { initAchievementManager } from './utils/AchievementManager.js';
 import { LoadingScene } from './utils/SceneLoader.js';
 import { RecoveryScene } from './scenes/RecoveryScene.js';
+import { HighScoresScene } from './scenes/HighScoresScene.js';
 import { installGlobalErrorHandlers } from './utils/ErrorBoundary.js';
 
 const config = {
@@ -26,8 +27,8 @@ const config = {
   width: GAME_WIDTH,
   height: GAME_HEIGHT,
   parent: 'game-container',
-  pixelArt: true,
-  roundPixels: true,
+  pixelArt: false,
+  roundPixels: false,
   scale: {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
@@ -43,7 +44,7 @@ const config = {
       debug: false
     }
   },
-  scene: [BootScene, MenuScene, MapScene, CutsceneScene, TransitionScene, LevelCompleteScene, InstrumentLessonScene, ConcertScene, UIScene, TouchControls, PauseScene, AccessibilityScene, RhythmScene, MelodyMemoryScene, AchievementsScene, AchievementPopup, LoadingScene, RecoveryScene]
+  scene: [BootScene, MenuScene, HighScoresScene, MapScene, CutsceneScene, TransitionScene, LevelCompleteScene, InstrumentLessonScene, ConcertScene, UIScene, TouchControls, PauseScene, AccessibilityScene, RhythmScene, MelodyMemoryScene, AchievementsScene, AchievementPopup, LoadingScene, RecoveryScene]
 };
 
 const game = new Phaser.Game(config);

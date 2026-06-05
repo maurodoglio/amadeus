@@ -115,6 +115,13 @@ export class Level1Scene extends Phaser.Scene {
       { x: 2480, y: 200, w: 1 },
       { x: 2750, y: 170, w: 1 },
       { x: 3010, y: 140, w: 1 },
+      // Boss arena platforms (reachable for jumping on boss)
+      { x: 2700, y: 350, w: 4 },
+      { x: 2850, y: 270, w: 3 },
+      { x: 3000, y: 200, w: 3 },
+      { x: 3150, y: 270, w: 3 },
+      { x: 2950, y: 350, w: 4 },
+      { x: 3100, y: 380, w: 2 },
     ];
 
     platformData.forEach(p => {

@@ -642,16 +642,15 @@ export class BaseLevelScene extends Phaser.Scene {
       this.nannerl.die();
     }
 
-    // Co-op game over
+    // Game over check
+    const noLives = this.registry.get('lives') <= 0;
     if (this.coopMode) {
       const bothDead = (this.mozart.isDead) && (this.nannerl && this.nannerl.isDead);
-      const noLives = this.registry.get('lives') <= 0;
       if (bothDead || noLives) {
-        this.time.delayedCall(1500, () => {
-          this.scene.stop('UIScene');
-          this.scene.start('MenuScene');
-        });
+        this.showGameOver();
       }
+    } else if (this.mozart && this.mozart.isDead && noLives) {
+      this.showGameOver();
     }
   }
 
@@ -795,6 +794,72 @@ export class BaseLevelScene extends Phaser.Scene {
   }
 
   // Hook for subclass pre-transition logic
+  showGameOver() {
+    if (this.gameOverShown) return;
+    this.gameOverShown = true;
+
+    this.time.delayedCall(1000, () => {
+      // Pause physics
+      this.physics.pause();
+
+      // Dark overlay
+      const overlay = this.add.rectangle(
+        this.cameras.main.scrollX + GAME_WIDTH / 2,
+        this.cameras.main.scrollY + GAME_HEIGHT / 2,
+        GAME_WIDTH, GAME_HEIGHT, 0x000000, 0.7
+      ).setDepth(1000).setScrollFactor(0);
+
+      // Game Over text
+      this.add.text(GAME_WIDTH / 2, GAME_HEIGHT / 2 - 60, 'GAME OVER', {
+        fontFamily: '"Playfair Display", Georgia, serif',
+        fontSize: '36px', color: '#FFD700',
+        stroke: '#000000', strokeThickness: 2
+      }).setOrigin(0.5).setDepth(1001).setScrollFactor(0);
+
+      // Retry button
+      const retryBtn = this.add.text(GAME_WIDTH / 2, GAME_HEIGHT / 2 + 10, '▶ Retry Level', {
+        fontFamily: 'Georgia, serif', fontSize: '18px', color: '#C9A84C'
+      }).setOrigin(0.5).setDepth(1001).setScrollFactor(0)
+        .setInteractive({ useHandCursor: true });
+
+      retryBtn.on('pointerover', () => retryBtn.setColor('#FFD700'));
+      retryBtn.on('pointerout', () => retryBtn.setColor('#C9A84C'));
+      retryBtn.on('pointerdown', () => {
+        this.sound.stopAll();
+        this.registry.set('lives', this.coopMode ? 5 : 3);
+        this.scene.stop('UIScene');
+        this.scene.restart();
+      });
+
+      // Back to menu
+      const menuBtn = this.add.text(GAME_WIDTH / 2, GAME_HEIGHT / 2 + 50, '← Back to Menu', {
+        fontFamily: 'Georgia, serif', fontSize: '16px', color: '#888888'
+      }).setOrigin(0.5).setDepth(1001).setScrollFactor(0)
+        .setInteractive({ useHandCursor: true });
+
+      menuBtn.on('pointerover', () => menuBtn.setColor('#C9A84C'));
+      menuBtn.on('pointerout', () => menuBtn.setColor('#888888'));
+      menuBtn.on('pointerdown', () => {
+        this.sound.stopAll();
+        this.scene.stop('UIScene');
+        this.scene.start('MenuScene');
+      });
+
+      // Keyboard controls
+      this.input.keyboard.once('keydown-ENTER', () => {
+        this.sound.stopAll();
+        this.registry.set('lives', this.coopMode ? 5 : 3);
+        this.scene.stop('UIScene');
+        this.scene.restart();
+      });
+      this.input.keyboard.once('keydown-ESC', () => {
+        this.sound.stopAll();
+        this.scene.stop('UIScene');
+        this.scene.start('MenuScene');
+      });
+    });
+  }
+
   onInstrumentCollected(_config) {
     // No-op by default
   }
