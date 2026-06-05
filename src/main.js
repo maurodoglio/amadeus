@@ -46,6 +46,9 @@ const config = {
 
 const game = new Phaser.Game(config);
 
+// Expose game instance for integration testing
+window.game = game;
+
 // Initialize achievement system after game creation
 initAchievementManager(game);
 
