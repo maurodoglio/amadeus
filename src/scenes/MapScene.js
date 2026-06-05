@@ -105,18 +105,26 @@ export class MapScene extends Phaser.Scene {
   createPath() {
     const graphics = this.add.graphics();
 
-    // Draw dotted path connecting levels
+    // Draw dotted path connecting all 7 levels with smooth curves
     graphics.lineStyle(4, 0xc8a96e, 0.6);
     const path = new Phaser.Curves.Spline([
       new Phaser.Math.Vector2(LEVEL_DATA[0].x, LEVEL_DATA[0].y),
-      new Phaser.Math.Vector2(220, 310),
+      new Phaser.Math.Vector2(140, 350),
       new Phaser.Math.Vector2(LEVEL_DATA[1].x, LEVEL_DATA[1].y),
-      new Phaser.Math.Vector2(480, 220),
-      new Phaser.Math.Vector2(LEVEL_DATA[2].x, LEVEL_DATA[2].y)
+      new Phaser.Math.Vector2(270, 260),
+      new Phaser.Math.Vector2(LEVEL_DATA[2].x, LEVEL_DATA[2].y),
+      new Phaser.Math.Vector2(410, 290),
+      new Phaser.Math.Vector2(LEVEL_DATA[3].x, LEVEL_DATA[3].y),
+      new Phaser.Math.Vector2(530, 250),
+      new Phaser.Math.Vector2(LEVEL_DATA[4].x, LEVEL_DATA[4].y),
+      new Phaser.Math.Vector2(635, 260),
+      new Phaser.Math.Vector2(LEVEL_DATA[5].x, LEVEL_DATA[5].y),
+      new Phaser.Math.Vector2(720, 230),
+      new Phaser.Math.Vector2(LEVEL_DATA[6].x, LEVEL_DATA[6].y)
     ]);
 
     // Draw path as dashes
-    const points = path.getPoints(60);
+    const points = path.getPoints(120);
     for (let i = 0; i < points.length - 1; i += 2) {
       graphics.beginPath();
       graphics.moveTo(points[i].x, points[i].y);
