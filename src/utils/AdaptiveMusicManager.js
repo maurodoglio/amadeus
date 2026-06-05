@@ -92,9 +92,12 @@ export class AdaptiveMusicManager {
   }
 
   /**
-   * Start the adaptive music loop.
+   * Start the adaptive music system.
+   * When accompaniment mode is true (default), only provides stingers and
+   * fanfares without starting its own melody loop — use alongside
+   * MozartSoundtracks which handles the primary music.
    */
-  start(initialState = 'exploration') {
+  start(initialState = 'exploration', { accompanimentOnly = true } = {}) {
     if (this.isPlaying) return;
     if (!this.audioContext) this.init();
 
@@ -106,7 +109,13 @@ export class AdaptiveMusicManager {
     this.currentState = initialState;
     this.targetState = initialState;
     this.applyStateVolumes(initialState, true);
-    this.startMusicLoop();
+
+    // Only start the independent music loop if not in accompaniment mode.
+    // In accompaniment mode, MozartSoundtracks provides the melody and this
+    // system only contributes stingers, fanfares, and state tracking.
+    if (!accompanimentOnly) {
+      this.startMusicLoop();
+    }
   }
 
   /**

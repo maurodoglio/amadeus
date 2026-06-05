@@ -12,6 +12,7 @@ export class LevelCompleteScene extends Phaser.Scene {
     this.levelScore = data.levelScore || 0;
     this.timeBonus = data.timeBonus || 0;
     this.nextScene = data.nextScene || 'MenuScene';
+    this.nextSceneData = data.nextSceneData || {};
     this.cutscene = data.cutscene || null;
   }
 
@@ -131,7 +132,7 @@ export class LevelCompleteScene extends Phaser.Scene {
     if (this.cutscene) {
       this.scene.start('CutsceneScene', { cutscene: this.cutscene, nextScene: this.nextScene });
     } else {
-      this.scene.start(this.nextScene);
+      this.scene.start(this.nextScene, this.nextSceneData);
     }
   }
 }

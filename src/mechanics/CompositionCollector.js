@@ -157,13 +157,30 @@ export class CompositionCollector {
       const pitchClass = getPitchClass(noteData.label);
       const textureKey = `compositionNote_${pitchClass}`;
 
-      const sprite = this.noteGroup.create(pos.x, pos.y, textureKey);
+      // Use 'musicNote' as fallback texture if composition-specific texture not loaded
+      const texture = this.scene.textures.exists(textureKey) ? textureKey : 'musicNote';
+      const sprite = this.noteGroup.create(pos.x, pos.y, texture);
       sprite.body.setAllowGravity(false);
-      sprite.setDisplaySize(20, 24);
+      sprite.setDisplaySize(24, 28);
       sprite.setData('noteIndex', index);
       sprite.setData('midi', noteData.midi);
       sprite.setData('label', noteData.label);
       sprite.setData('pitchClass', pitchClass);
+
+      // Tint with pitch-specific color to distinguish from regular collectibles
+      const colorHex = PITCH_COLORS[pitchClass] || '#FFFFFF';
+      sprite.setTint(Phaser.Display.Color.HexStringToColor(colorHex).color);
+
+      // Pulsing glow to distinguish from regular sheet music collectibles
+      this.scene.tweens.add({
+        targets: sprite,
+        alpha: { from: 0.7, to: 1 },
+        scale: { from: 1.0, to: 1.15 },
+        duration: 600,
+        yoyo: true,
+        repeat: -1,
+        ease: 'Sine.easeInOut'
+      });
 
       // Float animation
       this.scene.tweens.add({

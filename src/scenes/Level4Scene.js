@@ -442,7 +442,8 @@ export class Level4Scene extends Phaser.Scene {
           level: 4,
           levelScore: this.registry.get('score'),
           timeBonus: 0,
-          nextScene: 'Level5Scene'
+          nextScene: 'MapScene',
+          nextSceneData: { completedLevel: 4 }
         });
       }
     });
