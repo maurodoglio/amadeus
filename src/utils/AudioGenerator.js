@@ -27,6 +27,8 @@ export class AudioGenerator {
     this.generateRhythmMusic();
     this.generateCompositionNotes();
     this.generateDissonanceSound();
+    this.generateChordConsonant();
+    this.generateChordDissonant();
   }
 
   createBuffer(duration, generator) {
@@ -532,5 +534,44 @@ export class AudioGenerator {
       }
     });
     this.addSoundToScene('sfx_dissonance', buffer);
+  }
+
+  generateChordConsonant() {
+    // Consonant C major chord sound for successful chord door unlock
+    const buffer = this.createBuffer(1.0, (data, sampleRate, length) => {
+      const freqs = [261.63, 329.63, 392.00]; // C4, E4, G4
+      for (let i = 0; i < length; i++) {
+        const t = i / sampleRate;
+        const attack = Math.min(1, i / (sampleRate * 0.02));
+        const decay = Math.max(0, 1 - i / (length * 0.8));
+        const envelope = attack * decay;
+        let wave = 0;
+        freqs.forEach(freq => {
+          wave += Math.sin(2 * Math.PI * freq * t) * 0.5 +
+                  Math.sin(4 * Math.PI * freq * t) * 0.2;
+        });
+        data[i] = wave / freqs.length * envelope * 0.25;
+      }
+    });
+    this.addSoundToScene('sfx_chordConsonant', buffer);
+  }
+
+  generateChordDissonant() {
+    // Dissonant chord sound for failed chord door attempt
+    const buffer = this.createBuffer(0.6, (data, sampleRate, length) => {
+      const freqs = [261.63, 277.18, 293.66]; // C4, C#4, D4 — clashing semitones
+      for (let i = 0; i < length; i++) {
+        const t = i / sampleRate;
+        const envelope = Math.max(0, 1 - i / length);
+        let wave = 0;
+        freqs.forEach(freq => {
+          wave += Math.sin(2 * Math.PI * freq * t) * 0.4 +
+                  Math.sin(3 * Math.PI * freq * t) * 0.2;
+        });
+        wave += (Math.random() * 0.15 - 0.075);
+        data[i] = wave / freqs.length * envelope * 0.2;
+      }
+    });
+    this.addSoundToScene('sfx_chordDissonant', buffer);
   }
 }
