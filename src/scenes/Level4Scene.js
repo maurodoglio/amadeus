@@ -15,6 +15,7 @@ import { ComboSystem } from '../utils/ComboSystem.js';
 import { getAchievementManager } from '../utils/AchievementManager.js';
 import { CompositionCollector } from '../mechanics/CompositionCollector.js';
 import { PitchPuzzle } from '../mechanics/PitchPuzzle.js';
+import { ChordDoor } from '../mechanics/ChordDoor.js';
 import { setupCamera, updateCameraLookAhead } from '../utils/CameraManager.js';
 
 export class Level4Scene extends Phaser.Scene {
@@ -237,6 +238,11 @@ export class Level4Scene extends Phaser.Scene {
     this.pitchPuzzle = new PitchPuzzle(this, 4, { x: 1400, y: GAME_HEIGHT - 130 });
     this.pitchPuzzle.create();
     this.pitchPuzzle.setupOverlap(this.mozart);
+    // Chord Door puzzle (main path)
+    this.chordDoor = new ChordDoor(this, 4, 1200, GAME_HEIGHT - TILE_SIZE, {
+      health: true, score: true, compositionNote: true
+    });
+    this.chordDoor.setupOverlap(this.mozart);
 
     // Collisions
     this.physics.add.collider(this.mozart, this.platforms);
@@ -497,3 +503,4 @@ export class Level4Scene extends Phaser.Scene {
     });
   }
 }
+
