@@ -7,6 +7,9 @@ import { Singer } from '../sprites/enemies/Singer.js';
 import { DrumTroll } from '../sprites/enemies/DrumTroll.js';
 import { DissonantNote } from '../sprites/enemies/DissonantNote.js';
 import { BrokenInstrument } from '../sprites/enemies/BrokenInstrument.js';
+import { ConductorGhost } from '../sprites/enemies/ConductorGhost.js';
+import { SheetMusicBat } from '../sprites/enemies/SheetMusicBat.js';
+import { MetronomeSentinel } from '../sprites/enemies/MetronomeSentinel.js';
 import { ParticleManager } from '../utils/ParticleManager.js';
 import { setupPause } from '../utils/PauseHelper.js';
 import { ComboSystem } from '../utils/ComboSystem.js';
@@ -284,6 +287,33 @@ export class BaseLevelScene extends Phaser.Scene {
       const bi = new BrokenInstrument(this, p.x, p.y);
       this.enemies.add(bi);
       this.enemyList.push(bi);
+    });
+
+    // Conductor Ghosts
+    const ghostPositions = [...(enemies.conductorGhosts || []), ...(coopExtra.conductorGhosts || [])];
+    ghostPositions.forEach(pos => {
+      const p = typeof pos === 'number' ? { x: pos, y: 150 } : pos;
+      const ghost = new ConductorGhost(this, p.x, p.y, p.options);
+      this.enemies.add(ghost);
+      this.enemyList.push(ghost);
+    });
+
+    // Sheet Music Bats
+    const batPositions = [...(enemies.sheetMusicBats || []), ...(coopExtra.sheetMusicBats || [])];
+    batPositions.forEach((pos, index) => {
+      const p = typeof pos === 'number' ? { x: pos, y: 120 } : pos;
+      const bat = new SheetMusicBat(this, p.x, p.y, { ...p.options, formationIndex: index });
+      this.enemies.add(bat);
+      this.enemyList.push(bat);
+    });
+
+    // Metronome Sentinels
+    const sentinelPositions = [...(enemies.metronomeSentinels || []), ...(coopExtra.metronomeSentinels || [])];
+    sentinelPositions.forEach(pos => {
+      const p = typeof pos === 'number' ? { x: pos, y: GAME_HEIGHT - 80 } : pos;
+      const sentinel = new MetronomeSentinel(this, p.x, p.y, p.options);
+      this.enemies.add(sentinel);
+      this.enemyList.push(sentinel);
     });
   }
 

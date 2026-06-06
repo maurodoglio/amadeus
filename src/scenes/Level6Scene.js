@@ -4,6 +4,9 @@ import { getLevelDifficulty } from '../config/difficultyConfig.js';
 import { Mozart } from '../sprites/Mozart.js';
 import { DrumTroll } from '../sprites/enemies/DrumTroll.js';
 import { BrokenInstrument } from '../sprites/enemies/BrokenInstrument.js';
+import { ConductorGhost } from '../sprites/enemies/ConductorGhost.js';
+import { MetronomeSentinel } from '../sprites/enemies/MetronomeSentinel.js';
+import { SheetMusicBat } from '../sprites/enemies/SheetMusicBat.js';
 import { AdaptiveMusicManager } from '../utils/AdaptiveMusicManager.js';
 import { MozartSoundtracks } from '../utils/MozartSoundtracks.js';
 import { ParticleManager } from '../utils/ParticleManager.js';
@@ -140,6 +143,27 @@ export class Level6Scene extends Phaser.Scene {
       const bi = new BrokenInstrument(this, x, GAME_HEIGHT - 80);
       this.enemies.add(bi);
       this.enemyList.push(bi);
+    });
+
+    // Conductor Ghosts - haunt the caves
+    [{ x: 1000, y: 140 }, { x: 2400, y: 130 }].forEach(pos => {
+      const ghost = new ConductorGhost(this, pos.x, pos.y, { teleportInterval: 2500 });
+      this.enemies.add(ghost);
+      this.enemyList.push(ghost);
+    });
+
+    // Metronome Sentinels - cave guardians with faster beats
+    [{ x: 1600, y: GAME_HEIGHT - 80 }, { x: 2800, y: GAME_HEIGHT - 80 }].forEach(pos => {
+      const sentinel = new MetronomeSentinel(this, pos.x, pos.y, { beatInterval: 1200 });
+      this.enemies.add(sentinel);
+      this.enemyList.push(sentinel);
+    });
+
+    // Sheet Music Bats - circle in dark caves
+    [{ x: 600, y: 120 }, { x: 1800, y: 100 }, { x: 2600, y: 110 }].forEach((pos, index) => {
+      const bat = new SheetMusicBat(this, pos.x, pos.y, { pattern: 'circle', formationIndex: index, amplitude: 50 });
+      this.enemies.add(bat);
+      this.enemyList.push(bat);
     });
 
     // Collectibles

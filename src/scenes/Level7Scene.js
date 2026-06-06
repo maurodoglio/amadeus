@@ -5,6 +5,9 @@ import { Mozart } from '../sprites/Mozart.js';
 import { Singer } from '../sprites/enemies/Singer.js';
 import { DissonantNote } from '../sprites/enemies/DissonantNote.js';
 import { BrokenInstrument } from '../sprites/enemies/BrokenInstrument.js';
+import { ConductorGhost } from '../sprites/enemies/ConductorGhost.js';
+import { SheetMusicBat } from '../sprites/enemies/SheetMusicBat.js';
+import { MetronomeSentinel } from '../sprites/enemies/MetronomeSentinel.js';
 import { NPC } from '../sprites/NPC.js';
 import { DialogueBox } from '../ui/DialogueBox.js';
 import { NPC_DIALOGUES } from '../config/npcDialogues.js';
@@ -157,6 +160,36 @@ export class Level7Scene extends Phaser.Scene {
       const bi = new BrokenInstrument(this, x, 280);
       this.enemies.add(bi);
       this.enemyList.push(bi);
+    });
+
+    // Conductor Ghosts - aggressive in the sky
+    [{ x: 1200, y: 100 }, { x: 2300, y: 110 }, { x: 3000, y: 90 }].forEach(pos => {
+      const ghost = new ConductorGhost(this, pos.x, pos.y, {
+        teleportInterval: 2000,
+        summonInterval: 3000,
+        detectionRange: 250
+      });
+      this.enemies.add(ghost);
+      this.enemyList.push(ghost);
+    });
+
+    // Sheet Music Bats - aggressive dive pattern in sky
+    [{ x: 500, y: 80 }, { x: 1000, y: 70 }, { x: 1700, y: 85 }, { x: 2400, y: 75 }, { x: 2900, y: 90 }].forEach((pos, index) => {
+      const bat = new SheetMusicBat(this, pos.x, pos.y, {
+        pattern: 'dive',
+        formationIndex: index,
+        diveCooldownTime: 2000,
+        speed: 90
+      });
+      this.enemies.add(bat);
+      this.enemyList.push(bat);
+    });
+
+    // Metronome Sentinels - fast beat in final level
+    [{ x: 700, y: 300 }, { x: 1500, y: 280 }, { x: 2800, y: 290 }].forEach(pos => {
+      const sentinel = new MetronomeSentinel(this, pos.x, pos.y, { beatInterval: 1000, shockwaveSpeed: 220 });
+      this.enemies.add(sentinel);
+      this.enemyList.push(sentinel);
     });
 
     // Collectibles
