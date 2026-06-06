@@ -157,7 +157,9 @@ export class InstrumentLessonScene extends Phaser.Scene {
     }).setOrigin(0.5);
 
     // Continue prompt
-    const continueText = this.add.text(GAME_WIDTH / 2, GAME_HEIGHT - 30, 'Press SPACE to try playing!', {
+    const isMobile = !this.sys.game.device.os.desktop;
+    const continueText = this.add.text(GAME_WIDTH / 2, GAME_HEIGHT - 30,
+      isMobile ? 'Tap to try playing!' : 'Press SPACE to try playing!', {
       font: '16px monospace',
       fill: '#87CEEB'
     }).setOrigin(0.5).setAlpha(0);
@@ -181,6 +183,7 @@ export class InstrumentLessonScene extends Phaser.Scene {
     this.time.delayedCall(1500, () => {
       this.input.keyboard?.once('keydown-SPACE', () => this.startFreeplay());
       this.input.keyboard?.once('keydown-ENTER', () => this.startFreeplay());
+      this.input.once('pointerdown', () => this.startFreeplay());
     });
   }
 
