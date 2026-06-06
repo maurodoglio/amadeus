@@ -66,19 +66,22 @@ export class Mozart extends Phaser.Physics.Arcade.Sprite {
     // Reference to touch controls scene (if running)
     this.touchControls = null;
     this.touchControlsNeedsLayerCheck = true;
-    this.sceneManagerEvents = scene.scene.manager.events;
+    this.touchControlsSceneEvents = [
+      Phaser.Scenes.Events.START,
+      Phaser.Scenes.Events.WAKE,
+      Phaser.Scenes.Events.RESUME,
+      Phaser.Scenes.Events.SHUTDOWN
+    ];
     this.markTouchControlsDirty = () => {
       this.touchControlsNeedsLayerCheck = true;
     };
-    this.sceneManagerEvents.on(Phaser.Scenes.Events.START, this.markTouchControlsDirty);
-    this.sceneManagerEvents.on(Phaser.Scenes.Events.WAKE, this.markTouchControlsDirty);
-    this.sceneManagerEvents.on(Phaser.Scenes.Events.RESUME, this.markTouchControlsDirty);
-    this.sceneManagerEvents.on(Phaser.Scenes.Events.SHUTDOWN, this.markTouchControlsDirty);
+    this.touchControlsSceneEvents.forEach(evt => {
+      this.scene.scene.manager.events.on(evt, this.markTouchControlsDirty);
+    });
     this.on('destroy', () => {
-      this.sceneManagerEvents.off(Phaser.Scenes.Events.START, this.markTouchControlsDirty);
-      this.sceneManagerEvents.off(Phaser.Scenes.Events.WAKE, this.markTouchControlsDirty);
-      this.sceneManagerEvents.off(Phaser.Scenes.Events.RESUME, this.markTouchControlsDirty);
-      this.sceneManagerEvents.off(Phaser.Scenes.Events.SHUTDOWN, this.markTouchControlsDirty);
+      this.touchControlsSceneEvents.forEach(evt => {
+        this.scene.scene.manager.events.off(evt, this.markTouchControlsDirty);
+      });
     });
   }
 
@@ -100,7 +103,7 @@ export class Mozart extends Phaser.Physics.Arcade.Sprite {
     if (this.scene.scene.isActive('TouchControls') && this.touchControlsNeedsLayerCheck) {
       const activeScenes = this.scene.scene.manager.getScenes(true);
       const topScene = activeScenes[activeScenes.length - 1];
-      if (topScene?.scene?.key !== 'TouchControls') {
+      if (topScene?.sys?.settings?.key !== 'TouchControls') {
         this.scene.scene.bringToTop('TouchControls');
       }
       this.touchControlsNeedsLayerCheck = false;
