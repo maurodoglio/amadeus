@@ -105,8 +105,10 @@ export class MapScene extends Phaser.Scene {
       this.add.text(city.x, city.y, city.name, {
         fontFamily: 'Georgia, serif',
         fontSize: '10px',
-        color: '#7A5834'
-      }).setOrigin(0.5).setAlpha(0.72);
+        color: '#4E351C',
+        stroke: '#f8ecd5',
+        strokeThickness: 2
+      }).setOrigin(0.5);
     });
 
     drawStaffDivider(this, 28, GAME_HEIGHT - 46, GAME_WIDTH - 56);
@@ -269,13 +271,17 @@ export class MapScene extends Phaser.Scene {
         fontFamily: 'Georgia, serif',
         fontSize: '10px',
         color: isUnlocked ? '#4E351C' : '#8C7D68',
+        stroke: '#f8ecd5',
+        strokeThickness: 1,
         align: 'center',
         wordWrap: { width: 100 }
       }).setOrigin(0.5);
       const yearText = this.add.text(0, -16, level.year, {
         fontFamily: 'Georgia, serif',
         fontSize: '10px',
-        color: isUnlocked ? '#896437' : '#A18F78'
+        color: isUnlocked ? '#896437' : '#A18F78',
+        stroke: '#f8ecd5',
+        strokeThickness: 1
       }).setOrigin(0.5);
       container.add([nameText, yearText]);
 
@@ -354,7 +360,7 @@ export class MapScene extends Phaser.Scene {
     }
 
     const targetLevel = LEVEL_DATA[mozartLevelIndex];
-    this.mozartIcon = this.add.container(targetLevel.x, targetLevel.y - 58);
+    this.mozartIcon = this.add.container(targetLevel.x, targetLevel.y - 72);
     const glow = this.add.circle(0, 0, 18, COLORS.goldLight, 0.18).setBlendMode(Phaser.BlendModes.ADD);
     const wig = this.add.graphics();
     wig.fillStyle(0xf5efe4, 0.95);
@@ -362,6 +368,13 @@ export class MapScene extends Phaser.Scene {
     wig.fillCircle(-9, -2, 5);
     wig.fillCircle(9, -2, 5);
     const head = this.add.circle(0, 0, 8, 0xf3caa9);
+    // Face features
+    const face = this.add.graphics();
+    face.fillStyle(0x332211, 1);
+    face.fillCircle(-3, -2, 1.5); // left eye
+    face.fillCircle(3, -2, 1.5);  // right eye
+    face.fillStyle(0xc07060, 1);
+    face.fillEllipse(0, 3, 4, 2); // mouth
     const coat = this.add.graphics();
     coat.fillStyle(0x4567b4, 0.95);
     coat.fillTriangle(-9, 10, 0, 28, 9, 10);
@@ -370,11 +383,11 @@ export class MapScene extends Phaser.Scene {
     accent.fillStyle(COLORS.goldLight, 0.8);
     accent.fillCircle(0, 13, 2);
     accent.fillCircle(0, 19, 2);
-    this.mozartIcon.add([glow, wig, head, coat, accent]);
+    this.mozartIcon.add([glow, wig, head, face, coat, accent]);
 
     this.tweens.add({
       targets: this.mozartIcon,
-      y: targetLevel.y - 64,
+      y: targetLevel.y - 78,
       duration: 850,
       yoyo: true,
       repeat: -1,

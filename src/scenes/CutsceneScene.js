@@ -7,7 +7,7 @@ const CUTSCENE_DATA = {
     background: '#1a1a2e',
     dialogues: [
       {
-        portrait: 'mozart',
+        portrait: 'npc_leopold',
         name: 'Leopold Mozart',
         text: 'My dear Wolfgang... you are only six years old, yet you play with the mastery of a seasoned musician. The world must hear you!',
         side: 'left'
@@ -30,7 +30,7 @@ const CUTSCENE_DATA = {
     background: '#1a2e1a',
     dialogues: [
       {
-        portrait: 'mozart',
+        portrait: 'npc_leopold',
         name: 'Leopold Mozart',
         text: 'Pack your things, Wolfgang! We depart for Munich at dawn. The Elector wishes to hear you play.',
         side: 'left'
