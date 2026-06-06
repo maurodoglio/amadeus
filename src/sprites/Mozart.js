@@ -82,6 +82,9 @@ export class Mozart extends Phaser.Physics.Arcade.Sprite {
     if (!this.touchControls) {
       this.touchControls = this.scene.scene.get('TouchControls');
     }
+    if (this.scene.scene.isActive('TouchControls')) {
+      this.scene.scene.bringToTop('TouchControls');
+    }
 
     const touch = this.touchControls || {};
     const onGround = this.body.blocked.down || this.body.touching.down;
@@ -422,5 +425,4 @@ export class Mozart extends Phaser.Physics.Arcade.Sprite {
     }
   }
 }
-
 
