@@ -5,6 +5,7 @@ import { settingsManager } from '../utils/SettingsManager.js';
  * Call setupPause(scene) in the scene's create() method.
  */
 export function setupPause(scene) {
+  if (!scene.input.keyboard) return;
   scene.input.keyboard.on('keydown-ESC', () => togglePause(scene));
   scene.input.keyboard.on('keydown-P', () => togglePause(scene));
 }

@@ -43,11 +43,12 @@ export class Nannerl extends Phaser.Physics.Arcade.Sprite {
     this.play('nannerl_idle');
 
     // Player 2 uses WASD + E to jump
-    this.keyW = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
-    this.keyA = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
-    this.keyS = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
-    this.keyD = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
-    this.keyE = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
+    const kb = scene.input.keyboard;
+    this.keyW = kb?.addKey(Phaser.Input.Keyboard.KeyCodes.W);
+    this.keyA = kb?.addKey(Phaser.Input.Keyboard.KeyCodes.A);
+    this.keyS = kb?.addKey(Phaser.Input.Keyboard.KeyCodes.S);
+    this.keyD = kb?.addKey(Phaser.Input.Keyboard.KeyCodes.D);
+    this.keyE = kb?.addKey(Phaser.Input.Keyboard.KeyCodes.E);
   }
 
   update() {

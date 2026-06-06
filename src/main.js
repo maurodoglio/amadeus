@@ -35,7 +35,8 @@ const config = {
     autoRound: true
   },
   input: {
-    activePointers: 3
+    activePointers: 3,
+    keyboard: true
   },
   physics: {
     default: 'arcade',

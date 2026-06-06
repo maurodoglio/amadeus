@@ -172,18 +172,20 @@ export class Level1Scene extends Phaser.Scene {
         });
 
         // Handle dialogue input
-        const spaceKey = this.input.keyboard.addKey('SPACE');
-        const enterKey = this.input.keyboard.addKey('ENTER');
-        const advanceDialogue = () => {
-          if (this.dialogueBox && this.dialogueBox.isActive) {
-            this.dialogueBox.advance();
-          } else {
-            spaceKey.off('down', advanceDialogue);
-            enterKey.off('down', advanceDialogue);
-          }
-        };
-        spaceKey.on('down', advanceDialogue);
-        enterKey.on('down', advanceDialogue);
+        if (this.input.keyboard) {
+          const spaceKey = this.input.keyboard.addKey('SPACE');
+          const enterKey = this.input.keyboard.addKey('ENTER');
+          const advanceDialogue = () => {
+            if (this.dialogueBox && this.dialogueBox.isActive) {
+              this.dialogueBox.advance();
+            } else {
+              spaceKey.off('down', advanceDialogue);
+              enterKey.off('down', advanceDialogue);
+            }
+          };
+          spaceKey.on('down', advanceDialogue);
+          enterKey.on('down', advanceDialogue);
+        }
       });
     }
 

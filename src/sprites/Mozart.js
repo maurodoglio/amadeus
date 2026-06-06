@@ -54,8 +54,8 @@ export class Mozart extends Phaser.Physics.Arcade.Sprite {
     this.play('mozart_idle');
 
     // Input
-    this.cursors = scene.input.keyboard.createCursorKeys();
-    this.spaceKey = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+    this.cursors = scene.input.keyboard?.createCursorKeys() || {};
+    this.spaceKey = scene.input.keyboard?.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
 
     // Musical combat system
     this.combat = new MusicalCombat(scene, this);
