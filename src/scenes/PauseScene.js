@@ -3,6 +3,7 @@ import { GAME_WIDTH, GAME_HEIGHT } from '../config/constants.js';
 import { settingsManager } from '../utils/SettingsManager.js';
 import { createPanel, createButton, drawTrebleClef, COLORS } from '../ui/UITheme.js';
 import { SFXGenerator } from '../utils/SFXGenerator.js';
+import { SaveManager } from '../utils/SaveManager.js';
 
 export class PauseScene extends Phaser.Scene {
   constructor() {
@@ -39,7 +40,7 @@ export class PauseScene extends Phaser.Scene {
     this.menuContainer = this.add.container(0, 0);
 
     const panelW = 328;
-    const panelH = 372;
+    const panelH = 414;
     const panelX = GAME_WIDTH / 2 - panelW / 2;
     const panelY = GAME_HEIGHT / 2 - panelH / 2;
     const panel = createPanel(this, panelX, panelY, panelW, panelH);
@@ -67,6 +68,7 @@ export class PauseScene extends Phaser.Scene {
 
     const buttons = [
       { text: 'Resume', action: () => this.resume() },
+      { text: 'Save Game', action: () => this.saveGame() },
       { text: 'Restart Level', action: () => this.restartLevel() },
       { text: 'Fullscreen', action: () => this.toggleFullscreen() },
       { text: 'Settings', action: () => this.showSettings() },
@@ -228,6 +230,25 @@ export class PauseScene extends Phaser.Scene {
     } else {
       this.scale.startFullscreen();
     }
+  }
+
+  saveGame() {
+    const success = SaveManager.save(this);
+    const msg = success ? 'Game Saved!' : 'Save Failed';
+    const toast = this.add.text(GAME_WIDTH / 2, GAME_HEIGHT / 2 + 170, msg, {
+      fontFamily: 'Georgia, serif',
+      fontSize: '16px',
+      color: success ? '#7BA25C' : '#CC4444'
+    }).setOrigin(0.5).setAlpha(0);
+
+    this.tweens.add({
+      targets: toast,
+      alpha: 1,
+      duration: 200,
+      yoyo: true,
+      hold: 1200,
+      onComplete: () => toast.destroy()
+    });
   }
 
   resume() {

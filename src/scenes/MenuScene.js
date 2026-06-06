@@ -3,6 +3,7 @@ import { GAME_WIDTH, GAME_HEIGHT } from '../config/constants.js';
 import { MozartSoundtracks } from '../utils/MozartSoundtracks.js';
 import { drawConcertHallBackground, drawOrnateFrame, graphicsQuadCurve, COLORS } from '../ui/UITheme.js';
 import { SFXGenerator } from '../utils/SFXGenerator.js';
+import { SaveManager } from '../utils/SaveManager.js';
 
 export class MenuScene extends Phaser.Scene {
   constructor() {
@@ -261,14 +262,23 @@ export class MenuScene extends Phaser.Scene {
     this.selectedOption = 0;
     this.menuOptions = [];
 
-    const buttonData = [
-      { text: '1 Player', action: () => this.startGame(false) },
+    const hasSave = SaveManager.hasSave();
+
+    const buttonData = [];
+    if (hasSave) {
+      buttonData.push({ text: 'Continue', action: () => this.continueGame() });
+    }
+    buttonData.push(
+      { text: 'New Game', action: () => this.startGame(false) },
       { text: '2 Players', action: () => this.startGame(true) },
       { text: 'High Scores', action: () => this.scene.start('HighScoresScene') }
-    ];
+    );
+
+    const startY = hasSave ? 200 : 230;
+    const spacing = hasSave ? 50 : 58;
 
     buttonData.forEach((config, index) => {
-      const button = this.createCrystalButton(GAME_WIDTH / 2 - 70, 230 + index * 58, config.text, config.action);
+      const button = this.createCrystalButton(GAME_WIDTH / 2 - 70, startY + index * spacing, config.text, config.action);
       button.container.setAlpha(0).setY(button.y + 24);
       this.tweens.add({
         targets: button.container,
@@ -295,6 +305,18 @@ export class MenuScene extends Phaser.Scene {
       repeat: -1,
       ease: 'Sine.easeInOut'
     });
+
+    // Display high score if a save exists
+    if (hasSave) {
+      const savedScore = SaveManager.getSavedScore();
+      if (savedScore > 0) {
+        this.add.text(GAME_WIDTH / 2, startY + buttonData.length * spacing + 16, `High Score: ${savedScore.toLocaleString()}`, {
+          fontFamily: 'Georgia, serif',
+          fontSize: '14px',
+          color: '#C6A84B'
+        }).setOrigin(0.5);
+      }
+    }
 
     this.updateSelectedButton();
   }
@@ -473,6 +495,9 @@ export class MenuScene extends Phaser.Scene {
     this.sound.stopAll();
     if (this.mozartSoundtrack) this.mozartSoundtrack.stop();
 
+    // Reset save for a new game
+    SaveManager.deleteSave();
+
     this.registry.set('lives', coopMode ? 5 : 3);
     this.registry.set('score', 0);
     this.registry.set('instruments', []);
@@ -480,11 +505,35 @@ export class MenuScene extends Phaser.Scene {
     this.registry.set('coopMode', coopMode);
     this.registry.set('comboMultiplier', 1);
     this.registry.set('comboCount', 0);
-    if (!this.registry.get('completedLevels')) this.registry.set('completedLevels', []);
+    this.registry.set('completedLevels', []);
 
     this.cameras.main.fadeOut(320, 0, 0, 0);
     this.time.delayedCall(320, () => {
       this.scene.start('MapScene', { completedLevel: 0 });
+      this.scene.launch('TouchControls');
+    });
+  }
+
+  continueGame() {
+    const saveData = SaveManager.load();
+    if (!saveData) {
+      // Fallback to new game if save is corrupted
+      this.startGame(false);
+      return;
+    }
+
+    this.sound.stopAll();
+    if (this.mozartSoundtrack) this.mozartSoundtrack.stop();
+
+    SaveManager.restoreToRegistry(this, saveData);
+
+    const lastCompleted = saveData.completedLevels.length > 0
+      ? Math.max(...saveData.completedLevels)
+      : 0;
+
+    this.cameras.main.fadeOut(320, 0, 0, 0);
+    this.time.delayedCall(320, () => {
+      this.scene.start('MapScene', { completedLevel: lastCompleted });
       this.scene.launch('TouchControls');
     });
   }

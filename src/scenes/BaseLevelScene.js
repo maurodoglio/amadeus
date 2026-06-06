@@ -18,6 +18,7 @@ import { AdaptiveMusicManager } from '../utils/AdaptiveMusicManager.js';
 import { MozartSoundtracks } from '../utils/MozartSoundtracks.js';
 import { BossPhaseManager } from '../mechanics/BossPhaseManager.js';
 import { getAchievementManager } from '../utils/AchievementManager.js';
+import { SaveManager } from '../utils/SaveManager.js';
 import { CompositionCollector } from '../mechanics/CompositionCollector.js';
 import { PitchPuzzle } from '../mechanics/PitchPuzzle.js';
 import { ChordDoor } from '../mechanics/ChordDoor.js';
@@ -782,6 +783,9 @@ export class BaseLevelScene extends Phaser.Scene {
       completedLevels.push(config.levelNumber);
       this.registry.set('completedLevels', completedLevels);
     }
+
+    // Auto-save progress on level completion
+    SaveManager.save(this);
 
     // Achievement tracking
     const achievements = getAchievementManager();
