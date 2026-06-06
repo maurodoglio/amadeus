@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT, PLAYER } from './config/constants.js';
+import { TestHelper } from './utils/TestHelper.js';
 import { BootScene } from './scenes/BootScene.js';
 import { MenuScene } from './scenes/MenuScene.js';
 import { MapScene } from './scenes/MapScene.js';
@@ -58,4 +59,8 @@ installGlobalErrorHandlers(game);
 // Initialize achievement system after game creation
 initAchievementManager(game);
 
+// Initialize test helper in test mode (?test=1 in URL)
+if (window.location.search.includes('test=1')) {
+  TestHelper.init(game);
+}
 
