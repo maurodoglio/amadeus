@@ -268,7 +268,9 @@ export class LevelCompleteScene extends Phaser.Scene {
   }
 
   createContinuePrompt() {
-    const continueText = this.add.text(GAME_WIDTH / 2, GAME_HEIGHT - 26, '✦ Press SPACE to continue the concert ✦', {
+    const isMobile = !this.sys.game.device.os.desktop;
+    const continueText = this.add.text(GAME_WIDTH / 2, GAME_HEIGHT - 26,
+      isMobile ? '✦ Tap to continue the concert ✦' : '✦ Press SPACE to continue the concert ✦', {
       fontFamily: 'Georgia, serif',
       fontSize: '17px',
       color: '#A06E1A'
@@ -288,6 +290,7 @@ export class LevelCompleteScene extends Phaser.Scene {
     this.time.delayedCall(1600, () => {
       this.input.keyboard?.once('keydown-SPACE', () => this.proceed());
       this.input.keyboard?.once('keydown-ENTER', () => this.proceed());
+      this.input.once('pointerdown', () => this.proceed());
     });
   }
 

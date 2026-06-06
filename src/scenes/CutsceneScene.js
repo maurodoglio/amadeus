@@ -286,7 +286,9 @@ export class CutsceneScene extends Phaser.Scene {
     });
 
     // Skip hint
-    this.add.text(GAME_WIDTH - 20, 20, 'ENTER to continue | ESC to skip', {
+    const isMobile = !this.sys.game.device.os.desktop;
+    this.add.text(GAME_WIDTH - 20, 20,
+      isMobile ? 'Tap to continue' : 'ENTER to continue | ESC to skip', {
       font: '12px monospace',
       fill: '#808080'
     }).setOrigin(1, 0);
