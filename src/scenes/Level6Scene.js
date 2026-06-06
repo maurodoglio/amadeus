@@ -309,8 +309,8 @@ export class Level6Scene extends Phaser.Scene {
     if ((this.dialogueBox && this.dialogueBox.isActive) ||
         (this.bossManager && this.bossManager.dialogueActive)) {
       if (this.dialogueBox && this.dialogueBox.isActive) {
-        if (Phaser.Input.Keyboard.JustDown(this.mozart.spaceKey) ||
-            Phaser.Input.Keyboard.JustDown(this.input.keyboard.addKey('ENTER'))) {
+        if ((this.mozart.spaceKey && Phaser.Input.Keyboard.JustDown(this.mozart.spaceKey)) ||
+            (this.input.keyboard && Phaser.Input.Keyboard.JustDown(this.input.keyboard?.addKey('ENTER')))) {
           this.dialogueBox.advance();
         }
       }

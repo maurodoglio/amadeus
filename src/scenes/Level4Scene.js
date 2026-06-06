@@ -290,7 +290,7 @@ export class Level4Scene extends Phaser.Scene {
 
     // Dialogue system
     this.dialogueBox = new DialogueBox(this);
-    this.interactKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
+    this.interactKey = this.input.keyboard?.addKey(Phaser.Input.Keyboard.KeyCodes.E);
     // Mozart's Marriage of Figaro overture K.492
     this.mozartSoundtrack = new MozartSoundtracks(this);
     this.mozartSoundtrack.play('level4');
@@ -308,8 +308,8 @@ export class Level4Scene extends Phaser.Scene {
     if ((this.dialogueBox && this.dialogueBox.isActive) ||
         (this.bossManager && this.bossManager.dialogueActive)) {
       if (this.dialogueBox && this.dialogueBox.isActive) {
-        if (Phaser.Input.Keyboard.JustDown(this.mozart.spaceKey) ||
-            Phaser.Input.Keyboard.JustDown(this.input.keyboard.addKey('ENTER'))) {
+        if ((this.mozart.spaceKey && Phaser.Input.Keyboard.JustDown(this.mozart.spaceKey)) ||
+            (this.input.keyboard && Phaser.Input.Keyboard.JustDown(this.input.keyboard?.addKey('ENTER')))) {
           this.dialogueBox.advance();
         }
       }
@@ -326,7 +326,7 @@ export class Level4Scene extends Phaser.Scene {
     // NPC updates and interaction
     if (this.nannerlNPC) {
       this.nannerlNPC.update(this.mozart, this.dialogueBox);
-      if (Phaser.Input.Keyboard.JustDown(this.interactKey) ||
+      if ((this.interactKey && Phaser.Input.Keyboard.JustDown(this.interactKey)) ||
           Phaser.Input.Keyboard.JustDown(this.mozart.cursors.up)) {
         this.nannerlNPC.interact(this.dialogueBox);
       }

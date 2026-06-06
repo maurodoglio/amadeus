@@ -23,12 +23,12 @@ export class MenuScene extends Phaser.Scene {
     this.createUtilityButtons();
     this.createFooter();
 
-    this.input.keyboard.on('keydown-UP', () => this.changeSelection(-1));
-    this.input.keyboard.on('keydown-DOWN', () => this.changeSelection(1));
-    this.input.keyboard.on('keydown-W', () => this.changeSelection(-1));
-    this.input.keyboard.on('keydown-S', () => this.changeSelection(1));
-    this.input.keyboard.on('keydown-SPACE', () => this.confirmSelection());
-    this.input.keyboard.on('keydown-ENTER', () => this.confirmSelection());
+    this.input.keyboard?.on('keydown-UP', () => this.changeSelection(-1));
+    this.input.keyboard?.on('keydown-DOWN', () => this.changeSelection(1));
+    this.input.keyboard?.on('keydown-W', () => this.changeSelection(-1));
+    this.input.keyboard?.on('keydown-S', () => this.changeSelection(1));
+    this.input.keyboard?.on('keydown-SPACE', () => this.confirmSelection());
+    this.input.keyboard?.on('keydown-ENTER', () => this.confirmSelection());
 
     this.cameras.main.fadeIn(500, 0, 0, 0);
     this.mozartSoundtrack = new MozartSoundtracks(this);

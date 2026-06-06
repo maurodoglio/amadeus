@@ -286,8 +286,8 @@ export class LevelCompleteScene extends Phaser.Scene {
     });
 
     this.time.delayedCall(1600, () => {
-      this.input.keyboard.once('keydown-SPACE', () => this.proceed());
-      this.input.keyboard.once('keydown-ENTER', () => this.proceed());
+      this.input.keyboard?.once('keydown-SPACE', () => this.proceed());
+      this.input.keyboard?.once('keydown-ENTER', () => this.proceed());
     });
   }
 

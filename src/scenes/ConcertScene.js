@@ -285,11 +285,11 @@ export class ConcertScene extends Phaser.Scene {
     this.tweens.add({ targets: restartText, alpha: 1, duration: 900, delay: 3200 });
 
     this.time.delayedCall(3200, () => {
-      this.input.keyboard.once('keydown-SPACE', () => {
+      this.input.keyboard?.once('keydown-SPACE', () => {
         this.sound.stopAll();
         this.scene.start('MenuScene');
       });
-      this.input.keyboard.once('keydown-ENTER', () => {
+      this.input.keyboard?.once('keydown-ENTER', () => {
         this.sound.stopAll();
         this.scene.start('MenuScene');
       });

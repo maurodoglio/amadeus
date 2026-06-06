@@ -467,7 +467,7 @@ export class BaseLevelScene extends Phaser.Scene {
     });
 
     this.dialogueBox = new DialogueBox(this);
-    this.interactKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
+    this.interactKey = this.input.keyboard?.addKey(Phaser.Input.Keyboard.KeyCodes.E);
   }
 
   createPracticeStage(config) {
@@ -599,8 +599,8 @@ export class BaseLevelScene extends Phaser.Scene {
   update(time, delta) {
     // If dialogue is active, only handle dialogue input
     if (this.dialogueBox && this.dialogueBox.isActive) {
-      if (Phaser.Input.Keyboard.JustDown(this.mozart.spaceKey) ||
-          Phaser.Input.Keyboard.JustDown(this.input.keyboard.addKey('ENTER'))) {
+      if ((this.mozart.spaceKey && Phaser.Input.Keyboard.JustDown(this.mozart.spaceKey)) ||
+          (this.input.keyboard && Phaser.Input.Keyboard.JustDown(this.input.keyboard?.addKey('ENTER')))) {
         this.dialogueBox.advance();
       }
       return;
@@ -617,7 +617,7 @@ export class BaseLevelScene extends Phaser.Scene {
     // NPC updates
     if (this.npcInstance) {
       this.npcInstance.update(this.mozart, this.dialogueBox);
-      if (Phaser.Input.Keyboard.JustDown(this.interactKey) ||
+      if ((this.interactKey && Phaser.Input.Keyboard.JustDown(this.interactKey)) ||
           Phaser.Input.Keyboard.JustDown(this.mozart.cursors.up)) {
         this.npcInstance.interact(this.dialogueBox);
       }
@@ -867,13 +867,13 @@ export class BaseLevelScene extends Phaser.Scene {
       });
 
       // Keyboard controls
-      this.input.keyboard.once('keydown-ENTER', () => {
+      this.input.keyboard?.once('keydown-ENTER', () => {
         this.sound.stopAll();
         this.registry.set('lives', this.coopMode ? 5 : 3);
         this.scene.stop('UIScene');
         this.scene.restart();
       });
-      this.input.keyboard.once('keydown-ESC', () => {
+      this.input.keyboard?.once('keydown-ESC', () => {
         this.sound.stopAll();
         this.scene.stop('UIScene');
         this.scene.start('MenuScene');

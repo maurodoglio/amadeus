@@ -173,18 +173,20 @@ export class Level1Scene extends Phaser.Scene {
 
         // Handle dialogue input
         if (this.input.keyboard) {
-          const spaceKey = this.input.keyboard.addKey('SPACE');
-          const enterKey = this.input.keyboard.addKey('ENTER');
-          const advanceDialogue = () => {
-            if (this.dialogueBox && this.dialogueBox.isActive) {
-              this.dialogueBox.advance();
-            } else {
-              spaceKey.off('down', advanceDialogue);
-              enterKey.off('down', advanceDialogue);
-            }
-          };
-          spaceKey.on('down', advanceDialogue);
-          enterKey.on('down', advanceDialogue);
+          const spaceKey = this.input.keyboard?.addKey('SPACE');
+          const enterKey = this.input.keyboard?.addKey('ENTER');
+          if (spaceKey && enterKey) {
+            const advanceDialogue = () => {
+              if (this.dialogueBox && this.dialogueBox.isActive) {
+                this.dialogueBox.advance();
+              } else {
+                spaceKey.off('down', advanceDialogue);
+                enterKey.off('down', advanceDialogue);
+              }
+            };
+            spaceKey.on('down', advanceDialogue);
+            enterKey.on('down', advanceDialogue);
+          }
         }
       });
     }
@@ -409,7 +411,7 @@ export class Level1Scene extends Phaser.Scene {
 
     // Dialogue system
     this.dialogueBox = new DialogueBox(this);
-    this.interactKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
+    this.interactKey = this.input.keyboard?.addKey(Phaser.Input.Keyboard.KeyCodes.E);
 
     // Camera
     this.physics.world.setBounds(0, 0, worldWidth, GAME_HEIGHT);
@@ -447,8 +449,8 @@ export class Level1Scene extends Phaser.Scene {
     if ((this.dialogueBox && this.dialogueBox.isActive) ||
         (this.bossManager && this.bossManager.dialogueActive)) {
       if (this.dialogueBox && this.dialogueBox.isActive) {
-        if (Phaser.Input.Keyboard.JustDown(this.mozart.spaceKey) ||
-            Phaser.Input.Keyboard.JustDown(this.input.keyboard.addKey('ENTER'))) {
+        if ((this.mozart.spaceKey && Phaser.Input.Keyboard.JustDown(this.mozart.spaceKey)) ||
+            (this.input.keyboard && Phaser.Input.Keyboard.JustDown(this.input.keyboard?.addKey('ENTER')))) {
           this.dialogueBox.advance();
         }
       }
@@ -464,7 +466,7 @@ export class Level1Scene extends Phaser.Scene {
     // NPC updates and interaction
     if (this.haydn) {
       this.haydn.update(this.mozart, this.dialogueBox);
-      if (Phaser.Input.Keyboard.JustDown(this.interactKey) ||
+      if ((this.interactKey && Phaser.Input.Keyboard.JustDown(this.interactKey)) ||
           Phaser.Input.Keyboard.JustDown(this.mozart.cursors.up)) {
         this.haydn.interact(this.dialogueBox);
       }

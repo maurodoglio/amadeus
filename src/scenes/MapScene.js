@@ -481,7 +481,7 @@ export class MapScene extends Phaser.Scene {
     });
     container.add([bg, label, hit]);
 
-    this.input.keyboard.on('keydown-ESC', () => {
+    this.input.keyboard?.on('keydown-ESC', () => {
       this.sound.stopAll();
       this.scene.start('MenuScene');
     });

@@ -293,9 +293,9 @@ export class CutsceneScene extends Phaser.Scene {
 
     // Input handling
     this.canAdvance = false;
-    this.input.keyboard.on('keydown-SPACE', () => this.advanceDialogue());
-    this.input.keyboard.on('keydown-ENTER', () => this.advanceDialogue());
-    this.input.keyboard.on('keydown-ESC', () => this.endCutscene());
+    this.input.keyboard?.on('keydown-SPACE', () => this.advanceDialogue());
+    this.input.keyboard?.on('keydown-ENTER', () => this.advanceDialogue());
+    this.input.keyboard?.on('keydown-ESC', () => this.endCutscene());
     this.input.on('pointerdown', () => this.advanceDialogue());
 
     // Start first dialogue with fade in
@@ -356,9 +356,10 @@ export class CutsceneScene extends Phaser.Scene {
 
       // Portrait entrance animation
       this.portraitImage.setScale(0);
+      this.portraitImage.setAlpha(1);
       this.tweens.add({
         targets: this.portraitImage,
-        scale: 2,
+        scale: 2.5,
         duration: 300,
         ease: 'Back.easeOut'
       });

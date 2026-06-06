@@ -449,7 +449,25 @@ export class BossPhaseManager {
     }).setOrigin(0.5).setScrollFactor(0).setDepth(201);
 
     let lineIndex = 0;
-    const advanceKey = scene.input.keyboard.addKey('SPACE');
+    const advanceKey = scene.input.keyboard?.addKey('SPACE');
+    if (!advanceKey) {
+      // Keyboard unavailable — auto-advance dialogue after delay
+      const autoAdvance = () => {
+        lineIndex++;
+        if (lineIndex < lines.length) {
+          text.setText(lines[lineIndex]);
+          scene.time.delayedCall(2000, autoAdvance);
+        } else {
+          bg.destroy();
+          text.destroy();
+          this.dialogueActive = false;
+          scene.physics.resume();
+          if (onComplete) onComplete();
+        }
+      };
+      scene.time.delayedCall(2000, autoAdvance);
+      return;
+    }
     const advanceDialogue = () => {
       lineIndex++;
       if (lineIndex < lines.length) {
