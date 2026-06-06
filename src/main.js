@@ -49,6 +49,17 @@ const config = {
   scene: [BootScene, MenuScene, HighScoresScene, MapScene, CutsceneScene, TransitionScene, LevelCompleteScene, InstrumentLessonScene, ConcertScene, UIScene, TouchControls, PauseScene, AccessibilityScene, RhythmScene, MelodyMemoryScene, AchievementsScene, AchievementPopup, LoadingScene, RecoveryScene]
 };
 
+// Patch Phaser AnimationState to guard against null currentFrame.duration crash.
+// This occurs when a sprite is destroyed mid-animation or an animation references
+// frames that don't exist in the texture, causing currentFrame to become undefined.
+const origAnimUpdate = Phaser.Animations.AnimationState.prototype.update;
+Phaser.Animations.AnimationState.prototype.update = function (time, delta) {
+  if (!this.currentAnim || !this.currentFrame) {
+    return;
+  }
+  return origAnimUpdate.call(this, time, delta);
+};
+
 const game = new Phaser.Game(config);
 
 // Expose game instance for integration testing

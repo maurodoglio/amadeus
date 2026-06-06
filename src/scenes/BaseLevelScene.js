@@ -691,8 +691,13 @@ export class BaseLevelScene extends Phaser.Scene {
   }
 
   hitEnemy(player, enemy) {
+    // Guard: if enemy was already destroyed, skip
+    if (!enemy || !enemy.body || !enemy.active) return;
+
     if (player.body.velocity.y > 0 && player.y < enemy.y - 10) {
       this.particles.emitStomp(enemy.x, enemy.y);
+      // Stop any running animation before destroy to prevent stale frame references
+      if (enemy.anims) enemy.anims.stop();
       enemy.destroy();
       this.enemyList = this.enemyList.filter(e => e !== enemy);
       player.setVelocityY(-200);
@@ -716,7 +721,7 @@ export class BaseLevelScene extends Phaser.Scene {
         this.adaptiveMusic.playVictoryFanfare();
       }
     } else {
-      player.hit();
+      player.hit(enemy);
       if (this.adaptiveMusic) {
         const lives = this.registry.get('lives') || 0;
         if (lives <= 1) {
