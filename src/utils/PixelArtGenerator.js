@@ -879,8 +879,24 @@ export class PixelArtGenerator {
       { type: 'run', tilt: -0.08, leftArm: 0.68, rightArm: -0.68, leftLeg: 0.62, rightLeg: -0.7, capeFlow: 0.22 },
       { type: 'run', tilt: -0.02, leftArm: 0.22, rightArm: -0.22, leftLeg: 0.1, rightLeg: -0.18, capeFlow: 0.28 },
       { type: 'jump', lift: -4, leftArm: -0.92, rightArm: 0.92, leftLeg: -0.42, rightLeg: -0.42, capeFlow: 0.55 },
+      { type: 'jump', lift: -3, leftArm: -0.8, rightArm: 0.8, leftLeg: -0.3, rightLeg: -0.3, capeFlow: 0.45 },
+      // Frames 11-12: fall/descent
       { type: 'fall', lift: -1, leftArm: 0.38, rightArm: -0.38, leftLeg: 0.18, rightLeg: 0.18, capeFlow: 0.2 },
-      { type: 'hurt', sway: -1, tilt: -0.18, leftArm: 0.75, rightArm: -0.85, leftLeg: -0.18, rightLeg: 0.25, capeFlow: 0.5, hurt: true }
+      { type: 'fall', lift: 0, leftArm: 0.45, rightArm: -0.45, leftLeg: 0.25, rightLeg: 0.25, capeFlow: 0.15 },
+      // Frames 13-16: attack (conductor baton swing)
+      { type: 'idle', sway: 0, leftArm: -0.5, rightArm: -1.2, leftLeg: 0.1, rightLeg: -0.1, capeFlow: 0.3, attack: true },
+      { type: 'idle', sway: 0, leftArm: -0.3, rightArm: -0.5, leftLeg: 0.05, rightLeg: -0.05, capeFlow: 0.5, attack: true },
+      { type: 'idle', sway: 0, leftArm: 0.2, rightArm: 0.8, leftLeg: -0.05, rightLeg: 0.05, capeFlow: 0.7, attack: true },
+      { type: 'idle', sway: 0, leftArm: 0.4, rightArm: 1.2, leftLeg: -0.1, rightLeg: 0.1, capeFlow: 0.4, attack: true },
+      // Frames 17-19: damage (stagger)
+      { type: 'hurt', sway: -2, tilt: -0.18, leftArm: 0.75, rightArm: -0.85, leftLeg: -0.18, rightLeg: 0.25, capeFlow: 0.5, hurt: true },
+      { type: 'hurt', sway: -1, tilt: -0.12, leftArm: 0.5, rightArm: -0.6, leftLeg: -0.1, rightLeg: 0.15, capeFlow: 0.35, hurt: true },
+      { type: 'hurt', sway: 0.5, tilt: 0.05, leftArm: 0.2, rightArm: -0.2, leftLeg: 0.05, rightLeg: -0.05, capeFlow: 0.2, hurt: true },
+      // Frames 20-23: victory (theatrical bow)
+      { type: 'idle', sway: 0, leftArm: 0.3, rightArm: -0.3, leftLeg: 0.05, rightLeg: -0.05, capeFlow: 0.1 },
+      { type: 'idle', sway: -1, tilt: 0.15, leftArm: 0.8, rightArm: -0.8, leftLeg: 0.2, rightLeg: -0.1, capeFlow: 0.3 },
+      { type: 'idle', sway: -2, tilt: 0.3, leftArm: 1.0, rightArm: -1.0, leftLeg: 0.3, rightLeg: -0.15, capeFlow: 0.5 },
+      { type: 'idle', sway: -1.5, tilt: 0.2, leftArm: 0.6, rightArm: -0.6, leftLeg: 0.15, rightLeg: -0.08, capeFlow: 0.25 }
     ];
 
     const palette = {
