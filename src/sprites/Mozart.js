@@ -65,7 +65,6 @@ export class Mozart extends Phaser.Physics.Arcade.Sprite {
 
     // Reference to touch controls scene (if running)
     this.touchControls = null;
-    this.touchControlsLayered = false;
   }
 
   /**
@@ -83,11 +82,12 @@ export class Mozart extends Phaser.Physics.Arcade.Sprite {
     if (!this.touchControls) {
       this.touchControls = this.scene.scene.get('TouchControls');
     }
-    if (this.scene.scene.isActive('TouchControls') && !this.touchControlsLayered) {
-      this.scene.scene.bringToTop('TouchControls');
-      this.touchControlsLayered = true;
-    } else if (!this.scene.scene.isActive('TouchControls')) {
-      this.touchControlsLayered = false;
+    if (this.scene.scene.isActive('TouchControls')) {
+      const activeScenes = this.scene.scene.manager.getScenes(true);
+      const topScene = activeScenes[activeScenes.length - 1];
+      if (topScene?.scene?.key !== 'TouchControls') {
+        this.scene.scene.bringToTop('TouchControls');
+      }
     }
 
     const touch = this.touchControls || {};
