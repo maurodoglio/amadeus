@@ -63,11 +63,11 @@ export class Nannerl extends Phaser.Physics.Arcade.Sprite {
     this.wasInAir = !onGround;
 
     // Horizontal movement (A/D)
-    if (this.keyA.isDown) {
+    if (this.keyA?.isDown) {
       this.setVelocityX(-PLAYER.SPEED);
       this.setFlipX(true);
       if (onGround) this.play('nannerl_walk', true);
-    } else if (this.keyD.isDown) {
+    } else if (this.keyD?.isDown) {
       this.setVelocityX(PLAYER.SPEED);
       this.setFlipX(false);
       if (onGround) this.play('nannerl_walk', true);
@@ -77,7 +77,7 @@ export class Nannerl extends Phaser.Physics.Arcade.Sprite {
     }
 
     // Jumping (W or E)
-    if ((this.keyW.isDown || this.keyE.isDown) && onGround) {
+    if ((this.keyW?.isDown || this.keyE?.isDown) && onGround) {
       this.setVelocityY(PLAYER.JUMP_VELOCITY);
       this.play('nannerl_jump', true);
       if (this.scene.sound.get('sfx_jump')) {

@@ -54,8 +54,9 @@ export class Mozart extends Phaser.Physics.Arcade.Sprite {
     this.play('mozart_idle');
 
     // Input
-    this.cursors = scene.input.keyboard?.createCursorKeys() || {};
-    this.spaceKey = scene.input.keyboard?.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+    const kb = scene.input.keyboard;
+    this.cursors = kb ? kb.createCursorKeys() : { up: {}, down: {}, left: {}, right: {} };
+    this.spaceKey = kb ? kb.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE) : null;
 
     // Musical combat system
     this.combat = new MusicalCombat(scene, this);
@@ -66,23 +67,7 @@ export class Mozart extends Phaser.Physics.Arcade.Sprite {
     // Reference to touch controls scene (if running)
     this.touchControls = null;
     this.touchControlsNeedsLayerCheck = true;
-    this.touchControlsSceneEvents = [
-      Phaser.Scenes.Events.START,
-      Phaser.Scenes.Events.WAKE,
-      Phaser.Scenes.Events.RESUME,
-      Phaser.Scenes.Events.SHUTDOWN
-    ];
-    this.markTouchControlsDirty = () => {
-      this.touchControlsNeedsLayerCheck = true;
-    };
-    this.touchControlsSceneEvents.forEach(evt => {
-      this.scene.scene.manager.events.on(evt, this.markTouchControlsDirty);
-    });
-    this.on('destroy', () => {
-      this.touchControlsSceneEvents.forEach(evt => {
-        this.scene.scene.manager.events.off(evt, this.markTouchControlsDirty);
-      });
-    });
+    this._touchLayerCheckInterval = 0;
   }
 
   /**
@@ -96,17 +81,20 @@ export class Mozart extends Phaser.Physics.Arcade.Sprite {
 
     const dt = delta || 16;
 
-    // Lazily acquire touch controls reference
+    // Lazily acquire touch controls reference and periodically re-check layering
     if (!this.touchControls) {
       this.touchControls = this.scene.scene.get('TouchControls');
     }
-    if (this.scene.scene.isActive('TouchControls') && this.touchControlsNeedsLayerCheck) {
-      const activeScenes = this.scene.scene.manager.getScenes(true);
-      const topScene = activeScenes[activeScenes.length - 1];
-      if (topScene?.sys?.settings?.key !== 'TouchControls') {
-        this.scene.scene.bringToTop('TouchControls');
+    this._touchLayerCheckInterval -= dt;
+    if (this._touchLayerCheckInterval <= 0) {
+      this._touchLayerCheckInterval = 500; // check every 500ms
+      if (this.scene.scene.isActive('TouchControls')) {
+        const activeScenes = this.scene.scene.manager.getScenes(true);
+        const topScene = activeScenes[activeScenes.length - 1];
+        if (topScene?.sys?.settings?.key !== 'TouchControls') {
+          this.scene.scene.bringToTop('TouchControls');
+        }
       }
-      this.touchControlsNeedsLayerCheck = false;
     }
 
     const touch = this.touchControls || {};
@@ -122,7 +110,7 @@ export class Mozart extends Phaser.Physics.Arcade.Sprite {
 
     // --- Jump input buffering ---
     const jumpPressed = Phaser.Input.Keyboard.JustDown(this.cursors.up) ||
-                        Phaser.Input.Keyboard.JustDown(this.spaceKey) ||
+                        (this.spaceKey && Phaser.Input.Keyboard.JustDown(this.spaceKey)) ||
                         (touch.isJump && !this._prevTouchJump);
     this._prevTouchJump = !!touch.isJump;
 
@@ -132,7 +120,7 @@ export class Mozart extends Phaser.Physics.Arcade.Sprite {
       this.jumpBufferTimer -= dt;
     }
 
-    const jumpHeld = this.cursors.up.isDown || this.spaceKey.isDown || touch.isJump;
+    const jumpHeld = this.cursors.up?.isDown || this.spaceKey?.isDown || touch.isJump;
 
     // --- Landing detection (squash + buffered jump) ---
     if (onGround && this.wasInAir) {
@@ -152,10 +140,10 @@ export class Mozart extends Phaser.Physics.Arcade.Sprite {
 
     // --- Horizontal movement with acceleration/deceleration ---
     let targetVX = 0;
-    if (this.cursors.left.isDown || touch.isLeft) {
+    if (this.cursors.left?.isDown || touch.isLeft) {
       targetVX = -PLAYER.SPEED;
       this.setFlipX(true);
-    } else if (this.cursors.right.isDown || touch.isRight) {
+    } else if (this.cursors.right?.isDown || touch.isRight) {
       targetVX = PLAYER.SPEED;
       this.setFlipX(false);
     }
