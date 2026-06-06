@@ -465,7 +465,7 @@ export class Level4Scene extends Phaser.Scene {
         this.scene.stop('UIScene');
         this.scene.start('LevelCompleteScene', {
           level: 4,
-          levelScore: this.registry.get('score'),
+          levelScore: this.registry.get('score') - this.levelStartScore,
           timeBonus: 0,
           nextScene: 'MapScene',
           nextSceneData: { completedLevel: 4 }

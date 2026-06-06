@@ -297,7 +297,7 @@ export class Level5Scene extends Phaser.Scene {
     this.adaptiveMusic.start('exploration');
 
     // Handle resume from melody memory mini-game
-    this.events.on('resume', () => {
+    this._resumeHandler = () => {
       this.sound.resumeAll();
       this.time.delayedCall(300, () => { this.melodyEntered = false; });
       const bonus = this.registry.get('melodyMemoryBonus');
@@ -313,6 +313,12 @@ export class Level5Scene extends Phaser.Scene {
           onComplete: () => indicator.destroy()
         });
       }
+    };
+    this.events.on('resume', this._resumeHandler);
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      this.events.off('resume', this._resumeHandler);
+      if (this.mozartSoundtrack) this.mozartSoundtrack.stop();
+      if (this.adaptiveMusic) this.adaptiveMusic.stop();
     });
   }
   _oneWayCheck(player, platform) {
@@ -486,7 +492,7 @@ export class Level5Scene extends Phaser.Scene {
         this.scene.stop('UIScene');
         this.scene.start('LevelCompleteScene', {
           level: 5,
-          levelScore: this.registry.get('score'),
+          levelScore: this.registry.get('score') - this.levelStartScore,
           timeBonus: 0,
           nextScene: 'MapScene',
           nextSceneData: { completedLevel: 5 }

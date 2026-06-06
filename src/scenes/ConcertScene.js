@@ -19,9 +19,9 @@ export class ConcertScene extends Phaser.Scene {
     this.createApplauseBursts();
     this.createTextBlock();
 
-    if (this.sound.get('music_concert')) {
+    try {
       this.sound.play('music_concert', { loop: true, volume: 0.3 });
-    }
+    } catch (e) { /* audio not available */ }
   }
 
   createHallArchitecture() {

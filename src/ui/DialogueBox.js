@@ -73,7 +73,7 @@ export class DialogueBox {
     this.container.add(this.continueIndicator);
 
     // Blink animation for continue indicator
-    this.scene.tweens.add({
+    this._indicatorTween = this.scene.tweens.add({
       targets: this.continueIndicator,
       alpha: { from: 0, to: 1 },
       duration: 500,
@@ -100,6 +100,8 @@ export class DialogueBox {
     this.container.setAlpha(0);
 
     // Pause game physics and freeze Mozart during dialogue
+    // Track whether WE paused physics to avoid resuming something else's pause
+    this._didPausePhysics = !this.scene.physics.world.isPaused;
     this.scene.physics.world.pause();
     if (this.scene.mozart) {
       this.scene.mozart.setVelocity(0, 0);
@@ -123,8 +125,11 @@ export class DialogueBox {
       this.textTimer = null;
     }
 
-    // Resume game physics when dialogue ends
-    this.scene.physics.world.resume();
+    // Only resume physics if we were the ones who paused it
+    if (this._didPausePhysics) {
+      this.scene.physics.world.resume();
+    }
+    this._didPausePhysics = false;
   }
 
   showNext() {
@@ -214,6 +219,10 @@ export class DialogueBox {
   destroy() {
     if (this.textTimer) {
       this.textTimer.destroy();
+    }
+    if (this._indicatorTween) {
+      this._indicatorTween.destroy();
+      this._indicatorTween = null;
     }
     this.container.destroy();
   }

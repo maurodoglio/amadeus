@@ -321,9 +321,9 @@ export class Level3Scene extends Phaser.Scene {
     if (this.nannerl) this.nannerl.setCollideWorldBounds(true);
 
     // Background music - starts with palace theme
-    if (this.sound.get('music_palace')) {
+    try {
       this.sound.play('music_palace', { loop: true, volume: 0.25 });
-    }
+    } catch (e) { /* audio not available */ }
 
     // NPC - Salieri (rival who becomes ally)
     const salieriData = NPC_DIALOGUES.salieri;
@@ -438,10 +438,11 @@ export class Level3Scene extends Phaser.Scene {
     }
 
     // Check game over in co-op
-    if (this.coopMode) {
+    if (this.coopMode && !this._gameOverTriggered) {
       const bothDead = (this.mozart.isDead) && (this.nannerl && this.nannerl.isDead);
       const noLives = this.registry.get('lives') <= 0;
       if (bothDead || noLives) {
+        this._gameOverTriggered = true;
         this.time.delayedCall(1500, () => {
           this.scene.stop('UIScene');
           this.scene.start('MenuScene');

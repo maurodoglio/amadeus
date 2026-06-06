@@ -237,6 +237,15 @@ export class RhythmScene extends Phaser.Scene {
   exitRhythmGame() {
     if (this._exiting) return;
     this._exiting = true;
+    // Clean up audio resources
+    if (this._rhythmMusic) {
+      this._rhythmMusic.stop();
+      this._rhythmMusic.destroy();
+      this._rhythmMusic = null;
+    }
+    if (this.audioCtx && this.audioCtx.state !== 'closed') {
+      this.audioCtx.close().catch(() => {});
+    }
     this.scene.stop('RhythmScene');
     this.scene.resume(this.returnScene);
   }
@@ -374,11 +383,12 @@ export class RhythmScene extends Phaser.Scene {
     });
 
     // Start backing track if available
-    if (this.sound.get('music_rhythm')) {
-      this.time.delayedCall(3200, () => {
-        this.sound.play('music_rhythm', { volume: 0.3 });
-      });
-    }
+    this.time.delayedCall(3200, () => {
+      try {
+        this._rhythmMusic = this.sound.add('music_rhythm', { volume: 0.3 });
+        this._rhythmMusic.play();
+      } catch (e) { /* audio not available */ }
+    });
   }
 
   /** Generates note pattern based on time signature and allowed note types */
@@ -673,7 +683,12 @@ export class RhythmScene extends Phaser.Scene {
   /** Shows the results screen with star rating and rewards */
   showResults() {
     this.resultsShown = true;
-    this.sound.stopAll();
+    // Stop only our own rhythm music, not all sounds
+    if (this._rhythmMusic) {
+      this._rhythmMusic.stop();
+      this._rhythmMusic.destroy();
+      this._rhythmMusic = null;
+    }
 
     const totalNotes = this.notePattern.length;
     const hitNotes = this.perfects + this.greats + this.goods;

@@ -550,7 +550,7 @@ export class BaseLevelScene extends Phaser.Scene {
   }
 
   setupResumeHandler(config) {
-    this.events.on('resume', () => {
+    this._baseResumeHandler = () => {
       this.sound.resumeAll();
 
       // Rhythm power-up
@@ -580,6 +580,12 @@ export class BaseLevelScene extends Phaser.Scene {
           onComplete: () => indicator.destroy()
         });
       }
+    };
+    this.events.on('resume', this._baseResumeHandler);
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      this.events.off('resume', this._baseResumeHandler);
+      if (this.mozartSoundtrack) this.mozartSoundtrack.stop();
+      if (this.adaptiveMusic) this.adaptiveMusic.stop();
     });
   }
 
@@ -938,6 +944,8 @@ export class BaseLevelScene extends Phaser.Scene {
 
     this.scene.pause();
     this.sound.pauseAll();
+    if (this.mozartSoundtrack) this.mozartSoundtrack.stop();
+    if (this.adaptiveMusic) this.adaptiveMusic.stop();
     this.scene.launch('RhythmScene', {
       returnScene: this.levelConfig.sceneKey,
       difficulty: stage.difficulty || this.levelConfig.levelNumber,
@@ -954,6 +962,8 @@ export class BaseLevelScene extends Phaser.Scene {
 
     this.scene.pause();
     this.sound.pauseAll();
+    if (this.mozartSoundtrack) this.mozartSoundtrack.stop();
+    if (this.adaptiveMusic) this.adaptiveMusic.stop();
     this.scene.launch('MelodyMemoryScene', {
       returnScene: this.levelConfig.sceneKey,
       difficulty: portal.difficulty || 2,

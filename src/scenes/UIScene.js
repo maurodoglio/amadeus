@@ -79,6 +79,9 @@ export class UIScene extends Phaser.Scene {
     this.updateScore(null, this.registry.get('score'));
     this.updateInstruments(null, this.registry.get('instruments'));
     this.updateSheetMusic(null, this.registry.get('sheetMusicCurrentLevel'));
+
+    // Wire shutdown to clean up listeners when scene is stopped
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.shutdown, this);
   }
 
   updateLivesIcons(count) {

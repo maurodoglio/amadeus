@@ -71,8 +71,10 @@ export class MozartSoundtracks {
     this.isPlaying = false;
     this.stopScheduled();
     if (this.masterGain) {
-      this.masterGain.gain.setValueAtTime(0, this.audioContext.currentTime);
-      this.masterGain.gain.linearRampToValueAtTime(0.35, this.audioContext.currentTime + 0.1);
+      this.masterGain.gain.setValueAtTime(
+        this.masterGain.gain.value, this.audioContext.currentTime
+      );
+      this.masterGain.gain.linearRampToValueAtTime(0, this.audioContext.currentTime + 0.1);
     }
   }
 

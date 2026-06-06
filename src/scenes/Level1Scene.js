@@ -83,6 +83,7 @@ export class Level1Scene extends Phaser.Scene {
 
     // Platforms - Vienna buildings and ledges
     this.oneWayPlatforms = this.physics.add.staticGroup();
+    this.movingPlatforms = this.physics.add.group({ allowGravity: false, immovable: true });
 
     const platformData = [
       { x: 200, y: 360, w: 3 },
@@ -174,7 +175,12 @@ export class Level1Scene extends Phaser.Scene {
         const spaceKey = this.input.keyboard.addKey('SPACE');
         const enterKey = this.input.keyboard.addKey('ENTER');
         const advanceDialogue = () => {
-          if (this.dialogueBox && this.dialogueBox.isActive) this.dialogueBox.advance();
+          if (this.dialogueBox && this.dialogueBox.isActive) {
+            this.dialogueBox.advance();
+          } else {
+            spaceKey.off('down', advanceDialogue);
+            enterKey.off('down', advanceDialogue);
+          }
         };
         spaceKey.on('down', advanceDialogue);
         enterKey.on('down', advanceDialogue);
@@ -418,9 +424,9 @@ export class Level1Scene extends Phaser.Scene {
     if (this.nannerl) this.nannerl.setCollideWorldBounds(true);
 
     // Background music
-    if (this.sound.get('music_vienna')) {
+    try {
       this.sound.play('music_vienna', { loop: true, volume: 0.25 });
-    }
+    } catch (e) { /* audio not available */ }
 
     // Background music - Mozart's Eine kleine Nachtmusik K.525
     this.mozartSoundtrack = new MozartSoundtracks(this);
@@ -499,10 +505,11 @@ export class Level1Scene extends Phaser.Scene {
     }
 
     // Check game over in co-op (both dead or no lives)
-    if (this.coopMode) {
+    if (this.coopMode && !this._gameOverTriggered) {
       const bothDead = (this.mozart.isDead) && (this.nannerl && this.nannerl.isDead);
       const noLives = this.registry.get('lives') <= 0;
       if (bothDead || noLives) {
+        this._gameOverTriggered = true;
         this.time.delayedCall(1500, () => {
           this.scene.stop('UIScene');
           this.scene.start('MenuScene');

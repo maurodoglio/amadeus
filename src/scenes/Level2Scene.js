@@ -388,12 +388,12 @@ export class Level2Scene extends Phaser.Scene {
     if (this.nannerl) this.nannerl.setCollideWorldBounds(true);
 
     // Background music
-    if (this.sound.get('music_forest')) {
+    try {
       this.sound.play('music_forest', { loop: true, volume: 0.25 });
-    }
+    } catch (e) { /* audio not available */ }
 
     // Handle resume from rhythm scene - apply power-up
-    this.events.on('resume', () => {
+    this._resumeHandler = () => {
       try {
         this.sound.resumeAll();
         if (this.mozartSoundtrack) this.mozartSoundtrack.play('level2');
@@ -406,6 +406,12 @@ export class Level2Scene extends Phaser.Scene {
         this.registry.set('rhythmPowerUp', null);
         this.applyRhythmPowerUp(powerUp);
       }
+    };
+    this.events.on('resume', this._resumeHandler);
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      this.events.off('resume', this._resumeHandler);
+      if (this.mozartSoundtrack) this.mozartSoundtrack.stop();
+      if (this.adaptiveMusic) this.adaptiveMusic.stop();
     });
     // Background music - Mozart's Magic Flute overture K.620
     this.mozartSoundtrack = new MozartSoundtracks(this);
@@ -477,10 +483,11 @@ export class Level2Scene extends Phaser.Scene {
     }
 
     // Check game over in co-op
-    if (this.coopMode) {
+    if (this.coopMode && !this._gameOverTriggered) {
       const bothDead = (this.mozart.isDead) && (this.nannerl && this.nannerl.isDead);
       const noLives = this.registry.get('lives') <= 0;
       if (bothDead || noLives) {
+        this._gameOverTriggered = true;
         this.time.delayedCall(1500, () => {
           this.scene.stop('UIScene');
           this.scene.start('MenuScene');

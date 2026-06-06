@@ -486,9 +486,11 @@ export class BossPhaseManager {
 
         // Stop current music, play boss music
         scene.sound.stopAll();
-        if (scene.sound.get('music_boss')) {
+        if (scene.mozartSoundtrack) scene.mozartSoundtrack.stop();
+        if (scene.adaptiveMusic) scene.adaptiveMusic.stop();
+        try {
           scene.sound.play('music_boss', { loop: true, volume: 0.3 });
-        }
+        } catch (e) { /* audio not available */ }
 
         // Show dialogue
         if (this.dialogue.length > 0 && !this.dialogueShown) {
@@ -521,16 +523,17 @@ export class BossPhaseManager {
       duration: 200,
       yoyo: true,
       repeat: Math.floor(duration / 400) - 1,
-      onStart: () => { this.boss.setTint(0xFFD700); },
+      onStart: () => { if (this.boss?.active) this.boss.setTint(0xFFD700); },
       onComplete: () => {
-        this.boss.clearTint();
         this.isVulnerable = false;
+        if (this.boss?.active) this.boss.clearTint();
       }
     });
 
-    this.scene.time.delayedCall(duration, () => {
+    // Fallback timeout in case tween is killed
+    this._vulnerabilityTimer = this.scene.time.delayedCall(duration, () => {
       this.isVulnerable = false;
-      this.boss.clearTint();
+      if (this.boss?.active) this.boss.clearTint();
     });
   }
 
