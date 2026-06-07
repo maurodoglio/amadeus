@@ -78,9 +78,7 @@ export class Level2Scene extends Phaser.Scene {
       { start: 780, end: 1100 },
       { start: 1200, end: 1600 },
       { start: 1700, end: 2000 },
-      { start: 2100, end: 2500 },
-      { start: 2600, end: 2950 },
-      { start: 3050, end: 3360 },
+      { start: 2100, end: 3360 },
     ];
 
     groundSegments.forEach(seg => {
@@ -106,11 +104,11 @@ export class Level2Scene extends Phaser.Scene {
       { x: 1700, y: 280, w: 3 },
       { x: 1950, y: 220, w: 2 },
       { x: 2200, y: 260, w: 3 },
-      { x: 2400, y: 200, w: 2 },
-      { x: 2680, y: 260, w: 3 },
-      { x: 2880, y: 200, w: 2 },
-      { x: 3060, y: 260, w: 3 },
-      { x: 3260, y: 220, w: 2 },
+      { x: 2780, y: 350, w: 4 },
+      { x: 2920, y: 270, w: 3 },
+      { x: 3060, y: 190, w: 2 },
+      { x: 3180, y: 280, w: 3 },
+      { x: 3250, y: 360, w: 3 },
       // Stepping-stone platforms for bonus collectibles
       { x: 200, y: 210, w: 1 },
       { x: 220, y: 130, w: 1 },
@@ -120,8 +118,6 @@ export class Level2Scene extends Phaser.Scene {
       { x: 1200, y: 160, w: 1 },
       { x: 1170, y: 90, w: 1 },
       { x: 1690, y: 190, w: 1 },
-      { x: 2700, y: 170, w: 1 },
-      { x: 3080, y: 150, w: 1 },
     ];
 
     platformData.forEach(p => {
@@ -176,9 +172,9 @@ export class Level2Scene extends Phaser.Scene {
     this.enemyList = [];
 
     // Drum Trolls (reduced for level 2 difficulty curve)
-    const trollPositions = [500, 1400, 1900, 2750, 3100];
+    const trollPositions = [500, 1400, 1900];
     if (this.coopMode) {
-      trollPositions.push(750, 2950);
+      trollPositions.push(750);
     }
     trollPositions.forEach(x => {
       const troll = new DrumTroll(this, x, GAME_HEIGHT - 80);
@@ -187,9 +183,9 @@ export class Level2Scene extends Phaser.Scene {
     });
 
     // Broken Instruments (reduced for level 2)
-    const biPositions = [1300, 2200, 2850, 3200];
+    const biPositions = [1300, 2200];
     if (this.coopMode) {
-      biPositions.push(1800, 3000);
+      biPositions.push(1800);
     }
     biPositions.forEach(x => {
       const bi = new BrokenInstrument(this, x, GAME_HEIGHT - 80);
@@ -198,9 +194,9 @@ export class Level2Scene extends Phaser.Scene {
     });
 
     // Floating notes
-    const floatingNotes = [{ x: 600, y: 200 }, { x: 1100, y: 160 }, { x: 1800, y: 150 }, { x: 2650, y: 170 }, { x: 3050, y: 150 }];
+    const floatingNotes = [{ x: 600, y: 200 }, { x: 1100, y: 160 }, { x: 1800, y: 150 }];
     if (this.coopMode) {
-      floatingNotes.push({ x: 900, y: 180 }, { x: 2920, y: 180 });
+      floatingNotes.push({ x: 900, y: 180 });
     }
     floatingNotes.forEach(pos => {
       const note = new DissonantNote(this, pos.x, pos.y);

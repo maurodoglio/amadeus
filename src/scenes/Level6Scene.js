@@ -95,10 +95,11 @@ export class Level6Scene extends Phaser.Scene {
       { x: 1950, y: 200, w: 3 },
       { x: 2150, y: 260, w: 2 },
       { x: 2350, y: 300, w: 3 },
-      { x: 2580, y: 240, w: 2 },
-      { x: 2800, y: 320, w: 3 },
-      { x: 3040, y: 240, w: 2 },
-      { x: 3260, y: 280, w: 3 },
+      { x: 2840, y: 350, w: 4 },
+      { x: 2980, y: 280, w: 3 },
+      { x: 3120, y: 210, w: 2 },
+      { x: 3200, y: 320, w: 3 },
+      { x: 3270, y: 250, w: 2 },
       { x: 1240, y: 320, w: 2 },
       { x: 1480, y: 180, w: 2 },
       { x: 1720, y: 330, w: 2 },
@@ -111,8 +112,6 @@ export class Level6Scene extends Phaser.Scene {
       { x: 1120, y: 160, w: 1 },
       { x: 1350, y: 210, w: 1 },
       { x: 1590, y: 140, w: 1 },
-      { x: 2650, y: 180, w: 1 },
-      { x: 3090, y: 170, w: 1 },
     ];
 
     platformData.forEach(p => {
@@ -130,13 +129,13 @@ export class Level6Scene extends Phaser.Scene {
     this.enemies = this.physics.add.group();
     this.enemyList = [];
 
-    [450, 850, 1250, 1650, 2050, 2500, 2950].forEach(x => {
+    [450, 850, 1250, 1650, 2050].forEach(x => {
       const troll = new DrumTroll(this, x, GAME_HEIGHT - 80);
       this.enemies.add(troll);
       this.enemyList.push(troll);
     });
 
-    [700, 1100, 1500, 1900, 2300, 2700, 3150].forEach(x => {
+    [700, 1100, 1500, 1900, 2300].forEach(x => {
       const bi = new BrokenInstrument(this, x, GAME_HEIGHT - 80);
       this.enemies.add(bi);
       this.enemyList.push(bi);
