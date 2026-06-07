@@ -433,8 +433,10 @@ export class BossPhaseManager {
 
     const scene = this.scene;
     this.dialogueActive = true;
-    this.boss.setVelocityX(0);
-    this.boss.setVelocityY(0);
+    if (this.boss && this.boss.body) {
+      this.boss.setVelocityX(0);
+      this.boss.setVelocityY(0);
+    }
 
     // Freeze the game world during dialogue
     scene.physics.pause();
@@ -581,6 +583,7 @@ export class BossPhaseManager {
    * @returns {Phaser.Physics.Arcade.Sprite|undefined} The created projectile sprite
    */
   fireProjectile(speed = 150, texture = 'bossProjectile') {
+    if (!this.boss || !this.boss.body || this.isDefeated) return;
     const target = this.getTarget();
     const proj = this.projectiles.create(this.boss.x, this.boss.y - 10, texture);
     if (!proj) return;
@@ -598,6 +601,7 @@ export class BossPhaseManager {
    * @returns {Phaser.Physics.Arcade.Sprite|undefined} The created shockwave sprite
    */
   fireShockwave(speed = 200, direction = 1) {
+    if (!this.boss || !this.boss.body || this.isDefeated) return null;
     const proj = this.projectiles.create(
       this.boss.x + direction * 30,
       this.boss.y + 20,
@@ -616,6 +620,7 @@ export class BossPhaseManager {
    * @param {number} [speed=100] - Movement speed in pixels/second
    */
   moveTowardTarget(speed = 100) {
+    if (!this.boss || !this.boss.body || this.isDefeated) return;
     const target = this.getTarget();
     if (target.x > this.boss.x + 30) {
       this.boss.setVelocityX(speed);
@@ -633,6 +638,7 @@ export class BossPhaseManager {
    * @param {number} [force=-350] - Jump velocity (negative = upward)
    */
   jump(force = -350) {
+    if (!this.boss || !this.boss.body || this.isDefeated) return;
     if (this.boss.body.blocked.down || this.boss.body.touching.down) {
       this.boss.setVelocityY(force);
     }
