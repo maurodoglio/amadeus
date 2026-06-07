@@ -100,13 +100,12 @@ export class Level3Scene extends Phaser.Scene {
       { x: 1900, y: 320, w: 3 },
       { x: 2200, y: 260, w: 2 },
       { x: 2400, y: 320, w: 3 },
-      { x: 2600, y: 260, w: 2 },
-      { x: 2820, y: 320, w: 3 },
       // Boss arena platforms
-      { x: 3000, y: 340, w: 4 },
-      { x: 3200, y: 260, w: 3 },
-      { x: 3000, y: 180, w: 3 },
-      { x: 3300, y: 180, w: 2 },
+      { x: 2980, y: 350, w: 4 },
+      { x: 3120, y: 280, w: 3 },
+      { x: 3260, y: 210, w: 3 },
+      { x: 3400, y: 300, w: 2 },
+      { x: 3040, y: 190, w: 2 },
       // Stepping-stone platforms for bonus collectibles
       { x: 120, y: 270, w: 1 },
       { x: 70, y: 190, w: 1 },
@@ -118,8 +117,6 @@ export class Level3Scene extends Phaser.Scene {
       { x: 1290, y: 190, w: 1 },
       { x: 1300, y: 110, w: 1 },
       { x: 2420, y: 220, w: 1 },
-      { x: 2860, y: 210, w: 1 },
-      { x: 3250, y: 140, w: 1 },
     ];
 
     platformData.forEach(p => {
@@ -144,32 +141,32 @@ export class Level3Scene extends Phaser.Scene {
     this.enemyList = [];
 
     // Mix of all enemy types (6 total for medium difficulty)
-    const singerPositions = [300, 1200, 2400, 2900];
-    if (this.coopMode) singerPositions.push(500, 1000, 2700);
+    const singerPositions = [300, 1200, 2400];
+    if (this.coopMode) singerPositions.push(500, 1000);
     singerPositions.forEach(x => {
       const singer = new Singer(this, x, GAME_HEIGHT - 80);
       this.enemies.add(singer);
       this.enemyList.push(singer);
     });
 
-    const trollPositions = [600, 1600, 2500, 3000];
-    if (this.coopMode) trollPositions.push(1400, 2800);
+    const trollPositions = [600, 1600];
+    if (this.coopMode) trollPositions.push(1400);
     trollPositions.forEach(x => {
       const troll = new DrumTroll(this, x, GAME_HEIGHT - 80);
       this.enemies.add(troll);
       this.enemyList.push(troll);
     });
 
-    const noteEnemyPositions = [{ x: 450, y: 180 }, { x: 1100, y: 160 }, { x: 2550, y: 180 }, { x: 3150, y: 150 }];
-    if (this.coopMode) noteEnemyPositions.push({ x: 800, y: 150 }, { x: 2860, y: 170 });
+    const noteEnemyPositions = [{ x: 450, y: 180 }, { x: 1100, y: 160 }];
+    if (this.coopMode) noteEnemyPositions.push({ x: 800, y: 150 });
     noteEnemyPositions.forEach(pos => {
       const note = new DissonantNote(this, pos.x, pos.y);
       this.enemies.add(note);
       this.enemyList.push(note);
     });
 
-    const biPositions = [900, 1400, 2300, 2750];
-    if (this.coopMode) biPositions.push(1800, 3050);
+    const biPositions = [900, 1400, 2300];
+    if (this.coopMode) biPositions.push(1800);
     biPositions.forEach(x => {
       const bi = new BrokenInstrument(this, x, GAME_HEIGHT - 80);
       this.enemies.add(bi);

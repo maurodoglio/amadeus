@@ -76,9 +76,7 @@ export class Level5Scene extends Phaser.Scene {
       { start: 1050, end: 1350 },
       { start: 1450, end: 1700 },
       { start: 1800, end: 2100 },
-      { start: 2200, end: 2600 },
-      { start: 2700, end: 3000 },
-      { start: 3100, end: 3440 },
+      { start: 2200, end: 3440 },
     ];
 
     groundSegments.forEach(seg => {
@@ -104,10 +102,11 @@ export class Level5Scene extends Phaser.Scene {
       { x: 1850, y: 280, w: 2 },
       { x: 2050, y: 200, w: 3 },
       { x: 2300, y: 260, w: 2 },
-      { x: 2500, y: 200, w: 2 },
-      { x: 2720, y: 260, w: 3 },
-      { x: 2960, y: 220, w: 2 },
-      { x: 3180, y: 280, w: 3 },
+      { x: 2820, y: 350, w: 4 },
+      { x: 2960, y: 270, w: 3 },
+      { x: 3100, y: 190, w: 2 },
+      { x: 3180, y: 290, w: 3 },
+      { x: 3280, y: 350, w: 2 },
       { x: 1260, y: 330, w: 2 },
       { x: 1480, y: 190, w: 2 },
       { x: 1720, y: 320, w: 2 },
@@ -122,8 +121,6 @@ export class Level5Scene extends Phaser.Scene {
       { x: 1200, y: 140, w: 1 },
       { x: 1530, y: 140, w: 1 },
       { x: 1800, y: 190, w: 1 },
-      { x: 2760, y: 180, w: 1 },
-      { x: 3230, y: 160, w: 1 },
     ];
 
     platformData.forEach(p => {
@@ -141,13 +138,13 @@ export class Level5Scene extends Phaser.Scene {
     this.enemies = this.physics.add.group();
     this.enemyList = [];
 
-    [500, 900, 1300, 1700, 2100, 2550, 3000].forEach(x => {
+    [500, 900, 1300, 1700, 2100].forEach(x => {
       const troll = new DrumTroll(this, x, GAME_HEIGHT - 80);
       this.enemies.add(troll);
       this.enemyList.push(troll);
     });
 
-    [{ x: 650, y: 200 }, { x: 1050, y: 180 }, { x: 1550, y: 160 }, { x: 2000, y: 150 }, { x: 2450, y: 180 }, { x: 2900, y: 160 }].forEach(pos => {
+    [{ x: 650, y: 200 }, { x: 1050, y: 180 }, { x: 1550, y: 160 }, { x: 2000, y: 150 }].forEach(pos => {
       const note = new DissonantNote(this, pos.x, pos.y);
       this.enemies.add(note);
       this.enemyList.push(note);

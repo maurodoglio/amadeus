@@ -96,17 +96,17 @@ export class Level7Scene extends Phaser.Scene {
       { x: 2050, y: 240, w: 3 },
       { x: 2250, y: 160, w: 2 },
       { x: 2200, y: 360, w: 3 },
-      { x: 2450, y: 280, w: 4 },
-      { x: 2700, y: 220, w: 3 },
-      { x: 2900, y: 340, w: 2 },
-      { x: 3080, y: 240, w: 3 },
-      { x: 3280, y: 180, w: 2 },
+      { x: 2400, y: 340, w: 6 },
+      { x: 2600, y: 340, w: 6 },
+      { x: 2840, y: 340, w: 4 },
+      { x: 2980, y: 260, w: 3 },
+      { x: 3000, y: 120, w: 2 },
+      { x: 3120, y: 190, w: 3 },
+      { x: 3240, y: 290, w: 2 },
       // Stepping-stone platforms for bonus collectibles
       { x: 380, y: 120, w: 1 },
       { x: 1240, y: 160, w: 1 },
       { x: 1630, y: 140, w: 1 },
-      { x: 2740, y: 150, w: 1 },
-      { x: 3150, y: 140, w: 1 },
     ];
 
     platformData.forEach(p => {
@@ -141,19 +141,19 @@ export class Level7Scene extends Phaser.Scene {
     this.enemies = this.physics.add.group();
     this.enemyList = [];
 
-    [400, 900, 1400, 1900, 2500, 3000].forEach(x => {
+    [400, 900, 1400, 1900].forEach(x => {
       const singer = new Singer(this, x, 300);
       this.enemies.add(singer);
       this.enemyList.push(singer);
     });
 
-    [{ x: 600, y: 200 }, { x: 1100, y: 150 }, { x: 1600, y: 130 }, { x: 2100, y: 120 }, { x: 2600, y: 170 }, { x: 3100, y: 130 }].forEach(pos => {
+    [{ x: 600, y: 200 }, { x: 1100, y: 150 }, { x: 1600, y: 130 }, { x: 2100, y: 120 }].forEach(pos => {
       const note = new DissonantNote(this, pos.x, pos.y);
       this.enemies.add(note);
       this.enemyList.push(note);
     });
 
-    [800, 1300, 2000, 2700, 3200].forEach(x => {
+    [800, 1300, 2000].forEach(x => {
       const bi = new BrokenInstrument(this, x, 280);
       this.enemies.add(bi);
       this.enemyList.push(bi);

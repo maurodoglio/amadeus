@@ -96,11 +96,6 @@ export class Level1Scene extends Phaser.Scene {
       { x: 1650, y: 240, w: 2 },
       { x: 1900, y: 300, w: 4 },
       { x: 2150, y: 260, w: 2 },
-      { x: 2350, y: 320, w: 3 },
-      { x: 2550, y: 260, w: 2 },
-      { x: 2720, y: 220, w: 3 },
-      { x: 2920, y: 300, w: 2 },
-      { x: 3120, y: 240, w: 3 },
       // Stepping-stone platforms for bonus collectibles
       { x: 160, y: 270, w: 1 },
       { x: 130, y: 180, w: 1 },
@@ -115,9 +110,6 @@ export class Level1Scene extends Phaser.Scene {
       { x: 1200, y: 90, w: 1 },
       { x: 1480, y: 210, w: 1 },
       { x: 1500, y: 130, w: 1 },
-      { x: 2480, y: 200, w: 1 },
-      { x: 2750, y: 170, w: 1 },
-      { x: 3010, y: 140, w: 1 },
       // Boss arena platforms (reachable for jumping on boss)
       { x: 2700, y: 350, w: 4 },
       { x: 2850, y: 270, w: 3 },
@@ -197,15 +189,12 @@ export class Level1Scene extends Phaser.Scene {
     const singerPositions = [
       { x: 700, y: GAME_HEIGHT - 80 },
       { x: 1500, y: GAME_HEIGHT - 80 },
-      { x: 2450, y: GAME_HEIGHT - 80 },
-      { x: 3000, y: GAME_HEIGHT - 80 },
     ];
 
     // Add extra enemies for co-op balance
     if (this.coopMode) {
       singerPositions.push({ x: 900, y: GAME_HEIGHT - 80 });
       singerPositions.push({ x: 1800, y: GAME_HEIGHT - 80 });
-      singerPositions.push({ x: 2700, y: GAME_HEIGHT - 80 });
     }
 
     this.singers = [];
@@ -217,13 +206,10 @@ export class Level1Scene extends Phaser.Scene {
 
     const notePositions = [
       { x: 900, y: 200 },
-      { x: 2620, y: 190 },
-      { x: 2960, y: 170 },
     ];
 
     if (this.coopMode) {
       notePositions.push({ x: 1600, y: 200 });
-      notePositions.push({ x: 2820, y: 180 });
     }
 
     this.notes = [];

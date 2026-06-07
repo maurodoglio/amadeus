@@ -92,9 +92,10 @@ export class Level4Scene extends Phaser.Scene {
       { x: 1800, y: 220, w: 2 },
       { x: 2000, y: 300, w: 3 },
       { x: 2200, y: 240, w: 2 },
-      { x: 2450, y: 320, w: 3 },
-      { x: 2680, y: 260, w: 2 },
-      { x: 2900, y: 220, w: 3 },
+      { x: 2760, y: 350, w: 4 },
+      { x: 2890, y: 280, w: 3 },
+      { x: 3010, y: 210, w: 3 },
+      { x: 3070, y: 360, w: 3 },
       { x: 3120, y: 300, w: 2 },
       // Stepping-stone platforms for bonus collectibles
       { x: 230, y: 270, w: 1 },
@@ -103,8 +104,6 @@ export class Level4Scene extends Phaser.Scene {
       { x: 720, y: 160, w: 1 },
       { x: 1030, y: 170, w: 1 },
       { x: 1760, y: 150, w: 1 },
-      { x: 2520, y: 210, w: 1 },
-      { x: 2980, y: 170, w: 1 },
     ];
 
     platformData.forEach(p => {
@@ -149,8 +148,6 @@ export class Level4Scene extends Phaser.Scene {
       { x: 750, y: GAME_HEIGHT - 80 },
       { x: 1150, y: GAME_HEIGHT - 80 },
       { x: 1600, y: GAME_HEIGHT - 80 },
-      { x: 2500, y: GAME_HEIGHT - 80 },
-      { x: 3000, y: GAME_HEIGHT - 80 },
     ];
 
     singerPositions.forEach(pos => {
@@ -163,8 +160,6 @@ export class Level4Scene extends Phaser.Scene {
       { x: 550, y: 200 },
       { x: 1000, y: 180 },
       { x: 1900, y: 150 },
-      { x: 2450, y: 180 },
-      { x: 2950, y: 160 },
     ];
 
     notePositions.forEach(pos => {
