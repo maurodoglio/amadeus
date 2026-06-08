@@ -21,6 +21,7 @@ import { getAchievementManager } from '../utils/AchievementManager.js';
 import { setupCamera, setupCoopCamera, updateCameraLookAhead } from '../utils/CameraManager.js';
 import { ParallaxBackground, PARALLAX_CONFIGS } from '../utils/ParallaxBackground.js';
 import { SFXGenerator } from '../utils/SFXGenerator.js';
+import { handleFallDeath, markLevelCompleted, maybeShowGameOver, saveSheetMusic } from '../utils/LevelStateUtils.js';
 
 export class Level1Scene extends Phaser.Scene {
   constructor() {
@@ -139,13 +140,18 @@ export class Level1Scene extends Phaser.Scene {
       }
     }
 
+    this.playerSpawnPoints = {
+      mozart: { x: 100, y: GAME_HEIGHT - 100 },
+      nannerl: { x: 140, y: GAME_HEIGHT - 100 }
+    };
+
     // Player 1
-    this.mozart = new Mozart(this, 100, GAME_HEIGHT - 100);
+    this.mozart = new Mozart(this, this.playerSpawnPoints.mozart.x, this.playerSpawnPoints.mozart.y);
 
     // Player 2 (co-op)
     this.nannerl = null;
     if (this.coopMode) {
-      this.nannerl = new Nannerl(this, 140, GAME_HEIGHT - 100);
+      this.nannerl = new Nannerl(this, this.playerSpawnPoints.nannerl.x, this.playerSpawnPoints.nannerl.y);
     }
 
     // Tutorial dialogue (first time only)
@@ -487,25 +493,14 @@ export class Level1Scene extends Phaser.Scene {
     this.parallaxBg.update(time, delta);
 
     // Fall death
-    if (this.mozart && !this.mozart.isDead && this.mozart.y > GAME_HEIGHT + 50) {
-      this.mozart.die();
+    if (this.mozart && this.mozart.y > GAME_HEIGHT + 50) {
+      handleFallDeath(this, this.mozart, this.playerSpawnPoints.mozart);
     }
-    if (this.nannerl && !this.nannerl.isDead && this.nannerl.y > GAME_HEIGHT + 50) {
-      this.nannerl.die();
+    if (this.nannerl && this.nannerl.y > GAME_HEIGHT + 50) {
+      handleFallDeath(this, this.nannerl, this.playerSpawnPoints.nannerl);
     }
 
-    // Check game over in co-op (both dead or no lives)
-    if (this.coopMode && !this._gameOverTriggered) {
-      const bothDead = (this.mozart.isDead) && (this.nannerl && this.nannerl.isDead);
-      const noLives = this.registry.get('lives') <= 0;
-      if (bothDead || noLives) {
-        this._gameOverTriggered = true;
-        this.time.delayedCall(1500, () => {
-          this.scene.stop('UIScene');
-          this.scene.start('MenuScene');
-        });
-      }
-    }
+    maybeShowGameOver(this, this.mozart, this.nannerl);
   }
 
   playerBounce(player1, player2) {
@@ -618,12 +613,7 @@ export class Level1Scene extends Phaser.Scene {
     this.registry.set('score', this.registry.get('score') + timeBonus);
     this.combo.destroy();
 
-    // Mark level as completed
-    const completedLevels = this.registry.get('completedLevels') || [];
-    if (!completedLevels.includes(1)) {
-      completedLevels.push(1);
-      this.registry.set('completedLevels', completedLevels);
-    }
+    markLevelCompleted(this.registry, 1);
 
     // Achievement tracking
     const achievements = getAchievementManager();
@@ -666,7 +656,7 @@ export class Level1Scene extends Phaser.Scene {
     const savedSheetMusic = this.registry.get('sheetMusic') || {};
     savedSheetMusic[pageKey] = true;
     this.registry.set('sheetMusic', savedSheetMusic);
-    localStorage.setItem('sheetMusicCollected', JSON.stringify(savedSheetMusic));
+    saveSheetMusic(savedSheetMusic);
 
     this.registry.set('sheetMusicCurrentLevel', { found: this.sheetMusicCollected, total: 3 });
 

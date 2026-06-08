@@ -373,14 +373,6 @@ export class Mozart extends Phaser.Physics.Arcade.Sprite {
       this.body.setAllowGravity(true);
     });
 
-    // In co-op, only game over if both players are dead or lives are 0
-    const coopMode = this.scene.registry.get('coopMode');
-    if (!coopMode) {
-      this.scene.time.delayedCall(1800, () => {
-        this.scene.scene.stop('UIScene');
-        this.scene.scene.start('MenuScene');
-      });
-    }
   }
 
   /**
