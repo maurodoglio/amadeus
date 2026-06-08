@@ -130,15 +130,37 @@ export class Nannerl extends Phaser.Physics.Arcade.Sprite {
     if (this.scene.sound.get('sfx_death')) {
       this.scene.sound.play('sfx_death', { volume: 0.3 });
     }
+  }
 
-    // In co-op, only game over if both players are dead
-    const coopMode = this.scene.registry.get('coopMode');
-    if (!coopMode) {
-      this.scene.time.delayedCall(1500, () => {
-        this.scene.scene.stop('UIScene');
-        this.scene.scene.start('MenuScene');
-      });
-    }
+  respawn(x, y) {
+    this.isDead = false;
+    this.isInvincible = true;
+    this.setPosition(x, y);
+    this.setVelocity(0, 0);
+    this.setAngle(0);
+    this.setAlpha(0);
+    this.body.setAllowGravity(true);
+
+    this.scene.particles?.emitRespawnSparkle?.(x, y);
+
+    this.scene.tweens.add({
+      targets: this,
+      alpha: 1,
+      duration: 500,
+      onComplete: () => {
+        this.scene.tweens.add({
+          targets: this,
+          alpha: 0.3,
+          duration: 100,
+          yoyo: true,
+          repeat: 5,
+          onComplete: () => {
+            this.alpha = 1;
+            this.isInvincible = false;
+          }
+        });
+      }
+    });
   }
 
   collectInstrument(instrument) {

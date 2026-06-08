@@ -4,7 +4,8 @@ import { AudioGenerator } from '../utils/AudioGenerator.js';
 import { drawParchmentBackground, COLORS } from '../ui/UITheme.js';
 import { SFXGenerator } from '../utils/SFXGenerator.js';
 import { AnimationManager } from '../utils/AnimationManager.js';
-import { safeStorage, safeCall } from '../utils/ErrorBoundary.js';
+import { safeCall } from '../utils/ErrorBoundary.js';
+import { loadCompletedLevels, loadSheetMusic } from '../utils/LevelStateUtils.js';
 
 export class BootScene extends Phaser.Scene {
   constructor() {
@@ -144,9 +145,10 @@ export class BootScene extends Phaser.Scene {
     this.registry.set('instruments', []);
     this.registry.set('currentLevel', 1);
     this.registry.set('coopMode', false);
+    this.registry.set('completedLevels', loadCompletedLevels());
 
     // Initialize sheet music collection state
-    const savedSheetMusic = JSON.parse(safeStorage.get('sheetMusicCollected') || '{}');
+    const savedSheetMusic = loadSheetMusic();
     this.registry.set('sheetMusic', savedSheetMusic);
     this.registry.set('sheetMusicCurrentLevel', { found: 0, total: 3 });
 

@@ -10,6 +10,7 @@ import {
   createInstrumentIcon
 } from '../ui/UITheme.js';
 import { loadScene } from '../utils/SceneLoader.js';
+import { loadCompletedLevels } from '../utils/LevelStateUtils.js';
 
 const LEVEL_DATA = [
   { id: 1, name: 'Salzburg Beginnings', year: '1762', scene: 'Level1Scene', instrument: 'violin', x: 90, y: 362, cutscene: 'intro' },
@@ -33,7 +34,7 @@ export class MapScene extends Phaser.Scene {
   create() {
     drawParchmentBackground(this, GAME_WIDTH, GAME_HEIGHT);
 
-    const completedLevels = this.registry.get('completedLevels') || [];
+    const completedLevels = this.registry.get('completedLevels') || loadCompletedLevels();
     this.registry.set('completedLevels', completedLevels);
 
     this.createBackground();

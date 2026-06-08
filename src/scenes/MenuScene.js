@@ -473,6 +473,8 @@ export class MenuScene extends Phaser.Scene {
     this.sound.stopAll();
     if (this.mozartSoundtrack) this.mozartSoundtrack.stop();
 
+    const completedLevels = this.registry.get('completedLevels') || [];
+
     this.registry.set('lives', coopMode ? 5 : 3);
     this.registry.set('score', 0);
     this.registry.set('instruments', []);
@@ -480,7 +482,7 @@ export class MenuScene extends Phaser.Scene {
     this.registry.set('coopMode', coopMode);
     this.registry.set('comboMultiplier', 1);
     this.registry.set('comboCount', 0);
-    if (!this.registry.get('completedLevels')) this.registry.set('completedLevels', []);
+    this.registry.set('completedLevels', completedLevels);
 
     this.cameras.main.fadeOut(320, 0, 0, 0);
     this.time.delayedCall(320, () => {

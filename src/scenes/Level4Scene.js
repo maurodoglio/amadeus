@@ -10,6 +10,7 @@ import { NPC_DIALOGUES } from '../config/npcDialogues.js';
 import { AdaptiveMusicManager } from '../utils/AdaptiveMusicManager.js';
 import { MozartSoundtracks } from '../utils/MozartSoundtracks.js';
 import { ParticleManager } from '../utils/ParticleManager.js';
+import { setupPause } from '../utils/PauseHelper.js';
 import { setupBoss, updateBossAI, getBossTarget, showBossDialogue } from '../utils/BossFight.js';
 import { BossPhaseManager } from '../mechanics/BossPhaseManager.js';
 import { getSalieriPhases } from '../mechanics/BossPhaseDefinitions.js';
@@ -18,6 +19,7 @@ import { getAchievementManager } from '../utils/AchievementManager.js';
 import { ChordDoor } from '../mechanics/ChordDoor.js';
 import { setupCamera, updateCameraLookAhead } from '../utils/CameraManager.js';
 import { ParallaxBackground, PARALLAX_CONFIGS } from '../utils/ParallaxBackground.js';
+import { handleFallDeath, markLevelCompleted, maybeShowGameOver } from '../utils/LevelStateUtils.js';
 
 export class Level4Scene extends Phaser.Scene {
   constructor() {
@@ -25,6 +27,7 @@ export class Level4Scene extends Phaser.Scene {
   }
 
   create() {
+    setupPause(this);
     this.particles = new ParticleManager(this);
     this.rhythmActive = false;
     this.rhythmTimer = 0;
@@ -136,8 +139,10 @@ export class Level4Scene extends Phaser.Scene {
       }
     });
 
+    this.playerSpawnPoint = { x: 100, y: GAME_HEIGHT - 100 };
+
     // Player
-    this.mozart = new Mozart(this, 100, GAME_HEIGHT - 100);
+    this.mozart = new Mozart(this, this.playerSpawnPoint.x, this.playerSpawnPoint.y);
 
     // Enemies
     this.enemies = this.physics.add.group();
@@ -371,8 +376,10 @@ export class Level4Scene extends Phaser.Scene {
 
     // Fall death
     if (this.mozart && this.mozart.y > GAME_HEIGHT + 50) {
-      this.mozart.die();
+      handleFallDeath(this, this.mozart, this.playerSpawnPoint);
     }
+
+    maybeShowGameOver(this, this.mozart);
   }
 
   hitEnemy(player, enemy) {
@@ -445,11 +452,7 @@ export class Level4Scene extends Phaser.Scene {
     const elapsedSeconds = Math.floor((this.time.now - this.levelStartTime) / 1000);
     this.combo.destroy();
 
-    const completedLevels = this.registry.get('completedLevels') || [];
-    if (!completedLevels.includes(4)) {
-      completedLevels.push(4);
-      this.registry.set('completedLevels', completedLevels);
-    }
+    markLevelCompleted(this.registry, 4);
 
     // Achievement tracking
     const achievements = getAchievementManager();
