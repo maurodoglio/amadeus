@@ -12,6 +12,8 @@ export function setupPause(scene) {
 
 function togglePause(scene) {
   if (scene.scene.isPaused()) return;
+  // Don't allow pause during level completion or boss defeat sequences
+  if (scene.bossDefeated || scene.levelCompleting) return;
 
   scene.registry.set('pausedScene', scene.scene.key);
   scene.scene.pause();
