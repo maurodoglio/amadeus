@@ -450,6 +450,12 @@ export class BossPhaseManager {
       wordWrap: { width: GAME_WIDTH - 120 }, align: 'center'
     }).setOrigin(0.5).setScrollFactor(0).setDepth(201);
 
+    const isMobile = !scene.sys.game.device.os.desktop;
+    const hintStr = isMobile ? 'Tap to continue' : 'Press SPACE to continue';
+    const hint = scene.add.text(GAME_WIDTH / 2, GAME_HEIGHT - 50, hintStr, {
+      font: '10px monospace', fill: '#AAAAAA'
+    }).setOrigin(0.5).setScrollFactor(0).setDepth(201);
+
     let lineIndex = 0;
     const advanceKey = scene.input.keyboard?.addKey('SPACE');
     if (!advanceKey) {
@@ -462,6 +468,7 @@ export class BossPhaseManager {
         } else {
           bg.destroy();
           text.destroy();
+          hint.destroy();
           this.dialogueActive = false;
           scene.physics.resume();
           if (onComplete) onComplete();
@@ -477,13 +484,17 @@ export class BossPhaseManager {
       } else {
         bg.destroy();
         text.destroy();
-        advanceKey.off('down', advanceDialogue);
+        hint.destroy();
+        if (advanceKey) advanceKey.off('down', advanceDialogue);
+        scene.input.off('pointerdown', advanceDialogue);
         this.dialogueActive = false;
         scene.physics.resume();
         if (onComplete) onComplete();
       }
     };
-    advanceKey.on('down', advanceDialogue);
+    if (advanceKey) advanceKey.on('down', advanceDialogue);
+    // Mobile: tap to advance
+    scene.input.on('pointerdown', advanceDialogue);
   }
 
   /**
