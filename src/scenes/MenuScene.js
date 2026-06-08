@@ -3,6 +3,7 @@ import { GAME_WIDTH, GAME_HEIGHT } from '../config/constants.js';
 import { MozartSoundtracks } from '../utils/MozartSoundtracks.js';
 import { drawConcertHallBackground, drawOrnateFrame, graphicsQuadCurve, COLORS } from '../ui/UITheme.js';
 import { SFXGenerator } from '../utils/SFXGenerator.js';
+import { clearPersistentProgress } from '../utils/LevelStateUtils.js';
 
 export class MenuScene extends Phaser.Scene {
   constructor() {
@@ -473,7 +474,7 @@ export class MenuScene extends Phaser.Scene {
     this.sound.stopAll();
     if (this.mozartSoundtrack) this.mozartSoundtrack.stop();
 
-    const completedLevels = this.registry.get('completedLevels') || [];
+    clearPersistentProgress();
 
     this.registry.set('lives', coopMode ? 5 : 3);
     this.registry.set('score', 0);
@@ -482,7 +483,9 @@ export class MenuScene extends Phaser.Scene {
     this.registry.set('coopMode', coopMode);
     this.registry.set('comboMultiplier', 1);
     this.registry.set('comboCount', 0);
-    this.registry.set('completedLevels', completedLevels);
+    this.registry.set('completedLevels', []);
+    this.registry.set('sheetMusic', {});
+    this.registry.set('sheetMusicCurrentLevel', { found: 0, total: 3 });
 
     this.cameras.main.fadeOut(320, 0, 0, 0);
     this.time.delayedCall(320, () => {
