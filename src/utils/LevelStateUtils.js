@@ -54,6 +54,11 @@ export function saveSheetMusic(sheetMusic) {
   safeStorage.set(SHEET_MUSIC_KEY, JSON.stringify(sheetMusic));
 }
 
+export function clearPersistentProgress() {
+  safeStorage.remove(COMPLETED_LEVELS_KEY);
+  safeStorage.remove(SHEET_MUSIC_KEY);
+}
+
 export function getRespawnPoint(scene, fallbackPoint) {
   const checkpoint = scene.lastCheckpoint;
   if (checkpoint?.x !== undefined && checkpoint?.y !== undefined) {

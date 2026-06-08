@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT, TILE_SIZE } from '../config/constants.js';
 import { getLevelDifficulty } from '../config/difficultyConfig.js';
 import { Mozart } from '../sprites/Mozart.js';
+import { Nannerl } from '../sprites/Nannerl.js';
 import { DrumTroll } from '../sprites/enemies/DrumTroll.js';
 import { BrokenInstrument } from '../sprites/enemies/BrokenInstrument.js';
 import { AdaptiveMusicManager } from '../utils/AdaptiveMusicManager.js';
@@ -13,7 +14,7 @@ import { BossPhaseManager } from '../mechanics/BossPhaseManager.js';
 import { getGreyMessengerPhases } from '../mechanics/BossPhaseDefinitions.js';
 import { ComboSystem } from '../utils/ComboSystem.js';
 import { getAchievementManager } from '../utils/AchievementManager.js';
-import { setupCamera, updateCameraLookAhead } from '../utils/CameraManager.js';
+import { setupCamera, setupCoopCamera, updateCameraLookAhead } from '../utils/CameraManager.js';
 import { ParallaxBackground, PARALLAX_CONFIGS } from '../utils/ParallaxBackground.js';
 import { handleFallDeath, markLevelCompleted, maybeShowGameOver } from '../utils/LevelStateUtils.js';
 
@@ -25,6 +26,7 @@ export class Level6Scene extends Phaser.Scene {
   create() {
     setupPause(this);
     this.particles = new ParticleManager(this);
+    this.coopMode = this.registry.get('coopMode') || false;
     this.combo = new ComboSystem(this);
     this.levelStartTime = this.time.now;
     this.levelStartScore = this.registry.get('score') || 0;
@@ -125,10 +127,17 @@ export class Level6Scene extends Phaser.Scene {
       }
     });
 
-    this.playerSpawnPoint = { x: 100, y: GAME_HEIGHT - 100 };
+    this.playerSpawnPoints = {
+      mozart: { x: 100, y: GAME_HEIGHT - 100 },
+      nannerl: { x: 140, y: GAME_HEIGHT - 100 }
+    };
 
-    // Player
-    this.mozart = new Mozart(this, this.playerSpawnPoint.x, this.playerSpawnPoint.y);
+    // Players
+    this.mozart = new Mozart(this, this.playerSpawnPoints.mozart.x, this.playerSpawnPoints.mozart.y);
+    this.nannerl = null;
+    if (this.coopMode) {
+      this.nannerl = new Nannerl(this, this.playerSpawnPoints.nannerl.x, this.playerSpawnPoints.nannerl.y);
+    }
 
     // Enemies
     this.enemies = this.physics.add.group();
@@ -213,6 +222,15 @@ export class Level6Scene extends Phaser.Scene {
     this.physics.add.overlap(this.mozart, this.collectibles, this.collectNote, null, this);
     this.physics.add.overlap(this.mozart, this.instrument, this.collectInstrument, null, this);
 
+    if (this.coopMode && this.nannerl) {
+      this.physics.add.collider(this.nannerl, this.platforms);
+      this.physics.add.collider(this.nannerl, this.oneWayPlatforms, null, this._oneWayCheck, this);
+      this.physics.add.overlap(this.nannerl, this.enemies, this.hitEnemy, null, this);
+      this.physics.add.overlap(this.nannerl, this.collectibles, this.collectNote, null, this);
+      this.physics.add.overlap(this.nannerl, this.instrument, this.collectInstrument, null, this);
+      this.physics.add.collider(this.mozart, this.nannerl, this.playerBounce, null, this);
+    }
+
     // Set up musical combat projectile collisions
     if (this.mozart.combat) {
       this.mozart.combat.setupCollision(this.enemies);
@@ -224,9 +242,15 @@ export class Level6Scene extends Phaser.Scene {
     }
 
     // Camera
-    setupCamera(this, this.mozart, worldWidth);
+    if (this.coopMode && this.nannerl) {
+      this.cameraTarget = this.add.zone(0, 0, 1, 1);
+      setupCoopCamera(this, this.cameraTarget, worldWidth);
+    } else {
+      setupCamera(this, this.mozart, worldWidth);
+    }
     this.physics.world.setBounds(0, 0, worldWidth, GAME_HEIGHT);
     this.mozart.setCollideWorldBounds(true);
+    if (this.nannerl) this.nannerl.setCollideWorldBounds(true);
 
     // Checkpoint flags
     this.checkpoints = this.physics.add.staticGroup();
@@ -245,6 +269,9 @@ export class Level6Scene extends Phaser.Scene {
     });
 
     this.physics.add.overlap(this.mozart, this.checkpoints, this.activateCheckpoint, null, this);
+    if (this.nannerl) {
+      this.physics.add.overlap(this.nannerl, this.checkpoints, this.activateCheckpoint, null, this);
+    }
 
     // Instrument Lesson Portal (mini-game trigger)
     this.lessonPortals = this.physics.add.staticGroup();
@@ -321,12 +348,25 @@ export class Level6Scene extends Phaser.Scene {
       return;
     }
 
-    if (this.mozart) this.mozart.update(time, delta);
+    if (this.mozart && !this.mozart.isDead) this.mozart.update(time, delta);
+    if (this.nannerl && !this.nannerl.isDead) this.nannerl.update();
     this.enemyList.forEach(e => {
       if (e.active) e.update(time, delta);
     });
 
-    updateCameraLookAhead(this, this.mozart);
+    if (this.coopMode && this.cameraTarget) {
+      const p1 = this.mozart;
+      const p2 = this.nannerl;
+      if (p1 && p2 && !p1.isDead && !p2.isDead) {
+        this.cameraTarget.setPosition((p1.x + p2.x) / 2, (p1.y + p2.y) / 2);
+      } else if (p1 && !p1.isDead) {
+        this.cameraTarget.setPosition(p1.x, p1.y);
+      } else if (p2 && !p2.isDead) {
+        this.cameraTarget.setPosition(p2.x, p2.y);
+      }
+    } else {
+      updateCameraLookAhead(this, this.mozart);
+    }
 
     // Update adaptive music system
     if (this.adaptiveMusic) this.adaptiveMusic.update(this);
@@ -347,10 +387,21 @@ export class Level6Scene extends Phaser.Scene {
 
     // Fall death
     if (this.mozart && this.mozart.y > GAME_HEIGHT + 50) {
-      handleFallDeath(this, this.mozart, this.playerSpawnPoint);
+      handleFallDeath(this, this.mozart, this.playerSpawnPoints.mozart);
+    }
+    if (this.nannerl && this.nannerl.y > GAME_HEIGHT + 50) {
+      handleFallDeath(this, this.nannerl, this.playerSpawnPoints.nannerl);
     }
 
-    maybeShowGameOver(this, this.mozart);
+    maybeShowGameOver(this, this.mozart, this.nannerl);
+  }
+
+  playerBounce(player1, player2) {
+    if (player1.body.velocity.y > 0 && player1.y < player2.y - 20) {
+      player1.setVelocityY(-500);
+    } else if (player2.body.velocity.y > 0 && player2.y < player1.y - 20) {
+      player2.setVelocityY(-500);
+    }
   }
 
   enterInstrumentLesson(player, portal) {
