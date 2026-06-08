@@ -569,6 +569,7 @@ export class Level2Scene extends Phaser.Scene {
   }
 
   collectInstrument(player, instrument) {
+    this.levelCompleting = true;
     this.particles.emitSparkleCollect(instrument.x, instrument.y);
     if (this.instrumentSparkle) this.instrumentSparkle.destroy();
     instrument.destroy();
