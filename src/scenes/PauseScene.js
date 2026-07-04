@@ -23,8 +23,8 @@ export class PauseScene extends Phaser.Scene {
 
     this.createMainMenu();
 
-    this.input.keyboard.on('keydown-ESC', this.handleResume, this);
-    this.input.keyboard.on('keydown-P', this.handleResume, this);
+    this.input.keyboard?.on('keydown-ESC', this.handleResume, this);
+    this.input.keyboard?.on('keydown-P', this.handleResume, this);
   }
 
   handleResume() {
@@ -258,7 +258,7 @@ export class PauseScene extends Phaser.Scene {
   }
 
   shutdown() {
-    this.input.keyboard.off('keydown-ESC', this.handleResume, this);
-    this.input.keyboard.off('keydown-P', this.handleResume, this);
+    this.input.keyboard?.off('keydown-ESC', this.handleResume, this);
+    this.input.keyboard?.off('keydown-P', this.handleResume, this);
   }
 }

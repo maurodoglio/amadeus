@@ -24,6 +24,7 @@ import { PitchPuzzle } from '../mechanics/PitchPuzzle.js';
 import { showBossDialogue } from '../utils/BossFight.js';
 import { BossPhaseManager } from '../mechanics/BossPhaseManager.js';
 import { getColloredoPhases } from '../mechanics/BossPhaseDefinitions.js';
+import { handleFallDeath, markLevelCompleted, maybeShowGameOver, saveSheetMusic } from '../utils/LevelStateUtils.js';
 
 export class Level3Scene extends Phaser.Scene {
   constructor() {
@@ -101,13 +102,12 @@ export class Level3Scene extends Phaser.Scene {
       { x: 1900, y: 320, w: 3 },
       { x: 2200, y: 260, w: 2 },
       { x: 2400, y: 320, w: 3 },
-      { x: 2600, y: 260, w: 2 },
-      { x: 2820, y: 320, w: 3 },
       // Boss arena platforms
-      { x: 3000, y: 340, w: 4 },
-      { x: 3200, y: 260, w: 3 },
-      { x: 3000, y: 180, w: 3 },
-      { x: 3300, y: 180, w: 2 },
+      { x: 2980, y: 350, w: 4 },
+      { x: 3120, y: 280, w: 3 },
+      { x: 3260, y: 210, w: 3 },
+      { x: 3400, y: 300, w: 2 },
+      { x: 3040, y: 190, w: 2 },
       // Stepping-stone platforms for bonus collectibles
       { x: 120, y: 270, w: 1 },
       { x: 70, y: 190, w: 1 },
@@ -119,8 +119,6 @@ export class Level3Scene extends Phaser.Scene {
       { x: 1290, y: 190, w: 1 },
       { x: 1300, y: 110, w: 1 },
       { x: 2420, y: 220, w: 1 },
-      { x: 2860, y: 210, w: 1 },
-      { x: 3250, y: 140, w: 1 },
     ];
 
     platformData.forEach(p => {
@@ -131,13 +129,18 @@ export class Level3Scene extends Phaser.Scene {
       }
     });
 
+    this.playerSpawnPoints = {
+      mozart: { x: 100, y: GAME_HEIGHT - 100 },
+      nannerl: { x: 140, y: GAME_HEIGHT - 100 }
+    };
+
     // Player 1
-    this.mozart = new Mozart(this, 100, GAME_HEIGHT - 100);
+    this.mozart = new Mozart(this, this.playerSpawnPoints.mozart.x, this.playerSpawnPoints.mozart.y);
 
     // Player 2 (co-op)
     this.nannerl = null;
     if (this.coopMode) {
-      this.nannerl = new Nannerl(this, 140, GAME_HEIGHT - 100);
+      this.nannerl = new Nannerl(this, this.playerSpawnPoints.nannerl.x, this.playerSpawnPoints.nannerl.y);
     }
 
     // Regular enemies before boss
@@ -145,32 +148,32 @@ export class Level3Scene extends Phaser.Scene {
     this.enemyList = [];
 
     // Mix of all enemy types (6 total for medium difficulty)
-    const singerPositions = [300, 1200, 2400, 2900];
-    if (this.coopMode) singerPositions.push(500, 1000, 2700);
+    const singerPositions = [300, 1200, 2400];
+    if (this.coopMode) singerPositions.push(500, 1000);
     singerPositions.forEach(x => {
       const singer = new Singer(this, x, GAME_HEIGHT - 80);
       this.enemies.add(singer);
       this.enemyList.push(singer);
     });
 
-    const trollPositions = [600, 1600, 2500, 3000];
-    if (this.coopMode) trollPositions.push(1400, 2800);
+    const trollPositions = [600, 1600];
+    if (this.coopMode) trollPositions.push(1400);
     trollPositions.forEach(x => {
       const troll = new DrumTroll(this, x, GAME_HEIGHT - 80);
       this.enemies.add(troll);
       this.enemyList.push(troll);
     });
 
-    const noteEnemyPositions = [{ x: 450, y: 180 }, { x: 1100, y: 160 }, { x: 2550, y: 180 }, { x: 3150, y: 150 }];
-    if (this.coopMode) noteEnemyPositions.push({ x: 800, y: 150 }, { x: 2860, y: 170 });
+    const noteEnemyPositions = [{ x: 450, y: 180 }, { x: 1100, y: 160 }];
+    if (this.coopMode) noteEnemyPositions.push({ x: 800, y: 150 });
     noteEnemyPositions.forEach(pos => {
       const note = new DissonantNote(this, pos.x, pos.y);
       this.enemies.add(note);
       this.enemyList.push(note);
     });
 
-    const biPositions = [900, 1400, 2300, 2750];
-    if (this.coopMode) biPositions.push(1800, 3050);
+    const biPositions = [900, 1400, 2300];
+    if (this.coopMode) biPositions.push(1800);
     biPositions.forEach(x => {
       const bi = new BrokenInstrument(this, x, GAME_HEIGHT - 80);
       this.enemies.add(bi);
@@ -346,7 +349,7 @@ export class Level3Scene extends Phaser.Scene {
 
     // Dialogue system
     this.dialogueBox = new DialogueBox(this);
-    this.interactKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
+    this.interactKey = this.input.keyboard?.addKey(Phaser.Input.Keyboard.KeyCodes.E);
     // Background music - Mozart's Alla Turca K.331
     this.mozartSoundtrack = new MozartSoundtracks(this);
     this.mozartSoundtrack.play('level3');
@@ -386,8 +389,8 @@ export class Level3Scene extends Phaser.Scene {
     if ((this.dialogueBox && this.dialogueBox.isActive) ||
         (this.bossManager && this.bossManager.dialogueActive)) {
       if (this.dialogueBox && this.dialogueBox.isActive) {
-        if (Phaser.Input.Keyboard.JustDown(this.mozart.spaceKey) ||
-            Phaser.Input.Keyboard.JustDown(this.input.keyboard.addKey('ENTER'))) {
+        if ((this.mozart.spaceKey && Phaser.Input.Keyboard.JustDown(this.mozart.spaceKey)) ||
+            (this.input.keyboard && Phaser.Input.Keyboard.JustDown(this.input.keyboard?.addKey('ENTER')))) {
           this.dialogueBox.advance();
         }
       }
@@ -404,7 +407,7 @@ export class Level3Scene extends Phaser.Scene {
     // NPC updates and interaction
     if (this.salieri) {
       this.salieri.update(this.mozart, this.dialogueBox);
-      if (Phaser.Input.Keyboard.JustDown(this.interactKey) ||
+      if ((this.interactKey && Phaser.Input.Keyboard.JustDown(this.interactKey)) ||
           Phaser.Input.Keyboard.JustDown(this.mozart.cursors.up)) {
         this.salieri.interact(this.dialogueBox);
       }
@@ -440,25 +443,14 @@ export class Level3Scene extends Phaser.Scene {
     }
 
     // Fall death
-    if (this.mozart && !this.mozart.isDead && this.mozart.y > GAME_HEIGHT + 50) {
-      this.mozart.die();
+    if (this.mozart && this.mozart.y > GAME_HEIGHT + 50) {
+      handleFallDeath(this, this.mozart, this.playerSpawnPoints.mozart);
     }
-    if (this.nannerl && !this.nannerl.isDead && this.nannerl.y > GAME_HEIGHT + 50) {
-      this.nannerl.die();
+    if (this.nannerl && this.nannerl.y > GAME_HEIGHT + 50) {
+      handleFallDeath(this, this.nannerl, this.playerSpawnPoints.nannerl);
     }
 
-    // Check game over in co-op
-    if (this.coopMode && !this._gameOverTriggered) {
-      const bothDead = (this.mozart.isDead) && (this.nannerl && this.nannerl.isDead);
-      const noLives = this.registry.get('lives') <= 0;
-      if (bothDead || noLives) {
-        this._gameOverTriggered = true;
-        this.time.delayedCall(1500, () => {
-          this.scene.stop('UIScene');
-          this.scene.start('MenuScene');
-        });
-      }
-    }
+    maybeShowGameOver(this, this.mozart, this.nannerl);
   }
 
   playerBounce(player1, player2) {
@@ -559,12 +551,7 @@ export class Level3Scene extends Phaser.Scene {
     this.registry.set('score', this.registry.get('score') + timeBonus);
     this.combo.destroy();
 
-    // Mark level as completed
-    const completedLevels = this.registry.get('completedLevels') || [];
-    if (!completedLevels.includes(3)) {
-      completedLevels.push(3);
-      this.registry.set('completedLevels', completedLevels);
-    }
+    markLevelCompleted(this.registry, 3);
 
     // Achievement tracking
     const achievements = getAchievementManager();
@@ -605,7 +592,7 @@ export class Level3Scene extends Phaser.Scene {
     const savedSheetMusic = this.registry.get('sheetMusic') || {};
     savedSheetMusic[pageKey] = true;
     this.registry.set('sheetMusic', savedSheetMusic);
-    localStorage.setItem('sheetMusicCollected', JSON.stringify(savedSheetMusic));
+    saveSheetMusic(savedSheetMusic);
 
     this.registry.set('sheetMusicCurrentLevel', { found: this.sheetMusicCollected, total: 3 });
 

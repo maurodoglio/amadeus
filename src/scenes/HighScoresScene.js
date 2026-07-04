@@ -26,9 +26,9 @@ export class HighScoresScene extends Phaser.Scene {
     this.createScoreTable();
     this.createBackButton();
 
-    this.input.keyboard.on('keydown-ESC', () => this.scene.start('MenuScene'));
-    this.input.keyboard.on('keydown-SPACE', () => this.scene.start('MenuScene'));
-    this.input.keyboard.on('keydown-ENTER', () => this.scene.start('MenuScene'));
+    this.input.keyboard?.on('keydown-ESC', () => this.scene.start('MenuScene'));
+    this.input.keyboard?.on('keydown-SPACE', () => this.scene.start('MenuScene'));
+    this.input.keyboard?.on('keydown-ENTER', () => this.scene.start('MenuScene'));
   }
 
   createAtmosphere() {

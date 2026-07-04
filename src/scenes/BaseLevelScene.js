@@ -27,6 +27,13 @@ import { ChordDoor } from '../mechanics/ChordDoor.js';
 import { setupCamera, setupCoopCamera, updateCameraLookAhead } from '../utils/CameraManager.js';
 import { ParallaxBackground, PARALLAX_CONFIGS } from '../utils/ParallaxBackground.js';
 import { SFXGenerator } from '../utils/SFXGenerator.js';
+import {
+  handleFallDeath,
+  markLevelCompleted,
+  maybeShowGameOver,
+  saveSheetMusic,
+  showGameOver as showSharedGameOver
+} from '../utils/LevelStateUtils.js';
 
 export class BaseLevelScene extends Phaser.Scene {
   constructor(config) {
@@ -238,6 +245,11 @@ export class BaseLevelScene extends Phaser.Scene {
 
   createPlayers(config) {
     const pos = config.playerStartPos || { x: 100, y: GAME_HEIGHT - 100 };
+    this.playerSpawnPoints = {
+      mozart: { x: pos.x, y: pos.y },
+      nannerl: { x: pos.x + 40, y: pos.y }
+    };
+
     this.mozart = new Mozart(this, pos.x, pos.y);
 
     this.nannerl = null;
@@ -497,7 +509,7 @@ export class BaseLevelScene extends Phaser.Scene {
     });
 
     this.dialogueBox = new DialogueBox(this);
-    this.interactKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
+    this.interactKey = this.input.keyboard?.addKey(Phaser.Input.Keyboard.KeyCodes.E);
   }
 
   createPracticeStage(config) {
@@ -629,8 +641,8 @@ export class BaseLevelScene extends Phaser.Scene {
   update(time, delta) {
     // If dialogue is active, only handle dialogue input
     if (this.dialogueBox && this.dialogueBox.isActive) {
-      if (Phaser.Input.Keyboard.JustDown(this.mozart.spaceKey) ||
-          Phaser.Input.Keyboard.JustDown(this.input.keyboard.addKey('ENTER'))) {
+      if ((this.mozart.spaceKey && Phaser.Input.Keyboard.JustDown(this.mozart.spaceKey)) ||
+          (this.input.keyboard && Phaser.Input.Keyboard.JustDown(this.input.keyboard?.addKey('ENTER')))) {
         this.dialogueBox.advance();
       }
       return;
@@ -647,7 +659,7 @@ export class BaseLevelScene extends Phaser.Scene {
     // NPC updates
     if (this.npcInstance) {
       this.npcInstance.update(this.mozart, this.dialogueBox);
-      if (Phaser.Input.Keyboard.JustDown(this.interactKey) ||
+      if ((this.interactKey && Phaser.Input.Keyboard.JustDown(this.interactKey)) ||
           Phaser.Input.Keyboard.JustDown(this.mozart.cursors.up)) {
         this.npcInstance.interact(this.dialogueBox);
       }
@@ -686,23 +698,14 @@ export class BaseLevelScene extends Phaser.Scene {
     this.updateLevelSpecific(time, delta);
 
     // Fall death
-    if (this.mozart && !this.mozart.isDead && this.mozart.y > GAME_HEIGHT + 50) {
-      this.mozart.die();
+    if (this.mozart && this.mozart.y > GAME_HEIGHT + 50) {
+      handleFallDeath(this, this.mozart, this.playerSpawnPoints.mozart);
     }
-    if (this.nannerl && !this.nannerl.isDead && this.nannerl.y > GAME_HEIGHT + 50) {
-      this.nannerl.die();
+    if (this.nannerl && this.nannerl.y > GAME_HEIGHT + 50) {
+      handleFallDeath(this, this.nannerl, this.playerSpawnPoints.nannerl);
     }
 
-    // Game over check
-    const noLives = this.registry.get('lives') <= 0;
-    if (this.coopMode) {
-      const bothDead = (this.mozart.isDead) && (this.nannerl && this.nannerl.isDead);
-      if (bothDead || noLives) {
-        this.showGameOver();
-      }
-    } else if (this.mozart && this.mozart.isDead && noLives) {
-      this.showGameOver();
-    }
+    maybeShowGameOver(this, this.mozart, this.nannerl);
   }
 
   // Hook for subclass-specific update logic (override in subclasses)
@@ -721,8 +724,13 @@ export class BaseLevelScene extends Phaser.Scene {
   }
 
   hitEnemy(player, enemy) {
+    // Guard: if enemy was already destroyed, skip
+    if (!enemy || !enemy.body || !enemy.active) return;
+
     if (player.body.velocity.y > 0 && player.y < enemy.y - 10) {
       this.particles.emitStomp(enemy.x, enemy.y);
+      // Stop any running animation before destroy to prevent stale frame references
+      if (enemy.anims) enemy.anims.stop();
       enemy.destroy();
       this.enemyList = this.enemyList.filter(e => e !== enemy);
       player.setVelocityY(-200);
@@ -746,7 +754,7 @@ export class BaseLevelScene extends Phaser.Scene {
         this.adaptiveMusic.playVictoryFanfare();
       }
     } else {
-      player.hit();
+      player.hit(enemy);
       if (this.adaptiveMusic) {
         const lives = this.registry.get('lives') || 0;
         if (lives <= 1) {
@@ -785,6 +793,7 @@ export class BaseLevelScene extends Phaser.Scene {
   }
 
   collectInstrument(player, instrument) {
+    this.levelCompleting = true;
     this.particles.emitSparkleCollect(instrument.x, instrument.y);
     if (this.instrumentSparkle) this.instrumentSparkle.destroy();
     instrument.destroy();
@@ -806,12 +815,7 @@ export class BaseLevelScene extends Phaser.Scene {
     }
     this.combo.destroy();
 
-    // Mark level as completed
-    const completedLevels = this.registry.get('completedLevels') || [];
-    if (!completedLevels.includes(config.levelNumber)) {
-      completedLevels.push(config.levelNumber);
-      this.registry.set('completedLevels', completedLevels);
-    }
+    markLevelCompleted(this.registry, config.levelNumber);
 
     // Achievement tracking
     const achievements = getAchievementManager();
@@ -846,69 +850,7 @@ export class BaseLevelScene extends Phaser.Scene {
 
   // Hook for subclass pre-transition logic
   showGameOver() {
-    if (this.gameOverShown) return;
-    this.gameOverShown = true;
-
-    this.time.delayedCall(1000, () => {
-      // Pause physics
-      this.physics.pause();
-
-      // Dark overlay
-      const overlay = this.add.rectangle(
-        this.cameras.main.scrollX + GAME_WIDTH / 2,
-        this.cameras.main.scrollY + GAME_HEIGHT / 2,
-        GAME_WIDTH, GAME_HEIGHT, 0x000000, 0.7
-      ).setDepth(1000).setScrollFactor(0);
-
-      // Game Over text
-      this.add.text(GAME_WIDTH / 2, GAME_HEIGHT / 2 - 60, 'GAME OVER', {
-        fontFamily: '"Playfair Display", Georgia, serif',
-        fontSize: '36px', color: '#FFD700',
-        stroke: '#000000', strokeThickness: 2
-      }).setOrigin(0.5).setDepth(1001).setScrollFactor(0);
-
-      // Retry button
-      const retryBtn = this.add.text(GAME_WIDTH / 2, GAME_HEIGHT / 2 + 10, '▶ Retry Level', {
-        fontFamily: 'Georgia, serif', fontSize: '18px', color: '#C9A84C'
-      }).setOrigin(0.5).setDepth(1001).setScrollFactor(0)
-        .setInteractive({ useHandCursor: true });
-
-      retryBtn.on('pointerover', () => retryBtn.setColor('#FFD700'));
-      retryBtn.on('pointerout', () => retryBtn.setColor('#C9A84C'));
-      retryBtn.on('pointerdown', () => {
-        this.sound.stopAll();
-        this.registry.set('lives', this.coopMode ? 5 : 3);
-        this.scene.stop('UIScene');
-        this.scene.restart();
-      });
-
-      // Back to menu
-      const menuBtn = this.add.text(GAME_WIDTH / 2, GAME_HEIGHT / 2 + 50, '← Back to Menu', {
-        fontFamily: 'Georgia, serif', fontSize: '16px', color: '#888888'
-      }).setOrigin(0.5).setDepth(1001).setScrollFactor(0)
-        .setInteractive({ useHandCursor: true });
-
-      menuBtn.on('pointerover', () => menuBtn.setColor('#C9A84C'));
-      menuBtn.on('pointerout', () => menuBtn.setColor('#888888'));
-      menuBtn.on('pointerdown', () => {
-        this.sound.stopAll();
-        this.scene.stop('UIScene');
-        this.scene.start('MenuScene');
-      });
-
-      // Keyboard controls
-      this.input.keyboard.once('keydown-ENTER', () => {
-        this.sound.stopAll();
-        this.registry.set('lives', this.coopMode ? 5 : 3);
-        this.scene.stop('UIScene');
-        this.scene.restart();
-      });
-      this.input.keyboard.once('keydown-ESC', () => {
-        this.sound.stopAll();
-        this.scene.stop('UIScene');
-        this.scene.start('MenuScene');
-      });
-    });
+    showSharedGameOver(this);
   }
 
   onInstrumentCollected(_config) {
@@ -934,7 +876,7 @@ export class BaseLevelScene extends Phaser.Scene {
     const savedSheetMusic = this.registry.get('sheetMusic') || {};
     savedSheetMusic[pageKey] = true;
     this.registry.set('sheetMusic', savedSheetMusic);
-    localStorage.setItem('sheetMusicCollected', JSON.stringify(savedSheetMusic));
+    saveSheetMusic(savedSheetMusic);
 
     const total = this.levelConfig.sheetMusicPositions.length;
     this.registry.set('sheetMusicCurrentLevel', { found: this.sheetMusicCollected, total });

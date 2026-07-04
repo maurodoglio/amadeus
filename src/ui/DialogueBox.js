@@ -32,6 +32,12 @@ export class DialogueBox {
     bg.setStrokeStyle(2, 0xFFD700);
     this.container.add(bg);
 
+    // Make the entire dialogue box tappable for mobile
+    bg.setInteractive();
+    bg.on('pointerdown', () => {
+      this.advance();
+    });
+
     // Portrait frame (left side)
     this.portraitBg = this.scene.add.rectangle(
       -boxWidth / 2 + 45, 0, 70, 70, 0x222222
@@ -81,9 +87,10 @@ export class DialogueBox {
       repeat: -1
     });
 
-    // Hint text
+    // Hint text (adapt for mobile vs desktop)
+    const isMobile = !this.scene.sys.game.device.os.desktop;
     this.hintText = this.scene.add.text(
-      0, -boxHeight / 2 - 14, 'SPACE / ENTER to continue', {
+      0, -boxHeight / 2 - 14, isMobile ? 'Tap to continue' : 'SPACE / ENTER to continue', {
         font: '10px monospace',
         fill: '#808080'
       }

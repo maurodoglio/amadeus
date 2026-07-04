@@ -116,7 +116,7 @@ export class MozartSoundtracks {
 
     // Schedule melody
     track.melody.forEach(note => {
-      if (note.freq === 0) return;
+      if (!note || note.freq === 0 || !note.duration) return;
       const freq = note.freq * (bossOctaveShift ? 1.0 : 1.0);
       const start = now + note.time / tempo;
       const dur = note.duration / tempo;
@@ -126,7 +126,7 @@ export class MozartSoundtracks {
     // Schedule bass if present
     if (track.bass) {
       track.bass.forEach(note => {
-        if (note.freq === 0) return;
+        if (!note || note.freq === 0 || !note.duration) return;
         const start = now + note.time / tempo;
         const dur = note.duration / tempo;
         this.playNote(note.freq, start, dur, 'triangle', 0.12);
@@ -136,7 +136,7 @@ export class MozartSoundtracks {
     // Schedule harmony if present
     if (track.harmony) {
       track.harmony.forEach(note => {
-        if (note.freq === 0) return;
+        if (!note || note.freq === 0 || !note.duration) return;
         const start = now + note.time / tempo;
         const dur = note.duration / tempo;
         this.playNote(note.freq, start, dur, 'triangle', 0.08);
@@ -144,7 +144,7 @@ export class MozartSoundtracks {
     }
 
     // Loop
-    const trackDuration = track.duration / tempo;
+    const trackDuration = (track.duration || 10) / tempo;
     this.loopTimeout = setTimeout(() => {
       if (this.isPlaying) {
         this.scheduledNotes = this.scheduledNotes.filter(osc => {

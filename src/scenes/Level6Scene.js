@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT, TILE_SIZE } from '../config/constants.js';
 import { getLevelDifficulty } from '../config/difficultyConfig.js';
 import { Mozart } from '../sprites/Mozart.js';
+import { Nannerl } from '../sprites/Nannerl.js';
 import { DrumTroll } from '../sprites/enemies/DrumTroll.js';
 import { BrokenInstrument } from '../sprites/enemies/BrokenInstrument.js';
 import { ConductorGhost } from '../sprites/enemies/ConductorGhost.js';
@@ -10,13 +11,15 @@ import { SheetMusicBat } from '../sprites/enemies/SheetMusicBat.js';
 import { AdaptiveMusicManager } from '../utils/AdaptiveMusicManager.js';
 import { MozartSoundtracks } from '../utils/MozartSoundtracks.js';
 import { ParticleManager } from '../utils/ParticleManager.js';
+import { setupPause } from '../utils/PauseHelper.js';
 import { setupBoss, updateBossAI, getBossTarget, showBossDialogue } from '../utils/BossFight.js';
 import { BossPhaseManager } from '../mechanics/BossPhaseManager.js';
 import { getGreyMessengerPhases } from '../mechanics/BossPhaseDefinitions.js';
 import { ComboSystem } from '../utils/ComboSystem.js';
 import { getAchievementManager } from '../utils/AchievementManager.js';
-import { setupCamera, updateCameraLookAhead } from '../utils/CameraManager.js';
+import { setupCamera, setupCoopCamera, updateCameraLookAhead } from '../utils/CameraManager.js';
 import { ParallaxBackground, PARALLAX_CONFIGS } from '../utils/ParallaxBackground.js';
+import { handleFallDeath, markLevelCompleted, maybeShowGameOver } from '../utils/LevelStateUtils.js';
 
 export class Level6Scene extends Phaser.Scene {
   constructor() {
@@ -24,7 +27,9 @@ export class Level6Scene extends Phaser.Scene {
   }
 
   create() {
+    setupPause(this);
     this.particles = new ParticleManager(this);
+    this.coopMode = this.registry.get('coopMode') || false;
     this.combo = new ComboSystem(this);
     this.levelStartTime = this.time.now;
     this.levelStartScore = this.registry.get('score') || 0;
@@ -98,10 +103,11 @@ export class Level6Scene extends Phaser.Scene {
       { x: 1950, y: 200, w: 3 },
       { x: 2150, y: 260, w: 2 },
       { x: 2350, y: 300, w: 3 },
-      { x: 2580, y: 240, w: 2 },
-      { x: 2800, y: 320, w: 3 },
-      { x: 3040, y: 240, w: 2 },
-      { x: 3260, y: 280, w: 3 },
+      { x: 2840, y: 350, w: 4 },
+      { x: 2980, y: 280, w: 3 },
+      { x: 3120, y: 210, w: 2 },
+      { x: 3200, y: 320, w: 3 },
+      { x: 3270, y: 250, w: 2 },
       { x: 1240, y: 320, w: 2 },
       { x: 1480, y: 180, w: 2 },
       { x: 1720, y: 330, w: 2 },
@@ -114,8 +120,6 @@ export class Level6Scene extends Phaser.Scene {
       { x: 1120, y: 160, w: 1 },
       { x: 1350, y: 210, w: 1 },
       { x: 1590, y: 140, w: 1 },
-      { x: 2650, y: 180, w: 1 },
-      { x: 3090, y: 170, w: 1 },
     ];
 
     platformData.forEach(p => {
@@ -126,20 +130,29 @@ export class Level6Scene extends Phaser.Scene {
       }
     });
 
-    // Player
-    this.mozart = new Mozart(this, 100, GAME_HEIGHT - 100);
+    this.playerSpawnPoints = {
+      mozart: { x: 100, y: GAME_HEIGHT - 100 },
+      nannerl: { x: 140, y: GAME_HEIGHT - 100 }
+    };
+
+    // Players
+    this.mozart = new Mozart(this, this.playerSpawnPoints.mozart.x, this.playerSpawnPoints.mozart.y);
+    this.nannerl = null;
+    if (this.coopMode) {
+      this.nannerl = new Nannerl(this, this.playerSpawnPoints.nannerl.x, this.playerSpawnPoints.nannerl.y);
+    }
 
     // Enemies
     this.enemies = this.physics.add.group();
     this.enemyList = [];
 
-    [450, 850, 1250, 1650, 2050, 2500, 2950].forEach(x => {
+    [450, 850, 1250, 1650, 2050].forEach(x => {
       const troll = new DrumTroll(this, x, GAME_HEIGHT - 80);
       this.enemies.add(troll);
       this.enemyList.push(troll);
     });
 
-    [700, 1100, 1500, 1900, 2300, 2700, 3150].forEach(x => {
+    [700, 1100, 1500, 1900, 2300].forEach(x => {
       const bi = new BrokenInstrument(this, x, GAME_HEIGHT - 80);
       this.enemies.add(bi);
       this.enemyList.push(bi);
@@ -233,6 +246,15 @@ export class Level6Scene extends Phaser.Scene {
     this.physics.add.overlap(this.mozart, this.collectibles, this.collectNote, null, this);
     this.physics.add.overlap(this.mozart, this.instrument, this.collectInstrument, null, this);
 
+    if (this.coopMode && this.nannerl) {
+      this.physics.add.collider(this.nannerl, this.platforms);
+      this.physics.add.collider(this.nannerl, this.oneWayPlatforms, null, this._oneWayCheck, this);
+      this.physics.add.overlap(this.nannerl, this.enemies, this.hitEnemy, null, this);
+      this.physics.add.overlap(this.nannerl, this.collectibles, this.collectNote, null, this);
+      this.physics.add.overlap(this.nannerl, this.instrument, this.collectInstrument, null, this);
+      this.physics.add.collider(this.mozart, this.nannerl, this.playerBounce, null, this);
+    }
+
     // Set up musical combat projectile collisions
     if (this.mozart.combat) {
       this.mozart.combat.setupCollision(this.enemies);
@@ -244,9 +266,15 @@ export class Level6Scene extends Phaser.Scene {
     }
 
     // Camera
-    setupCamera(this, this.mozart, worldWidth);
+    if (this.coopMode && this.nannerl) {
+      this.cameraTarget = this.add.zone(0, 0, 1, 1);
+      setupCoopCamera(this, this.cameraTarget, worldWidth);
+    } else {
+      setupCamera(this, this.mozart, worldWidth);
+    }
     this.physics.world.setBounds(0, 0, worldWidth, GAME_HEIGHT);
     this.mozart.setCollideWorldBounds(true);
+    if (this.nannerl) this.nannerl.setCollideWorldBounds(true);
 
     // Checkpoint flags
     this.checkpoints = this.physics.add.staticGroup();
@@ -265,6 +293,9 @@ export class Level6Scene extends Phaser.Scene {
     });
 
     this.physics.add.overlap(this.mozart, this.checkpoints, this.activateCheckpoint, null, this);
+    if (this.nannerl) {
+      this.physics.add.overlap(this.nannerl, this.checkpoints, this.activateCheckpoint, null, this);
+    }
 
     // Instrument Lesson Portal (mini-game trigger)
     this.lessonPortals = this.physics.add.staticGroup();
@@ -333,20 +364,33 @@ export class Level6Scene extends Phaser.Scene {
     if ((this.dialogueBox && this.dialogueBox.isActive) ||
         (this.bossManager && this.bossManager.dialogueActive)) {
       if (this.dialogueBox && this.dialogueBox.isActive) {
-        if (Phaser.Input.Keyboard.JustDown(this.mozart.spaceKey) ||
-            Phaser.Input.Keyboard.JustDown(this.input.keyboard.addKey('ENTER'))) {
+        if ((this.mozart.spaceKey && Phaser.Input.Keyboard.JustDown(this.mozart.spaceKey)) ||
+            (this.input.keyboard && Phaser.Input.Keyboard.JustDown(this.input.keyboard?.addKey('ENTER')))) {
           this.dialogueBox.advance();
         }
       }
       return;
     }
 
-    if (this.mozart) this.mozart.update(time, delta);
+    if (this.mozart && !this.mozart.isDead) this.mozart.update(time, delta);
+    if (this.nannerl && !this.nannerl.isDead) this.nannerl.update();
     this.enemyList.forEach(e => {
       if (e.active) e.update(time, delta);
     });
 
-    updateCameraLookAhead(this, this.mozart);
+    if (this.coopMode && this.cameraTarget) {
+      const p1 = this.mozart;
+      const p2 = this.nannerl;
+      if (p1 && p2 && !p1.isDead && !p2.isDead) {
+        this.cameraTarget.setPosition((p1.x + p2.x) / 2, (p1.y + p2.y) / 2);
+      } else if (p1 && !p1.isDead) {
+        this.cameraTarget.setPosition(p1.x, p1.y);
+      } else if (p2 && !p2.isDead) {
+        this.cameraTarget.setPosition(p2.x, p2.y);
+      }
+    } else {
+      updateCameraLookAhead(this, this.mozart);
+    }
 
     // Update adaptive music system
     if (this.adaptiveMusic) this.adaptiveMusic.update(this);
@@ -367,7 +411,20 @@ export class Level6Scene extends Phaser.Scene {
 
     // Fall death
     if (this.mozart && this.mozart.y > GAME_HEIGHT + 50) {
-      this.mozart.die();
+      handleFallDeath(this, this.mozart, this.playerSpawnPoints.mozart);
+    }
+    if (this.nannerl && this.nannerl.y > GAME_HEIGHT + 50) {
+      handleFallDeath(this, this.nannerl, this.playerSpawnPoints.nannerl);
+    }
+
+    maybeShowGameOver(this, this.mozart, this.nannerl);
+  }
+
+  playerBounce(player1, player2) {
+    if (player1.body.velocity.y > 0 && player1.y < player2.y - 20) {
+      player1.setVelocityY(-500);
+    } else if (player2.body.velocity.y > 0 && player2.y < player1.y - 20) {
+      player2.setVelocityY(-500);
     }
   }
 
@@ -479,11 +536,7 @@ export class Level6Scene extends Phaser.Scene {
     const elapsedSeconds = Math.floor((this.time.now - this.levelStartTime) / 1000);
     this.combo.destroy();
 
-    const completedLevels = this.registry.get('completedLevels') || [];
-    if (!completedLevels.includes(6)) {
-      completedLevels.push(6);
-      this.registry.set('completedLevels', completedLevels);
-    }
+    markLevelCompleted(this.registry, 6);
 
     // Achievement tracking
     const achievements = getAchievementManager();

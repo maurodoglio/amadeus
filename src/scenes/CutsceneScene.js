@@ -7,7 +7,7 @@ const CUTSCENE_DATA = {
     background: '#1a1a2e',
     dialogues: [
       {
-        portrait: 'mozart',
+        portrait: 'npc_leopold',
         name: 'Leopold Mozart',
         text: 'My dear Wolfgang... you are only six years old, yet you play with the mastery of a seasoned musician. The world must hear you!',
         side: 'left'
@@ -30,7 +30,7 @@ const CUTSCENE_DATA = {
     background: '#1a2e1a',
     dialogues: [
       {
-        portrait: 'mozart',
+        portrait: 'npc_leopold',
         name: 'Leopold Mozart',
         text: 'Pack your things, Wolfgang! We depart for Munich at dawn. The Elector wishes to hear you play.',
         side: 'left'
@@ -286,16 +286,18 @@ export class CutsceneScene extends Phaser.Scene {
     });
 
     // Skip hint
-    this.add.text(GAME_WIDTH - 20, 20, 'ENTER to continue | ESC to skip', {
+    const isMobile = !this.sys.game.device.os.desktop;
+    this.add.text(GAME_WIDTH - 20, 20,
+      isMobile ? 'Tap to continue' : 'ENTER to continue | ESC to skip', {
       font: '12px monospace',
       fill: '#808080'
     }).setOrigin(1, 0);
 
     // Input handling
     this.canAdvance = false;
-    this.input.keyboard.on('keydown-SPACE', () => this.advanceDialogue());
-    this.input.keyboard.on('keydown-ENTER', () => this.advanceDialogue());
-    this.input.keyboard.on('keydown-ESC', () => this.endCutscene());
+    this.input.keyboard?.on('keydown-SPACE', () => this.advanceDialogue());
+    this.input.keyboard?.on('keydown-ENTER', () => this.advanceDialogue());
+    this.input.keyboard?.on('keydown-ESC', () => this.endCutscene());
     this.input.on('pointerdown', () => this.advanceDialogue());
 
     // Start first dialogue with fade in
@@ -356,9 +358,10 @@ export class CutsceneScene extends Phaser.Scene {
 
       // Portrait entrance animation
       this.portraitImage.setScale(0);
+      this.portraitImage.setAlpha(1);
       this.tweens.add({
         targets: this.portraitImage,
-        scale: 2,
+        scale: 2.5,
         duration: 300,
         ease: 'Back.easeOut'
       });

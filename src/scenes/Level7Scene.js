@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT, TILE_SIZE } from '../config/constants.js';
 import { getLevelDifficulty } from '../config/difficultyConfig.js';
 import { Mozart } from '../sprites/Mozart.js';
+import { Nannerl } from '../sprites/Nannerl.js';
 import { Singer } from '../sprites/enemies/Singer.js';
 import { DissonantNote } from '../sprites/enemies/DissonantNote.js';
 import { BrokenInstrument } from '../sprites/enemies/BrokenInstrument.js';
@@ -14,6 +15,7 @@ import { NPC_DIALOGUES } from '../config/npcDialogues.js';
 import { AdaptiveMusicManager } from '../utils/AdaptiveMusicManager.js';
 import { MozartSoundtracks } from '../utils/MozartSoundtracks.js';
 import { ParticleManager } from '../utils/ParticleManager.js';
+import { setupPause } from '../utils/PauseHelper.js';
 import { setupBoss, updateBossAI, getBossTarget, showBossDialogue } from '../utils/BossFight.js';
 import { BossPhaseManager } from '../mechanics/BossPhaseManager.js';
 import { getMozartShadowPhases } from '../mechanics/BossPhaseDefinitions.js';
@@ -22,8 +24,9 @@ import { getAchievementManager } from '../utils/AchievementManager.js';
 import { CompositionCollector } from '../mechanics/CompositionCollector.js';
 import { PitchPuzzle } from '../mechanics/PitchPuzzle.js';
 import { ChordDoor } from '../mechanics/ChordDoor.js';
-import { setupCamera, updateCameraLookAhead } from '../utils/CameraManager.js';
+import { setupCamera, setupCoopCamera, updateCameraLookAhead } from '../utils/CameraManager.js';
 import { ParallaxBackground, PARALLAX_CONFIGS } from '../utils/ParallaxBackground.js';
+import { handleFallDeath, markLevelCompleted, maybeShowGameOver } from '../utils/LevelStateUtils.js';
 
 export class Level7Scene extends Phaser.Scene {
   constructor() {
@@ -31,7 +34,9 @@ export class Level7Scene extends Phaser.Scene {
   }
 
   create() {
+    setupPause(this);
     this.particles = new ParticleManager(this);
+    this.coopMode = this.registry.get('coopMode') || false;
     this.combo = new ComboSystem(this);
     this.levelStartTime = this.time.now;
     this.levelStartScore = this.registry.get('score') || 0;
@@ -99,17 +104,17 @@ export class Level7Scene extends Phaser.Scene {
       { x: 2050, y: 240, w: 3 },
       { x: 2250, y: 160, w: 2 },
       { x: 2200, y: 360, w: 3 },
-      { x: 2450, y: 280, w: 4 },
-      { x: 2700, y: 220, w: 3 },
-      { x: 2900, y: 340, w: 2 },
-      { x: 3080, y: 240, w: 3 },
-      { x: 3280, y: 180, w: 2 },
+      { x: 2400, y: 340, w: 6 },
+      { x: 2600, y: 340, w: 6 },
+      { x: 2840, y: 340, w: 4 },
+      { x: 2980, y: 260, w: 3 },
+      { x: 3000, y: 120, w: 2 },
+      { x: 3120, y: 190, w: 3 },
+      { x: 3240, y: 290, w: 2 },
       // Stepping-stone platforms for bonus collectibles
       { x: 380, y: 120, w: 1 },
       { x: 1240, y: 160, w: 1 },
       { x: 1630, y: 140, w: 1 },
-      { x: 2740, y: 150, w: 1 },
-      { x: 3150, y: 140, w: 1 },
     ];
 
     platformData.forEach(p => {
@@ -137,26 +142,35 @@ export class Level7Scene extends Phaser.Scene {
       });
     }
 
-    // Player
-    this.mozart = new Mozart(this, 100, 350);
+    this.playerSpawnPoints = {
+      mozart: { x: 100, y: 350 },
+      nannerl: { x: 140, y: 350 }
+    };
+
+    // Players
+    this.mozart = new Mozart(this, this.playerSpawnPoints.mozart.x, this.playerSpawnPoints.mozart.y);
+    this.nannerl = null;
+    if (this.coopMode) {
+      this.nannerl = new Nannerl(this, this.playerSpawnPoints.nannerl.x, this.playerSpawnPoints.nannerl.y);
+    }
 
     // Enemies
     this.enemies = this.physics.add.group();
     this.enemyList = [];
 
-    [400, 900, 1400, 1900, 2500, 3000].forEach(x => {
+    [400, 900, 1400, 1900].forEach(x => {
       const singer = new Singer(this, x, 300);
       this.enemies.add(singer);
       this.enemyList.push(singer);
     });
 
-    [{ x: 600, y: 200 }, { x: 1100, y: 150 }, { x: 1600, y: 130 }, { x: 2100, y: 120 }, { x: 2600, y: 170 }, { x: 3100, y: 130 }].forEach(pos => {
+    [{ x: 600, y: 200 }, { x: 1100, y: 150 }, { x: 1600, y: 130 }, { x: 2100, y: 120 }].forEach(pos => {
       const note = new DissonantNote(this, pos.x, pos.y);
       this.enemies.add(note);
       this.enemyList.push(note);
     });
 
-    [800, 1300, 2000, 2700, 3200].forEach(x => {
+    [800, 1300, 2000].forEach(x => {
       const bi = new BrokenInstrument(this, x, 280);
       this.enemies.add(bi);
       this.enemyList.push(bi);
@@ -276,6 +290,15 @@ export class Level7Scene extends Phaser.Scene {
     this.physics.add.overlap(this.mozart, this.collectibles, this.collectNote, null, this);
     this.physics.add.overlap(this.mozart, this.instrument, this.collectInstrument, null, this);
 
+    if (this.coopMode && this.nannerl) {
+      this.physics.add.collider(this.nannerl, this.platforms);
+      this.physics.add.collider(this.nannerl, this.oneWayPlatforms, null, this._oneWayCheck, this);
+      this.physics.add.overlap(this.nannerl, this.enemies, this.hitEnemy, null, this);
+      this.physics.add.overlap(this.nannerl, this.collectibles, this.collectNote, null, this);
+      this.physics.add.overlap(this.nannerl, this.instrument, this.collectInstrument, null, this);
+      this.physics.add.collider(this.mozart, this.nannerl, this.playerBounce, null, this);
+    }
+
     // Set up musical combat projectile collisions
     if (this.mozart.combat) {
       this.mozart.combat.setupCollision(this.enemies);
@@ -287,9 +310,15 @@ export class Level7Scene extends Phaser.Scene {
     }
 
     // Camera
-    setupCamera(this, this.mozart, worldWidth);
+    if (this.coopMode && this.nannerl) {
+      this.cameraTarget = this.add.zone(0, 0, 1, 1);
+      setupCoopCamera(this, this.cameraTarget, worldWidth);
+    } else {
+      setupCamera(this, this.mozart, worldWidth);
+    }
     this.physics.world.setBounds(0, 0, worldWidth, GAME_HEIGHT);
     this.mozart.setCollideWorldBounds(true);
+    if (this.nannerl) this.nannerl.setCollideWorldBounds(true);
 
     // Checkpoint flags (on wider platforms in the sky)
     this.checkpoints = this.physics.add.staticGroup();
@@ -308,6 +337,9 @@ export class Level7Scene extends Phaser.Scene {
     });
 
     this.physics.add.overlap(this.mozart, this.checkpoints, this.activateCheckpoint, null, this);
+    if (this.nannerl) {
+      this.physics.add.overlap(this.nannerl, this.checkpoints, this.activateCheckpoint, null, this);
+    }
 
     // NPC - Young Beethoven (secret encounter, hidden high up)
     const beethovenData = NPC_DIALOGUES.beethoven;
@@ -320,7 +352,7 @@ export class Level7Scene extends Phaser.Scene {
 
     // Dialogue system
     this.dialogueBox = new DialogueBox(this);
-    this.interactKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
+    this.interactKey = this.input.keyboard?.addKey(Phaser.Input.Keyboard.KeyCodes.E);
     // Mozart's Jupiter Symphony K.551 fugue
     this.mozartSoundtrack = new MozartSoundtracks(this);
     this.mozartSoundtrack.play('level7');
@@ -338,25 +370,38 @@ export class Level7Scene extends Phaser.Scene {
     if ((this.dialogueBox && this.dialogueBox.isActive) ||
         (this.bossManager && this.bossManager.dialogueActive)) {
       if (this.dialogueBox && this.dialogueBox.isActive) {
-        if (Phaser.Input.Keyboard.JustDown(this.mozart.spaceKey) ||
-            Phaser.Input.Keyboard.JustDown(this.input.keyboard.addKey('ENTER'))) {
+        if ((this.mozart.spaceKey && Phaser.Input.Keyboard.JustDown(this.mozart.spaceKey)) ||
+            (this.input.keyboard && Phaser.Input.Keyboard.JustDown(this.input.keyboard?.addKey('ENTER')))) {
           this.dialogueBox.advance();
         }
       }
       return;
     }
 
-    if (this.mozart) this.mozart.update(time, delta);
+    if (this.mozart && !this.mozart.isDead) this.mozart.update(time, delta);
+    if (this.nannerl && !this.nannerl.isDead) this.nannerl.update();
     this.enemyList.forEach(e => {
       if (e.active) e.update(time, delta);
     });
 
-    updateCameraLookAhead(this, this.mozart);
+    if (this.coopMode && this.cameraTarget) {
+      const p1 = this.mozart;
+      const p2 = this.nannerl;
+      if (p1 && p2 && !p1.isDead && !p2.isDead) {
+        this.cameraTarget.setPosition((p1.x + p2.x) / 2, (p1.y + p2.y) / 2);
+      } else if (p1 && !p1.isDead) {
+        this.cameraTarget.setPosition(p1.x, p1.y);
+      } else if (p2 && !p2.isDead) {
+        this.cameraTarget.setPosition(p2.x, p2.y);
+      }
+    } else {
+      updateCameraLookAhead(this, this.mozart);
+    }
 
     // NPC updates and interaction
     if (this.beethoven) {
       this.beethoven.update(this.mozart, this.dialogueBox);
-      if (Phaser.Input.Keyboard.JustDown(this.interactKey) ||
+      if ((this.interactKey && Phaser.Input.Keyboard.JustDown(this.interactKey)) ||
           Phaser.Input.Keyboard.JustDown(this.mozart.cursors.up)) {
         this.beethoven.interact(this.dialogueBox);
       }
@@ -377,7 +422,20 @@ export class Level7Scene extends Phaser.Scene {
 
     // Fall death (fall off bottom of sky)
     if (this.mozart && this.mozart.y > GAME_HEIGHT + 50) {
-      this.mozart.die();
+      handleFallDeath(this, this.mozart, this.playerSpawnPoints.mozart);
+    }
+    if (this.nannerl && this.nannerl.y > GAME_HEIGHT + 50) {
+      handleFallDeath(this, this.nannerl, this.playerSpawnPoints.nannerl);
+    }
+
+    maybeShowGameOver(this, this.mozart, this.nannerl);
+  }
+
+  playerBounce(player1, player2) {
+    if (player1.body.velocity.y > 0 && player1.y < player2.y - 20) {
+      player1.setVelocityY(-500);
+    } else if (player2.body.velocity.y > 0 && player2.y < player1.y - 20) {
+      player2.setVelocityY(-500);
     }
   }
 
@@ -451,11 +509,7 @@ export class Level7Scene extends Phaser.Scene {
     const elapsedSeconds = Math.floor((this.time.now - this.levelStartTime) / 1000);
     this.combo.destroy();
 
-    const completedLevels = this.registry.get('completedLevels') || [];
-    if (!completedLevels.includes(7)) {
-      completedLevels.push(7);
-      this.registry.set('completedLevels', completedLevels);
-    }
+    markLevelCompleted(this.registry, 7);
 
     // Achievement tracking
     const achievements = getAchievementManager();
