@@ -5,6 +5,9 @@ import { Mozart } from '../sprites/Mozart.js';
 import { Nannerl } from '../sprites/Nannerl.js';
 import { DrumTroll } from '../sprites/enemies/DrumTroll.js';
 import { DissonantNote } from '../sprites/enemies/DissonantNote.js';
+import { ConductorGhost } from '../sprites/enemies/ConductorGhost.js';
+import { SheetMusicBat } from '../sprites/enemies/SheetMusicBat.js';
+import { MetronomeSentinel } from '../sprites/enemies/MetronomeSentinel.js';
 import { AdaptiveMusicManager } from '../utils/AdaptiveMusicManager.js';
 import { MozartSoundtracks } from '../utils/MozartSoundtracks.js';
 import { ParticleManager } from '../utils/ParticleManager.js';
@@ -163,6 +166,23 @@ export class Level5Scene extends Phaser.Scene {
       this.enemies.add(note);
       this.enemyList.push(note);
     });
+
+    // Conductor Ghost - teleports and summons
+    const ghost = new ConductorGhost(this, 1800, 130);
+    this.enemies.add(ghost);
+    this.enemyList.push(ghost);
+
+    // Sheet Music Bats - dive pattern on the mountain
+    [{ x: 800, y: 100 }, { x: 1400, y: 110 }, { x: 2200, y: 90 }, { x: 2700, y: 105 }].forEach((pos, index) => {
+      const bat = new SheetMusicBat(this, pos.x, pos.y, { pattern: 'dive', formationIndex: index });
+      this.enemies.add(bat);
+      this.enemyList.push(bat);
+    });
+
+    // Metronome Sentinel - guards key platform
+    const sentinel = new MetronomeSentinel(this, 2300, GAME_HEIGHT - 80, { beatInterval: 1400 });
+    this.enemies.add(sentinel);
+    this.enemyList.push(sentinel);
 
     // Collectibles
     this.collectibles = this.physics.add.group();

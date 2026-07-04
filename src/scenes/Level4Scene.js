@@ -5,6 +5,8 @@ import { Mozart } from '../sprites/Mozart.js';
 import { Nannerl } from '../sprites/Nannerl.js';
 import { Singer } from '../sprites/enemies/Singer.js';
 import { DissonantNote } from '../sprites/enemies/DissonantNote.js';
+import { SheetMusicBat } from '../sprites/enemies/SheetMusicBat.js';
+import { MetronomeSentinel } from '../sprites/enemies/MetronomeSentinel.js';
 import { NPC } from '../sprites/NPC.js';
 import { DialogueBox } from '../ui/DialogueBox.js';
 import { NPC_DIALOGUES } from '../config/npcDialogues.js';
@@ -180,6 +182,27 @@ export class Level4Scene extends Phaser.Scene {
       const note = new DissonantNote(this, pos.x, pos.y);
       this.enemies.add(note);
       this.enemyList.push(note);
+    });
+
+    // Sheet Music Bats - circle pattern in the opera house
+    const batPositions = [
+      { x: 600, y: 130 }, { x: 1300, y: 110 }, { x: 2200, y: 120 }, { x: 2800, y: 140 }
+    ];
+    batPositions.forEach((pos, index) => {
+      const bat = new SheetMusicBat(this, pos.x, pos.y, { pattern: 'circle', formationIndex: index });
+      this.enemies.add(bat);
+      this.enemyList.push(bat);
+    });
+
+    // Metronome Sentinels - rhythm-based dodge challenge
+    const sentinelPositions = [
+      { x: 1400, y: GAME_HEIGHT - 80 },
+      { x: 2700, y: GAME_HEIGHT - 80 }
+    ];
+    sentinelPositions.forEach(pos => {
+      const sentinel = new MetronomeSentinel(this, pos.x, pos.y);
+      this.enemies.add(sentinel);
+      this.enemyList.push(sentinel);
     });
 
     // Collectibles

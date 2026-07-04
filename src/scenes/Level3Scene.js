@@ -7,6 +7,7 @@ import { Singer } from '../sprites/enemies/Singer.js';
 import { DrumTroll } from '../sprites/enemies/DrumTroll.js';
 import { DissonantNote } from '../sprites/enemies/DissonantNote.js';
 import { BrokenInstrument } from '../sprites/enemies/BrokenInstrument.js';
+import { SheetMusicBat } from '../sprites/enemies/SheetMusicBat.js';
 import { ParticleManager } from '../utils/ParticleManager.js';
 import { setupPause } from '../utils/PauseHelper.js';
 import { ComboSystem } from '../utils/ComboSystem.js';
@@ -177,6 +178,15 @@ export class Level3Scene extends Phaser.Scene {
       const bi = new BrokenInstrument(this, x, GAME_HEIGHT - 80);
       this.enemies.add(bi);
       this.enemyList.push(bi);
+    });
+
+    // Sheet Music Bats - fly in sine formation
+    const batPositions = [{ x: 700, y: 130 }, { x: 1800, y: 120 }, { x: 2600, y: 140 }];
+    if (this.coopMode) batPositions.push({ x: 1300, y: 110 });
+    batPositions.forEach((pos, index) => {
+      const bat = new SheetMusicBat(this, pos.x, pos.y, { pattern: 'sine', formationIndex: index });
+      this.enemies.add(bat);
+      this.enemyList.push(bat);
     });
 
     // Boss: The Discordant Maestro
