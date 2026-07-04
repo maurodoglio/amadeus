@@ -106,7 +106,7 @@ export class AchievementsScene extends Phaser.Scene {
     backBtn.on('pointerdown', () => this.scene.start('MenuScene'));
 
     // Keyboard back
-    this.input.keyboard.on('keydown-ESC', () => this.scene.start('MenuScene'));
-    this.input.keyboard.on('keydown-SPACE', () => this.scene.start('MenuScene'));
+    this.input.keyboard?.on('keydown-ESC', () => this.scene.start('MenuScene'));
+    this.input.keyboard?.on('keydown-SPACE', () => this.scene.start('MenuScene'));
   }
 }

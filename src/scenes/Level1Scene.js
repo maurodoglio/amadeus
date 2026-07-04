@@ -21,6 +21,7 @@ import { getAchievementManager } from '../utils/AchievementManager.js';
 import { setupCamera, setupCoopCamera, updateCameraLookAhead } from '../utils/CameraManager.js';
 import { ParallaxBackground, PARALLAX_CONFIGS } from '../utils/ParallaxBackground.js';
 import { SFXGenerator } from '../utils/SFXGenerator.js';
+import { handleFallDeath, markLevelCompleted, maybeShowGameOver, saveSheetMusic } from '../utils/LevelStateUtils.js';
 
 export class Level1Scene extends Phaser.Scene {
   constructor() {
@@ -96,11 +97,6 @@ export class Level1Scene extends Phaser.Scene {
       { x: 1650, y: 240, w: 2 },
       { x: 1900, y: 300, w: 4 },
       { x: 2150, y: 260, w: 2 },
-      { x: 2350, y: 320, w: 3 },
-      { x: 2550, y: 260, w: 2 },
-      { x: 2720, y: 220, w: 3 },
-      { x: 2920, y: 300, w: 2 },
-      { x: 3120, y: 240, w: 3 },
       // Stepping-stone platforms for bonus collectibles
       { x: 160, y: 270, w: 1 },
       { x: 130, y: 180, w: 1 },
@@ -115,9 +111,6 @@ export class Level1Scene extends Phaser.Scene {
       { x: 1200, y: 90, w: 1 },
       { x: 1480, y: 210, w: 1 },
       { x: 1500, y: 130, w: 1 },
-      { x: 2480, y: 200, w: 1 },
-      { x: 2750, y: 170, w: 1 },
-      { x: 3010, y: 140, w: 1 },
       // Boss arena platforms (reachable for jumping on boss)
       { x: 2700, y: 350, w: 4 },
       { x: 2850, y: 270, w: 3 },
@@ -147,13 +140,18 @@ export class Level1Scene extends Phaser.Scene {
       }
     }
 
+    this.playerSpawnPoints = {
+      mozart: { x: 100, y: GAME_HEIGHT - 100 },
+      nannerl: { x: 140, y: GAME_HEIGHT - 100 }
+    };
+
     // Player 1
-    this.mozart = new Mozart(this, 100, GAME_HEIGHT - 100);
+    this.mozart = new Mozart(this, this.playerSpawnPoints.mozart.x, this.playerSpawnPoints.mozart.y);
 
     // Player 2 (co-op)
     this.nannerl = null;
     if (this.coopMode) {
-      this.nannerl = new Nannerl(this, 140, GAME_HEIGHT - 100);
+      this.nannerl = new Nannerl(this, this.playerSpawnPoints.nannerl.x, this.playerSpawnPoints.nannerl.y);
     }
 
     // Tutorial dialogue (first time only)
@@ -173,18 +171,20 @@ export class Level1Scene extends Phaser.Scene {
 
         // Handle dialogue input
         if (this.input.keyboard) {
-          const spaceKey = this.input.keyboard.addKey('SPACE');
-          const enterKey = this.input.keyboard.addKey('ENTER');
-          const advanceDialogue = () => {
-            if (this.dialogueBox && this.dialogueBox.isActive) {
-              this.dialogueBox.advance();
-            } else {
-              spaceKey.off('down', advanceDialogue);
-              enterKey.off('down', advanceDialogue);
-            }
-          };
-          spaceKey.on('down', advanceDialogue);
-          enterKey.on('down', advanceDialogue);
+          const spaceKey = this.input.keyboard?.addKey('SPACE');
+          const enterKey = this.input.keyboard?.addKey('ENTER');
+          if (spaceKey && enterKey) {
+            const advanceDialogue = () => {
+              if (this.dialogueBox && this.dialogueBox.isActive) {
+                this.dialogueBox.advance();
+              } else {
+                spaceKey.off('down', advanceDialogue);
+                enterKey.off('down', advanceDialogue);
+              }
+            };
+            spaceKey.on('down', advanceDialogue);
+            enterKey.on('down', advanceDialogue);
+          }
         }
       });
     }
@@ -195,15 +195,12 @@ export class Level1Scene extends Phaser.Scene {
     const singerPositions = [
       { x: 700, y: GAME_HEIGHT - 80 },
       { x: 1500, y: GAME_HEIGHT - 80 },
-      { x: 2450, y: GAME_HEIGHT - 80 },
-      { x: 3000, y: GAME_HEIGHT - 80 },
     ];
 
     // Add extra enemies for co-op balance
     if (this.coopMode) {
       singerPositions.push({ x: 900, y: GAME_HEIGHT - 80 });
       singerPositions.push({ x: 1800, y: GAME_HEIGHT - 80 });
-      singerPositions.push({ x: 2700, y: GAME_HEIGHT - 80 });
     }
 
     this.singers = [];
@@ -215,13 +212,10 @@ export class Level1Scene extends Phaser.Scene {
 
     const notePositions = [
       { x: 900, y: 200 },
-      { x: 2620, y: 190 },
-      { x: 2960, y: 170 },
     ];
 
     if (this.coopMode) {
       notePositions.push({ x: 1600, y: 200 });
-      notePositions.push({ x: 2820, y: 180 });
     }
 
     this.notes = [];
@@ -409,7 +403,7 @@ export class Level1Scene extends Phaser.Scene {
 
     // Dialogue system
     this.dialogueBox = new DialogueBox(this);
-    this.interactKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
+    this.interactKey = this.input.keyboard?.addKey(Phaser.Input.Keyboard.KeyCodes.E);
 
     // Camera
     this.physics.world.setBounds(0, 0, worldWidth, GAME_HEIGHT);
@@ -447,8 +441,8 @@ export class Level1Scene extends Phaser.Scene {
     if ((this.dialogueBox && this.dialogueBox.isActive) ||
         (this.bossManager && this.bossManager.dialogueActive)) {
       if (this.dialogueBox && this.dialogueBox.isActive) {
-        if (Phaser.Input.Keyboard.JustDown(this.mozart.spaceKey) ||
-            Phaser.Input.Keyboard.JustDown(this.input.keyboard.addKey('ENTER'))) {
+        if ((this.mozart.spaceKey && Phaser.Input.Keyboard.JustDown(this.mozart.spaceKey)) ||
+            (this.input.keyboard && Phaser.Input.Keyboard.JustDown(this.input.keyboard?.addKey('ENTER')))) {
           this.dialogueBox.advance();
         }
       }
@@ -464,7 +458,7 @@ export class Level1Scene extends Phaser.Scene {
     // NPC updates and interaction
     if (this.haydn) {
       this.haydn.update(this.mozart, this.dialogueBox);
-      if (Phaser.Input.Keyboard.JustDown(this.interactKey) ||
+      if ((this.interactKey && Phaser.Input.Keyboard.JustDown(this.interactKey)) ||
           Phaser.Input.Keyboard.JustDown(this.mozart.cursors.up)) {
         this.haydn.interact(this.dialogueBox);
       }
@@ -499,25 +493,14 @@ export class Level1Scene extends Phaser.Scene {
     this.parallaxBg.update(time, delta);
 
     // Fall death
-    if (this.mozart && !this.mozart.isDead && this.mozart.y > GAME_HEIGHT + 50) {
-      this.mozart.die();
+    if (this.mozart && this.mozart.y > GAME_HEIGHT + 50) {
+      handleFallDeath(this, this.mozart, this.playerSpawnPoints.mozart);
     }
-    if (this.nannerl && !this.nannerl.isDead && this.nannerl.y > GAME_HEIGHT + 50) {
-      this.nannerl.die();
+    if (this.nannerl && this.nannerl.y > GAME_HEIGHT + 50) {
+      handleFallDeath(this, this.nannerl, this.playerSpawnPoints.nannerl);
     }
 
-    // Check game over in co-op (both dead or no lives)
-    if (this.coopMode && !this._gameOverTriggered) {
-      const bothDead = (this.mozart.isDead) && (this.nannerl && this.nannerl.isDead);
-      const noLives = this.registry.get('lives') <= 0;
-      if (bothDead || noLives) {
-        this._gameOverTriggered = true;
-        this.time.delayedCall(1500, () => {
-          this.scene.stop('UIScene');
-          this.scene.start('MenuScene');
-        });
-      }
-    }
+    maybeShowGameOver(this, this.mozart, this.nannerl);
   }
 
   playerBounce(player1, player2) {
@@ -530,9 +513,14 @@ export class Level1Scene extends Phaser.Scene {
   }
 
   hitEnemy(player, enemy) {
+    // Guard: if enemy was already destroyed, skip
+    if (!enemy || !enemy.body || !enemy.active) return;
+
     // If player is falling on enemy, kill the enemy
     if (player.body.velocity.y > 0 && player.y < enemy.y - 10) {
       this.particles.emitStomp(enemy.x, enemy.y);
+      // Stop any running animation before destroy to prevent stale frame references
+      if (enemy.anims) enemy.anims.stop();
       enemy.destroy();
       this.singers = this.singers.filter(s => s !== enemy);
       this.notes = this.notes.filter(n => n !== enemy);
@@ -559,7 +547,7 @@ export class Level1Scene extends Phaser.Scene {
         this.adaptiveMusic.playVictoryFanfare();
       }
     } else {
-      player.hit();
+      player.hit(enemy);
       // Damage stinger
       if (this.adaptiveMusic) {
         const lives = this.registry.get('lives') || 0;
@@ -602,6 +590,7 @@ export class Level1Scene extends Phaser.Scene {
   }
 
   collectInstrument(player, instrument) {
+    this.levelCompleting = true;
     this.particles.emitSparkleCollect(instrument.x, instrument.y);
     if (this.instrumentSparkle) this.instrumentSparkle.destroy();
     instrument.destroy();
@@ -625,12 +614,7 @@ export class Level1Scene extends Phaser.Scene {
     this.registry.set('score', this.registry.get('score') + timeBonus);
     this.combo.destroy();
 
-    // Mark level as completed
-    const completedLevels = this.registry.get('completedLevels') || [];
-    if (!completedLevels.includes(1)) {
-      completedLevels.push(1);
-      this.registry.set('completedLevels', completedLevels);
-    }
+    markLevelCompleted(this.registry, 1);
 
     // Achievement tracking
     const achievements = getAchievementManager();
@@ -673,7 +657,7 @@ export class Level1Scene extends Phaser.Scene {
     const savedSheetMusic = this.registry.get('sheetMusic') || {};
     savedSheetMusic[pageKey] = true;
     this.registry.set('sheetMusic', savedSheetMusic);
-    localStorage.setItem('sheetMusicCollected', JSON.stringify(savedSheetMusic));
+    saveSheetMusic(savedSheetMusic);
 
     this.registry.set('sheetMusicCurrentLevel', { found: this.sheetMusicCollected, total: 3 });
 

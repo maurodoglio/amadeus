@@ -37,6 +37,28 @@ export const DIFFICULTY = {
     7: 1.0
   },
 
+  // Enemy speed multiplier per level (applied to base speeds)
+  enemySpeedMultiplier: {
+    1: 0.8,
+    2: 0.9,
+    3: 1.0,
+    4: 1.1,
+    5: 1.2,
+    6: 1.3,
+    7: 1.4
+  },
+
+  // Enemy aggression scaling (affects detection range and attack frequency)
+  enemyAggressionMultiplier: {
+    1: 0.6,
+    2: 0.8,
+    3: 1.0,
+    4: 1.1,
+    5: 1.2,
+    6: 1.3,
+    7: 1.5
+  },
+
   // Boss configurations per level
   boss: {
     1: { health: 3, speed: 70, jumpForce: -280, attackInterval: 3200 },
@@ -95,6 +117,8 @@ export function getLevelDifficulty(level) {
   return {
     startingLives: DIFFICULTY.startingLives[level] || 3,
     enemyDamageMultiplier: DIFFICULTY.enemyDamageMultiplier[level] || 1.0,
+    enemySpeedMultiplier: DIFFICULTY.enemySpeedMultiplier[level] || 1.0,
+    enemyAggressionMultiplier: DIFFICULTY.enemyAggressionMultiplier[level] || 1.0,
     boss: DIFFICULTY.boss[level] || DIFFICULTY.boss[7],
     maxPlatformGap: DIFFICULTY.maxPlatformGap[level] || 280,
     enemyCount: DIFFICULTY.enemyCount[level] || 10,

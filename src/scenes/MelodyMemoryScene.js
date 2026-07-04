@@ -182,8 +182,8 @@ export class MelodyMemoryScene extends Phaser.Scene {
     ];
 
     this.noteKeys = keyCodes.map((code, idx) => {
-      const k = this.input.keyboard.addKey(code);
-      k.on('down', () => this.onNotePressed(idx));
+      const k = this.input.keyboard?.addKey(code);
+      if (k) k.on('down', () => this.onNotePressed(idx));
       return k;
     });
 
@@ -200,8 +200,8 @@ export class MelodyMemoryScene extends Phaser.Scene {
     const letterToIndex = [5, 6, 0, 1, 2, 3, 4];
 
     this.letterKeys = letterCodes.map((code, idx) => {
-      const k = this.input.keyboard.addKey(code);
-      k.on('down', () => this.onNotePressed(letterToIndex[idx]));
+      const k = this.input.keyboard?.addKey(code);
+      if (k) k.on('down', () => this.onNotePressed(letterToIndex[idx]));
       return k;
     });
   }
@@ -567,7 +567,7 @@ export class MelodyMemoryScene extends Phaser.Scene {
     }).setOrigin(0.5).setInteractive({ useHandCursor: true });
 
     returnBtn.on('pointerdown', () => this.returnToLevel());
-    this.input.keyboard.on('keydown-ENTER', () => this.returnToLevel());
+    this.input.keyboard?.on('keydown-ENTER', () => this.returnToLevel());
   }
 
   returnToLevel() {

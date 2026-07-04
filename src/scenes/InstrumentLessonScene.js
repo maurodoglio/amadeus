@@ -157,7 +157,9 @@ export class InstrumentLessonScene extends Phaser.Scene {
     }).setOrigin(0.5);
 
     // Continue prompt
-    const continueText = this.add.text(GAME_WIDTH / 2, GAME_HEIGHT - 30, 'Press SPACE to try playing!', {
+    const isMobile = !this.sys.game.device.os.desktop;
+    const continueText = this.add.text(GAME_WIDTH / 2, GAME_HEIGHT - 30,
+      isMobile ? 'Tap to try playing!' : 'Press SPACE to try playing!', {
       font: '16px monospace',
       fill: '#87CEEB'
     }).setOrigin(0.5).setAlpha(0);
@@ -179,8 +181,9 @@ export class InstrumentLessonScene extends Phaser.Scene {
     });
 
     this.time.delayedCall(1500, () => {
-      this.input.keyboard.once('keydown-SPACE', () => this.startFreeplay());
-      this.input.keyboard.once('keydown-ENTER', () => this.startFreeplay());
+      this.input.keyboard?.once('keydown-SPACE', () => this.startFreeplay());
+      this.input.keyboard?.once('keydown-ENTER', () => this.startFreeplay());
+      this.input.once('pointerdown', () => this.startFreeplay());
     });
   }
 
@@ -372,7 +375,7 @@ export class InstrumentLessonScene extends Phaser.Scene {
   createKeyBindings() {
     // Bind keys 1-7 for notes
     for (let i = 1; i <= 7; i++) {
-      this.input.keyboard.on(`keydown-${i === 1 ? 'ONE' : i === 2 ? 'TWO' : i === 3 ? 'THREE' : i === 4 ? 'FOUR' : i === 5 ? 'FIVE' : i === 6 ? 'SIX' : 'SEVEN'}`, () => {
+      this.input.keyboard?.on(`keydown-${i === 1 ? 'ONE' : i === 2 ? 'TWO' : i === 3 ? 'THREE' : i === 4 ? 'FOUR' : i === 5 ? 'FIVE' : i === 6 ? 'SIX' : 'SEVEN'}`, () => {
         this.playNote(i - 1);
       });
     }
@@ -382,7 +385,7 @@ export class InstrumentLessonScene extends Phaser.Scene {
     // Map C D E F G A B to indices 0-6
     const letterMap = { C: 0, D: 1, E: 2, F: 3, G: 4, A: 5, B: 6 };
     Object.entries(letterMap).forEach(([letter, idx]) => {
-      this.input.keyboard.on(`keydown-${letter}`, () => {
+      this.input.keyboard?.on(`keydown-${letter}`, () => {
         if (this.phase === 'freeplay' || this.phase === 'challenge') {
           this.playNote(idx);
         }
@@ -390,7 +393,7 @@ export class InstrumentLessonScene extends Phaser.Scene {
     });
 
     // Escape to skip challenge
-    this.input.keyboard.on('keydown-ESC', () => {
+    this.input.keyboard?.on('keydown-ESC', () => {
       if (this.phase === 'challenge') {
         this.completeLesson();
       }

@@ -23,7 +23,7 @@ export class AccessibilityScene extends Phaser.Scene {
 
     this.showMainMenu();
 
-    this.input.keyboard.on('keydown-ESC', () => this.goBack());
+    this.input.keyboard?.on('keydown-ESC', () => this.goBack());
   }
 
   clearContainer() {
@@ -195,12 +195,12 @@ export class AccessibilityScene extends Phaser.Scene {
     textObj.setText('[Press a key...]');
     textObj.setStyle({ fill: '#FFD700' });
 
-    this.remapListener = this.input.keyboard.on('keydown', (event) => {
+    this.remapListener = this.input.keyboard?.on('keydown', (event) => {
       const key = event.key.toUpperCase();
       const phaserKey = this.keyEventToPhaser(event);
       accessibilityManager.setKeyBinding(action, phaserKey);
       this.remappingAction = null;
-      this.input.keyboard.off('keydown', this.remapListener);
+      this.input.keyboard?.off('keydown', this.remapListener);
       this.showKeyBindings();
     });
   }
@@ -319,9 +319,9 @@ export class AccessibilityScene extends Phaser.Scene {
   }
 
   shutdown() {
-    this.input.keyboard.off('keydown-ESC');
+    this.input.keyboard?.off('keydown-ESC');
     if (this.remapListener) {
-      this.input.keyboard.off('keydown', this.remapListener);
+      this.input.keyboard?.off('keydown', this.remapListener);
     }
   }
 }

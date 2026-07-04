@@ -215,22 +215,27 @@ export class RhythmScene extends Phaser.Scene {
   /** Sets up keyboard input for the 4 lanes */
   setupInput() {
     this.keys = {
-      D: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D),
-      F: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F),
-      J: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.J),
-      K: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.K),
+      D: this.input.keyboard?.addKey(Phaser.Input.Keyboard.KeyCodes.D),
+      F: this.input.keyboard?.addKey(Phaser.Input.Keyboard.KeyCodes.F),
+      J: this.input.keyboard?.addKey(Phaser.Input.Keyboard.KeyCodes.J),
+      K: this.input.keyboard?.addKey(Phaser.Input.Keyboard.KeyCodes.K),
     };
 
     this.keyLaneMap = { D: 0, F: 1, J: 2, K: 3 };
 
     Object.keys(this.keys).forEach(keyName => {
-      this.keys[keyName].on('down', () => this.onKeyPress(this.keyLaneMap[keyName]));
+      if (this.keys[keyName]) {
+        this.keys[keyName].on('down', () => this.onKeyPress(this.keyLaneMap[keyName]));
+      }
     });
 
     // ESC key to exit rhythm game early
-    this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC).on('down', () => {
-      this.exitRhythmGame();
-    });
+    const escKey = this.input.keyboard?.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
+    if (escKey) {
+      escKey.on('down', () => {
+        this.exitRhythmGame();
+      });
+    }
   }
 
   /** Exits the rhythm game and returns to the level scene */
@@ -762,7 +767,7 @@ export class RhythmScene extends Phaser.Scene {
     }).setOrigin(0.5).setDepth(82);
 
     this.time.delayedCall(800, () => {
-      this.input.keyboard.once('keydown', () => {
+      this.input.keyboard?.once('keydown', () => {
         this.applyRewards(stars);
         this.exitRhythmGame();
       });

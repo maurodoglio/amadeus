@@ -40,6 +40,7 @@ export function getLeopoldPhases(difficulty) {
           manager.attackTimer = time + 2500;
           // Conduct pause — vulnerability window
           manager.scene.time.delayedCall(800, () => {
+            if (!boss || !boss.body || manager.isDefeated) return;
             boss.setVelocityX(0);
             manager.openVulnerability(2000);
           });
@@ -331,6 +332,7 @@ export function getSalieriPhases(difficulty) {
 
           // Brief vulnerability after combo attack
           manager.scene.time.delayedCall(1500, () => {
+            if (!manager.boss || !manager.boss.body || manager.isDefeated) return;
             manager.boss.setVelocityX(0);
             manager.openVulnerability(1200);
           });
@@ -677,6 +679,7 @@ export function getMozartShadowPhases(difficulty) {
 
           // Exhaustion vulnerability after the cascade
           manager.scene.time.delayedCall(2200, () => {
+            if (!boss || !boss.body || manager.isDefeated) return;
             boss.setVelocityX(0);
             manager.openVulnerability(1500);
           });

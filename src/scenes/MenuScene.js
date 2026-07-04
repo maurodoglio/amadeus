@@ -4,6 +4,7 @@ import { MozartSoundtracks } from '../utils/MozartSoundtracks.js';
 import { drawConcertHallBackground, drawOrnateFrame, graphicsQuadCurve, COLORS } from '../ui/UITheme.js';
 import { SFXGenerator } from '../utils/SFXGenerator.js';
 import { SaveManager } from '../utils/SaveManager.js';
+import { clearPersistentProgress } from '../utils/LevelStateUtils.js';
 
 export class MenuScene extends Phaser.Scene {
   constructor() {
@@ -24,12 +25,12 @@ export class MenuScene extends Phaser.Scene {
     this.createUtilityButtons();
     this.createFooter();
 
-    this.input.keyboard.on('keydown-UP', () => this.changeSelection(-1));
-    this.input.keyboard.on('keydown-DOWN', () => this.changeSelection(1));
-    this.input.keyboard.on('keydown-W', () => this.changeSelection(-1));
-    this.input.keyboard.on('keydown-S', () => this.changeSelection(1));
-    this.input.keyboard.on('keydown-SPACE', () => this.confirmSelection());
-    this.input.keyboard.on('keydown-ENTER', () => this.confirmSelection());
+    this.input.keyboard?.on('keydown-UP', () => this.changeSelection(-1));
+    this.input.keyboard?.on('keydown-DOWN', () => this.changeSelection(1));
+    this.input.keyboard?.on('keydown-W', () => this.changeSelection(-1));
+    this.input.keyboard?.on('keydown-S', () => this.changeSelection(1));
+    this.input.keyboard?.on('keydown-SPACE', () => this.confirmSelection());
+    this.input.keyboard?.on('keydown-ENTER', () => this.confirmSelection());
 
     this.cameras.main.fadeIn(500, 0, 0, 0);
     this.mozartSoundtrack = new MozartSoundtracks(this);
@@ -497,6 +498,7 @@ export class MenuScene extends Phaser.Scene {
 
     // Reset save for a new game
     SaveManager.deleteSave();
+    clearPersistentProgress();
 
     this.registry.set('lives', coopMode ? 5 : 3);
     this.registry.set('score', 0);
@@ -506,6 +508,8 @@ export class MenuScene extends Phaser.Scene {
     this.registry.set('comboMultiplier', 1);
     this.registry.set('comboCount', 0);
     this.registry.set('completedLevels', []);
+    this.registry.set('sheetMusic', {});
+    this.registry.set('sheetMusicCurrentLevel', { found: 0, total: 3 });
 
     this.cameras.main.fadeOut(320, 0, 0, 0);
     this.time.delayedCall(320, () => {
